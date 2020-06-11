@@ -182,6 +182,7 @@ while True:
             for message in new_messages:
                 # We got a new message! Get the message and the username.
                 msg = message['message'].lower()
+                msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 
                 # TODO:
@@ -376,7 +377,7 @@ while True:
                 # Here, if a chat message says "type ...", it will type out their text.
                 if msg.startswith("type "): 
                     try:
-                        typeMsg = msg[5:] # Ignore the "type " portion of the message
+                        typeMsg = msg_preserve_caps[5:] # Ignore the "type " portion of the message
                         pyautogui.typewrite(typeMsg)
                     except:
                         # There was some issue typing the msg. Print it out, and move on.
