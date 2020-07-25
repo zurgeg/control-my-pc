@@ -1,6 +1,6 @@
 # Twitch-Plays-Control-My-PC
 
-A overhaul update to DougDoug TwitchPlays script.
+An overhaul update to DougDoug TwitchPlays script.
 
 
 # Installation:
