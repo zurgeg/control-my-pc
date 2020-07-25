@@ -8,9 +8,13 @@ A overhaul update to DougDoug TwitchPlays script.
   1) In order to run you must download python 3.xx (Will suggest latest version from here: https://www.python.org/downloads/).
 
   2) After downloading open a cmd and run these commands:
+  
   • python -m pip install --upgrade pip
+  
   • pip install pyautogui
+  
   • pip install pydirectinput
+  
   • pip install forever
 
   3)Edit TwitchPlays_AccountInfo.py with the username and oauth: (You can find your oauth from the link provided inside the file.)
