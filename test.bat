@@ -1,0 +1,1 @@
+forever start -c python twitchplays.py
