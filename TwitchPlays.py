@@ -1,451 +1,342 @@
-# Written by DougDoug (DougDoug on Youtube, DougDougW on Twitch)
-
-# Hello!
-# This file contains the main logic to process Twitch chat and convert it to game commands.
-# All sections that you need to update are labeled with a "TODO" comment.
-# The source code primarily comes from:
-    # Wituz's "Twitch Plays" tutorial: http://www.wituz.com/make-your-own-twitch-plays-stream.html
-    # PythonProgramming's "Python Plays GTA V" tutorial: https://pythonprogramming.net/direct-input-game-python-plays-gta-v/
-
-# There are 2 other files needed to run this code:
-    # TwitchPlays_AccountInfo.py is where you put your Twitch username and OAuth token. This is to keep your account details separated from the main source code.
-    # TwitchPlays_Connection.py is the code that actually connects to Twitch. You should not modify this file.
-
-# Disclaimer: 
-    # This code is NOT optimized or well-organized. I am not a Python programmer.
-    # I created a simple version that works quickly, and I'm sharing it for educational purposes.
-
-###############################################
-# Import and define our functions / key codes to send key commands
-
-# General imports
 import time
 import subprocess
 import ctypes
 import random
 import string
-
-# Twitch imports
+import re
+import sys
 import TwitchPlays_Connection
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
-
-# Controller imports
 import pyautogui
+import pydirectinput
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
 import pynput
 from pynput.mouse import Button, Controller
-
-SendInput = ctypes.windll.user32.SendInput
 text_file = open("executing.txt", "w")
-
-# KEY PRESS NOTES
-# The standard "Twitch Plays" tutorial key commands do NOT work in DirectX games (they only work in general windows applications)
-# Instead, we use DirectX key codes and input functions below.
-# This DirectX code is partially sourced from: https://stackoverflow.com/questions/53643273/how-to-keep-pynput-and-ctypes-from-clashing
-
-# Presses and permanently holds down a keyboard key
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
     n = text_file.write("nothing")
-
 def PressKeyPynput(hexKeyCode):
     extra = ctypes.c_ulong(0)
     ii_ = pynput._util.win32.INPUT_union()
     ii_.ki = pynput._util.win32.KEYBDINPUT(0, hexKeyCode, 0x0008, 0, ctypes.cast(ctypes.pointer(extra), ctypes.c_void_p))
     x = pynput._util.win32.INPUT(ctypes.c_ulong(1), ii_)
     SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-
-# Releases a keyboard key if it is currently pressed down
 def ReleaseKeyPynput(hexKeyCode):
     extra = ctypes.c_ulong(0)
     ii_ = pynput._util.win32.INPUT_union()
     ii_.ki = pynput._util.win32.KEYBDINPUT(0, hexKeyCode, 0x0008 | 0x0002, 0, ctypes.cast(ctypes.pointer(extra), ctypes.c_void_p))
     x = pynput._util.win32.INPUT(ctypes.c_ulong(1), ii_)
     SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-
-# Helper function. Holds down a key for the specified number of seconds, then releases it.
 def PressAndHoldKey(hexKeyCode, seconds):
     PressKeyPynput(hexKeyCode)
     time.sleep(seconds)
     ReleaseKeyPynput(hexKeyCode)
-
-# Mouse Controller, using pynput
-    # pynput.mouse functions are found at: https://pypi.org/project/pynput/
-    # NOTE: pyautogui's click() function permanently holds down in DirectX, so I used pynput instead for mouse instead.
+#DirectX codes are found at:https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
 mouse = Controller()
-
-###############################################
-# DIRECTX KEY CODES
-# These codes identify each key on the keyboard.
-# Note that DirectX's key codes (or "scan codes") are NOT the same as Windows virtual hex key codes. 
-#   DirectX codes are found at: https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
-Q = 0x10
-W = 0x11
-E = 0x12
-R = 0x13
-T = 0x14
-Y = 0x15
-U = 0x16
-I = 0x17
-O = 0x18
-P = 0x19
-A = 0x1E
-S = 0x1F
-D = 0x20
-F = 0x21
-G = 0x22
-H = 0x23
-J = 0x24
-K = 0x25
-L = 0x26
-Z = 0x2C
-X = 0x2D
-C = 0x2E
-V = 0x2F
-B = 0x30
-N = 0x31
-M = 0x32
-ESC = 0x01
-ONE = 0x02
-TWO = 0x03
-THREE = 0x04
-FOUR = 0x05
-FIVE = 0x06
-SIX = 0x07
-SEVEN = 0x08
-EIGHT = 0x09
-NINE = 0x0A
-ZERO = 0x0B
-MINUS = 0x0C
-EQUALS = 0x0D
-BACKSPACE = 0x0E
-SEMICOLON = 0x27
-TAB = 0x0F
-CAPS = 0x3A
-ENTER = 0x1C
-LEFT_CONTROL = 0x1D
-LEFT_ALT = 0x38
-LEFT_SHIFT = 0x2A
-SPACE = 0x39
-DELETE = 0x53
-COMMA = 0x33
-PERIOD = 0x34
-BACKSLASH = 0x35
-NUMPAD_0 = 0x52
-NUMPAD_1 = 0x4F
-NUMPAD_2 = 0x50
-NUMPAD_3 = 0x51
-NUMPAD_4 = 0x4B
-NUMPAD_5 = 0x4C
-NUMPAD_6 = 0x4D
-NUMPAD_7 = 0x47
-NUMPAD_8 = 0x48
-NUMPAD_9 = 0x49
-NUMPAD_PLUS = 0x4E
-NUMPAD_MINUS = 0x4A
-LEFT_ARROW = 0xCB
-RIGHT_ARROW = 0xCD
-UP_ARROW = 0xC8
-DOWN_ARROW = 0xD0
-LEFT_MOUSE = 0x100
-RIGHT_MOUSE = 0x101
-MIDDLE_MOUSE = 0x102
-MOUSE3 = 0x103
-MOUSE4 = 0x104
-MOUSE5 = 0x105
-MOUSE6 = 0x106
-MOUSE7 = 0x107
-MOUSE_WHEEL_UP = 0x108
-MOUSE_WHEEL_DOWN = 0x109
-Ffour = 0x3E
-
-
-########################################################
-
-# An optional countdown before the code actually starts running, so you have time to load up the game before messages are processed.
-# TODO: Set the "countdown" variable to whatever countdown length you want.
-countdown = 1 #The number of seconds before the code starts running
-while countdown > 0:
-    print(countdown)
-    countdown -= 1
-    time.sleep(1)
-
-# Connects to your twitch chat, using your username and OAuth token.
-# TODO: make sure that your Twitch username and OAuth token are added to the "TwitchPlays_AccountInfo.py" file
+Q=0x10
+W=0x11
+E=0x12
+R=0x13
+T=0x14
+Y=0x15
+U=0x16
+I=0x17
+O=0x18
+P=0x19
+A=0x1E
+S=0x1F
+D=0x20
+F=0x21
+G=0x22
+H=0x23
+J=0x24
+K=0x25
+L=0x26
+Z=0x2C
+X=0x2D
+C=0x2E
+V=0x2F
+B=0x30
+N=0x31
+M=0x32
+ESC=0x01
+ONE=0x02
+TWO=0x03
+THREE=0x04
+FOUR=0x05
+FIVE=0x06
+SIX=0x07
+SEVEN=0x08
+EIGHT=0x09
+NINE=0x0A
+ZERO=0x0B
+MINUS=0x0C
+EQUALS=0x0D
+BACKSPACE=0x0E
+SEMICOLON=0x27
+TAB=0x0F
+CAPS=0x3A
+ENTER=0x1C
+LEFT_CONTROL=0x1D
+LEFT_ALT=0x38
+LEFT_SHIFT=0x2A
+SPACE=0x39
+DELETE=0x53
+COMMA=0x33
+PERIOD=0x34
+BACKSLASH=0x35
+NUMPAD_0=0x52
+NUMPAD_1=0x4F
+NUMPAD_2=0x50
+NUMPAD_3=0x51
+NUMPAD_4=0x4B
+NUMPAD_5=0x4C
+NUMPAD_6=0x4D
+NUMPAD_7=0x47
+NUMPAD_8=0x48
+NUMPAD_9=0x49
+NUMPAD_PLUS=0x4E
+NUMPAD_MINUS=0x4A
+LEFT_ARROW=0xCB
+RIGHT_ARROW=0xCD
+UP_ARROW=0xC8
+DOWN_ARROW=0xD0
+LEFT_MOUSE=0x100
+RIGHT_MOUSE=0x101
+MIDDLE_MOUSE=0x102
+MOUSE3=0x103
+MOUSE4=0x104
+MOUSE5=0x105
+MOUSE6=0x106
+MOUSE7=0x107
+MOUSE_WHEEL_UP=0x108
+MOUSE_WHEEL_DOWN=0x109
+Ffour=0x3E
+RIGHT_SHIFT=0x36
+RIGHT_CONTROL=0xA3
+RIGHT_ALT=0xA5
+L_WIN=0x5B
+R_WIN=0x5C
 t = TwitchPlays_Connection.Twitch();
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN);
-
-##########################################################
-
 while True:
-    # Check for new chat messages
     new_messages = t.twitch_recieve_messages();
     if not new_messages:
         nothing()
         continue
     else:
-        try:  
+        try:
             for message in new_messages:
-                # We got a new message! Get the message and the username.
                 msg = message['message'].lower()
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
-                
-                def obs():
-                    text_file.seek(0,0)
-                    n = text_file.write(msg_preserve_caps + " (" + username + ")")
-                    time.sleep(0.5)
-
-                # TODO:
-                # Now that you have a chat message, this is where you add your game logic.
-                # Use the "PressKeyPynput(KEYCODE)" function to press and hold down a keyboard key.
-                # Use the "ReleaseKeyPynput(KEYCODE)" function to release a specific keyboard key.
-                # Use the "PressAndHoldKey(KEYCODE, SECONDS)" function press down a key for X seconds, then release it.
-                # Use "mouse.press(Button.left)" or "mouse.release(Button.left)" to press/release the mouse. Can use Button.right for right click.
-
-                # I've added some example videogame logic code below:
-
-                ###################################
-                # Example GTA V Code 
-                ###################################
-
-                # If the chat message is "left", then hold down the A key for 2 seconds
-                #if msg == "left": 
-                    #PressAndHoldKey(A, 2)
-
-                # If the chat message is "right", then hold down the D key for 2 seconds
-                #if msg == "right": 
-                    #PressAndHoldKey(D, 2)
-
-                # If message is "drive", then permanently hold down the W key
-                #if msg == "drive": 
-                    #ReleaseKeyPynput(S) #release brake key first
-                    #PressKeyPynput(W) #start permanently driving
-
-                # If message is "reverse", then permanently hold down the S key
-                #if msg == "reverse": 
-                    #ReleaseKeyPynput(W) #release drive key first
-                    #PressKeyPynput(S) #start permanently reversing
-
-                # Release both the "drive" and "reverse" keys
-                #if msg == "stop": 
-                    #ReleaseKeyPynput(W)
-                    #ReleaseKeyPynput(S)
-
-                # Press the spacebar for 0.7 seconds
-                #if msg == "brake": 
-                    #PressAndHoldKey(SPACE, 0.7)
-
-
-                if msg == "left":
-                    obs()
-                    pyautogui.move(-100,0)
-
-                if msg == "light left":
-                    obs()
-                    pyautogui.move(-25,0)
-
-                if msg == "right":
-                    obs()
-                    pyautogui.move(100,0)
-
-                if msg == "light right":
-                    obs()
-                    pyautogui.move(25,0)
-
-                if msg == "up":
-                    obs()
-                    pyautogui.move(0, -100)
-
-                if msg == "light up":
-                    obs()
-                    pyautogui.move(0, -25)
-
-                if msg == "down":
-                    obs()
-                    pyautogui.move(0, 100)
-
-                if msg == "light down":
-                    obs()
-                    pyautogui.move(0, 25)
-
-                if msg == "rightclick": 
-                    obs()
-                    mouse.press(Button.right)
-                    time.sleep(0.1)
-                    mouse.release(Button.right)
-
-                # Presses the left mouse button down for 1 second, then releases it
-                if msg == "click": 
-                    obs()
-                    mouse.press(Button.left)
-                    time.sleep(0.1)
-                    mouse.release(Button.left)
-
-                if msg == "doubleclick": 
-                    obs()
-                    mouse.press(Button.left)
-                    time.sleep(0.1)
-                    mouse.release(Button.left)
-                    mouse.press(Button.left)
-                    time.sleep(0.1)
-                    mouse.release(Button.left)
-
-                if msg == "tab":
-                    obs()
-                    PressKeyPynput(TAB)
-                    ReleaseKeyPynput(TAB)
-
-                if msg == "enter":
-                    obs()
-                    PressKeyPynput(ENTER)
-                    ReleaseKeyPynput(ENTER)
-
-                if msg == "space":
-                    obs()
-                    PressKeyPynput(SPACE)
-                    ReleaseKeyPynput(SPACE)
-
-                if msg == "where?":
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-
-
-
-                ###################################
-                # Example Miscellaneous Code 
-                ###################################
-                
-                # Clicks and drags the mouse upwards, using the Pyautogui commands.
-                # NOTE: unfortunately, Pyautogui does not work in DirectX games like GTA V. It will work in all other environments (e.g. on your desktop)
-                # If anyone finds a reliable way to move the mouse in DirectX games, please let me know!
-                if msg == "drag mouse up":
-                    obs()
-                    pyautogui.drag(0, -50, 0.25, button='left')
-
-                # Clicks and drags the mouse downwards, using the Pyautogui commands
-                if msg == "drag mouse down":
-                    obs()
-                    pyautogui.drag(0, 50, 0.25, button='left')
-
-                if msg == "drag mouse right":
-                    obs()
-                    pyautogui.drag(50, 0, 0.25, button='left')
-
-                if msg == "drag mouse left":
-                    obs()
-                    pyautogui.drag(-50, 0, 0.25, button='left')
-
-                if msg == "backspace":
-                    obs()
-                    PressKeyPynput(BACKSPACE)
-                    time.sleep(0.1)
-                    ReleaseKeyPynput(BACKSPACE)
-
-                if msg == "arrow up":
-                    obs()
-                    PressKeyPynput(UP_ARROW)
-                    time.sleep(1)
-                    ReleaseKeyPynput(UP_ARROW)
-
-                if msg == "arrow down":
-                    obs()
-                    PressKeyPynput(DOWN_ARROW)
-                    time.sleep(1)
-                    ReleaseKeyPynput(DOWN_ARROW)
-
-                if msg == "arrow left":
-                    obs()
-                    PressKeyPynput(LEFT_ARROW)
-                    time.sleep(1)
-                    ReleaseKeyPynput(LEFT_ARROW)
-
-                if msg == "arrow right":
-                    obs()
-                    PressKeyPynput(RIGHT_ARROW)
-                    time.sleep(1)
-                    ReleaseKeyPynput(RIGHT_ARROW)
-
-                if msg == "quit":
+                usr = username.decode()
+            def obs():
+                text_file.seek(0,0)
+                text_file.write(msg_preserve_caps + " (" + usr + ")")
+                time.sleep(0.5)
+                print (msg_preserve_caps + ' (' + usr + ')')
+            if msg in ['left', 'l']:
+                obs()
+                pydirectinput.move(-100,0)
+            if msg in ['light left', 'light l']:
+                obs()
+                pydirectinput.move(-25,0)
+            if msg in ['right', 'r']:
+                obs()
+                pydirectinput.move(100,0)
+            if msg in ['light right', 'light r']:
+                obs()
+                pydirectinput.move(25,0)
+            if msg in ['up', 'u']:
+                obs()
+                pydirectinput.move(0, -100)
+            if msg in ['light up', 'light u']:
+                obs()
+                pydirectinput.move(0, -25)
+            if msg in ['down', 'd']:
+                obs()
+                pydirectinput.move(0, 100)
+            if msg in ['light down', 'light d']:
+                obs()
+                pydirectinput.move(0, 25)              
+            if msg in ['rightclick', 'right click', 'click right', 'right cl', 'rightcl']:
+                obs()
+                mouse.press(Button.right)
+                time.sleep(0.1)
+                mouse.release(Button.right)
+            if msg in ['click', 'cl']:
+                obs()
+                mouse.press(Button.left)
+                time.sleep(0.1)
+                mouse.release(Button.left)
+            if msg in ['doubleclick', 'double click', 'double cl', 'doublecl']:
+                obs()
+                mouse.press(Button.left)
+                time.sleep(0.1)
+                mouse.release(Button.left)
+                mouse.press(Button.left)
+                time.sleep(0.1)
+                mouse.release(Button.left)
+            if msg in ['tab']:
+                obs()
+                PressKeyPynput(TAB)
+                ReleaseKeyPynput(TAB)
+            if msg in ['enter', 'en']:
+                obs()
+                PressKeyPynput(ENTER)
+                ReleaseKeyPynput(ENTER)
+            if msg in ['space', 'spc']:
+                obs()
+                PressKeyPynput(SPACE)
+                ReleaseKeyPynput(SPACE)
+            if msg in ['where?', 'where']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                ReleaseKeyPynput(LEFT_CONTROL)
+            if msg in ['win', 'windows key', 'win key', 'windows']:
+                obs()
+                PressKeyPynput(L_WIN)
+                ReleaseKeyPynput(L_WIN)
+            if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
+                obs()
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(RIGHT_ALT)
+                ReleaseKeyPynput(TAB)
+                ReleaseKeyPynput(LEFT_SHIFT)   
+            if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+            if msg in ['hold alt', 'hold alt key']:
+                obs()
+                PressKeyPynput(RIGHT_ALT)
+            if msg in ['hold tab', 'hold tab key']:
+                obs()
+                PressKeyPynput(TAB)
+            if msg in ['hold shift', 'hold shift key']:
+                obs()
+                PressKeyPynput(LEFT_SHIFT)
+            if msg in ['control T', 'ctrl T']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(T)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(T)
+            if msg in ['control W', 'ctrl W']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(W)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(W)
+            if msg in ['drag mouse up', 'drag up mouse']:
+                obs()
+                pyautogui.drag(0, -50, 0.25, button='left')
+            if msg in ['drag mouse down', 'drag down mouse']:
+                obs()
+                pyautogui.drag(0, 50, 0.25, button='left')
+            if msg in ['drag mouse right', 'drag right mouse']:
+                obs()
+                pyautogui.drag(50, 0, 0.25, button='left')
+            if msg in ['drag mouse left', 'drag left mouse']:
+                pyautogui.drag(-50, 0, 0.25, button='left')
+            if msg in ['backspace', 'back space']:
+                obs()
+                PressKeyPynput(BACKSPACE)
+                time.sleep(0.1)
+                ReleaseKeyPynput(BACKSPACE)
+            if msg in ['arrow up', 'up arrow']:
+                obs()
+                PressKeyPynput(UP_ARROW)
+                time.sleep(1)
+                ReleaseKeyPynput(UP_ARROW)
+            if msg in ['arrow down', 'down arrow']:
+                obs()
+                PressKeyPynput(DOWN_ARROW)
+                time.sleep(1)
+                ReleaseKeyPynput(DOWN_ARROW)
+            if msg in ['arrow left', 'left arrow']:
+                obs()
+                PressKeyPynput(LEFT_ARROW)
+                time.sleep(1)
+                ReleaseKeyPynput(LEFT_ARROW)
+            if msg in ['arrow right', 'right arrow']:
+                obs()
+                PressKeyPynput(RIGHT_ARROW)
+                time.sleep(1)
+                ReleaseKeyPynput(RIGHT_ARROW)
+            if msg in ['quit', 'exit']:
+                obs()
+                PressKeyPynput(LEFT_ALT)
+                PressAndHoldKey(Ffour, 0.1)
+                ReleaseKeyPynput(LEFT_ALT)
+            if msg in ['its stuck', 'it is stuck']:
+                obs()
+                mouse.position = (500, 500)
+            if msg in ['escape', 'esc']:
+                obs()
+                PressKeyPynput(ESC)
+                ReleaseKeyPynput(ESC)
+            if msg in ['close tab', 'close the tab']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                PressAndHoldKey(W, 0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
+            if msg in ['hold mouse', 'hold the mouse']:
+                obs()
+                mouse.press(Button.left)
+                time.sleep(3)
+                mouse.release(Button.left)
+            if msg == "hold mouse long":
+                obs()
+                mouse.press(Button.left)
+                time.sleep(9)
+                mouse.release(Button.left)
+            if usr == "controlmypc":
+                if msg == "starting soon":
                     obs()
                     PressKeyPynput(LEFT_ALT)
-                    PressAndHoldKey(Ffour, 0.1)
+                    PressAndHoldKey(S, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-
-                if msg == "its stuck":
-                    obs()
-                    mouse.position = (500, 500)
-
-                if msg == "escape":
-                    obs()
-                    PressKeyPynput(ESC)
-                    ReleaseKeyPynput(ESC)
-
-                if msg == "close tab":
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(W, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-
-                if msg == "hold mouse":
-                    obs()
-                    mouse.press(Button.left)
-                    time.sleep(3)
-                    mouse.release(Button.left)
-
-                if msg == "hold mouse long":
-                    obs()
-                    mouse.press(Button.left)
-                    time.sleep(9)
-                    mouse.release(Button.left)
-
-
-                if username == "controlmypc":
-                    if msg == "starting soon":
-                        PressKeyPynput(LEFT_ALT)
-                        PressAndHoldKey(S, 0.1)
-                        ReleaseKeyPynput(LEFT_ALT)
-
                     if msg == "main":
+                        obs()
                         PressKeyPynput(LEFT_ALT)
                         PressAndHoldKey(C, 0.1)
                         ReleaseKeyPynput(LEFT_ALT)
-
                     if msg == "stop the stream!":
+                        obs()
                         PressKeyPynput(LEFT_ALT)
                         PressAndHoldKey(Q, 0.1)
                         ReleaseKeyPynput(LEFT_ALT)
-
                     if msg == "maintenance":
+                        obs()
                         PressKeyPynput(LEFT_ALT)
                         PressAndHoldKey(M, 0.1)
                         ReleaseKeyPynput(LEFT_ALT)
-
-
-                # An example of pressing 2 keys at once.
-                # First holds down the LEFT_CONTROL key, then presses the A key for 0.1 seconds, then releases the LEFT_CONTROL key.
-                if msg == "select all":
+            if msg.startswith("type "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("Typing this particular message didn't work: " + msg)
+            if msg.startswith("go to "): 
+                try:
+                    obs()
+                    coord = msg[6:]
+                    xval,yval = coord.split(' ',1)
+                    xval = int(xval)
+                    yval = int(yval)
+                    pydirectinput.moveTo(xval, yval) 
+                except:
+                    print("Typing this particular message didn't work: " + msg)
+            if msg in ['select all', 'control all', 'ctrl all', 'ctrl a']:
                     obs()
                     PressKeyPynput(LEFT_CONTROL)
                     PressAndHoldKey(A, 0.1)
                     ReleaseKeyPynput(LEFT_CONTROL)
-                
-                # Can use pyautogui.typewrite() to type messages from chat into the keyboard.
-                # Here, if a chat message says "type ...", it will type out their text.
-                if msg.startswith("type "): 
-                    try:
-                        obs()
-                        typeMsg = msg_preserve_caps[5:] # Ignore the "type " portion of the message
-                        pyautogui.typewrite(typeMsg)
-                    except:
-                        # There was some issue typing the msg. Print it out, and move on.
-                        print("Typing this particular message didn't work: " + msg)
-
-                ####################################
-                ####################################
-
         except:
-            # There was some error trying to process this chat message. Simply move on to the next message.
             print('Encountered an exception while reading chat.')
-
