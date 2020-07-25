@@ -30,6 +30,8 @@ Script should work faster.
 
 Print every valid command in case you want to change *.txt* thingy.
 
-New Commands: ctrl + T, ctrl+W, hold keys for (ctrl,alt,shift,tab), stop command *for hold commands*, go to [xxxx xxxx]  for mouse movement *example go to 1280 720* .
-SOS: Yo use some weird stuff with alt and ctrl *//like right ctrl shows mouse or something.* 
+New Commands: ctrl + T, ctrl+W, hold keys for (ctrl,alt,shift,tab), stop command *for hold commands*, go to [xxxx xxxx]  for mouse movement *example go to 1280 720*
+
+SOS: Yo use some weird stuff with alt and ctrl *//like right ctrl shows mouse or something*
+
 Please!!!!!! check that this doesn't interfere with what you have implemented.
