@@ -1,24 +1,13 @@
-# DougDoug Note: 
-# This is the code that connects to twitch and checks for new messages.
-# You should not need to modify anything in this file, just use as is.
-
-# All code in this file is from Wituz's "Twitch Plays" tutorial at:
-# http://www.wituz.com/make-your-own-twitch-plays-stream.html
-
 import socket
 import sys
 import re
-
 class Twitch:
-
     user = "";
     oauth = "";
     s = None;
-
     def twitch_login_status(self, data):
-        if not re.match(r'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data): return True
+        if not re.match(b'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data): return True
         else: return False
-
     def twitch_connect(self, user, key):
         self.user = user;
         self.oauth= key;
@@ -34,10 +23,9 @@ class Twitch:
             sys.exit();
         print("Connected to twitch");
         print("Sending our details to twitch...");
-        s.send('USER %s\r\n' % user);
-        s.send('PASS %s\r\n' % key);
-        s.send('NICK %s\r\n' % user);
-
+        s.send(b'USER %s\r\n' % user.encode());
+        s.send(b'PASS %s\r\n' % key.encode());
+        s.send(b'NICK %s\r\n' % user.encode());
         if not self.twitch_login_status(s.recv(1024)):
             print("... and they didn't accept our details");
             sys.exit();
@@ -45,30 +33,23 @@ class Twitch:
             print("... they accepted our details");
             print("Connected to twitch.tv!")
             self.s = s;
-            s.send('JOIN #%s\r\n' % user)
+            s.send(b'JOIN #%s\r\n' % user.encode())
             s.recv(1024);
-
     def check_has_message(self, data):
-        return re.match(r'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
-
+        return re.match(b'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
     def parse_message(self, data):
         return {
-            'channel': re.findall(r'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
-            'username': re.findall(r'^:([a-zA-Z0-9_]+)\!', data)[0],
-            'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf8')
+            'channel': re.findall(b'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
+            'username': re.findall(b'^:([a-zA-Z0-9_]+)\!', data)[0],
+            'message': re.findall(b'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf_8')
         }
-
     def twitch_recieve_messages(self, amount=1024):
         data = None
         try: data = self.s.recv(1024);
         except: return False;
-
         if not data:
             print("Lost connection to Twitch, attempting to reconnect...");
             self.twitch_connect(self.user, self.oauth);
             return None
-
-        #self.ping(data)
-
         if self.check_has_message(data):
-            return [self.parse_message(line) for line in filter(None, data.split('\r\n'))];
+            return [self.parse_message(line) for line in [_f for _f in data.split(b'\r\n') if _f]];
