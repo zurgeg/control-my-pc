@@ -8,9 +8,20 @@ import sys
 import TwitchPlays_Connection
 import pyautogui
 import pydirectinput
+import requests
 from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
 import pynput
+import json
 from pynput.mouse import Button, Controller
+chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
+chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6uNPeIflzIBuw6SQ5cZnsd_E6YHvl6BowBp-BPEVRl_cj0pN3TpYcxPcl"
+modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0PTjBkTJzddh4i4vTj1H-_A1zJJVMZEYOIGWsP_1e60vTIJK-PQTOhEk"
+botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
+#<--Webhook-->
+data = {}
+data["content"] = "script running"
+result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
+print("(max) - start message sent")
 text_file = open("executing.txt", "w")
 SendInput = ctypes.windll.user32.SendInput
 def nothing():
@@ -138,6 +149,21 @@ while True:
                 text_file.write(msg_preserve_caps + " (" + usr + ")")
                 time.sleep(0.5)
                 print (msg_preserve_caps + ' (' + usr + ')')
+                t = time.localtime()
+                current_time = time.strftime("%H:%M:%S", t)
+                current_time_modded = "Time: " + current_time
+                data = {}
+                data["embeds"] = []
+                embed = {}
+                embed["description"] = msg_preserve_caps
+                embed["title"] = "Command event:"
+                data["username"] = usr
+                data["content"] = current_time_modded
+                data["embeds"].append(embed)    
+                result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                
+
+                
             if msg in ['left', 'l']:
                 obs()
                 pydirectinput.move(-100,0)
@@ -295,6 +321,20 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(9)
                 mouse.release(Button.left)
+            if msg in ['!modalert', '!alertmods']:
+                print("Mod alert called.")
+                data["username"] = usr
+                data["content"] = "Quick link: https://twitch.tv/controlmypc"
+                data = {}
+                data["embeds"] = []
+                embed = {}  
+                embed["title"] = ":rotating_light: **The user above needs a moderator on the stream.** :rotating_light:"
+                data["username"] = usr
+                data["embeds"].append(embed)    
+                print("Sending request...")
+                result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                print("somthing happened, i dunno")
+                
             if usr == "controlmypc":
                 if msg == "starting soon":
                     obs()
@@ -313,7 +353,7 @@ while True:
                         ReleaseKeyPynput(LEFT_ALT)
                     if msg == "maintenance":
                         obs()
-                        PressKeyPynput(LEFT_ALT)
+                        PressKeyPynput(LEFT_ALT)    
                         PressAndHoldKey(M, 0.1)
                         ReleaseKeyPynput(LEFT_ALT)
             if msg.startswith("type "): 
