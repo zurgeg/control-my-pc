@@ -2,6 +2,7 @@
 
 An overhaul update to DougDoug TwitchPlays script.
 
+# NOTICE: Any forks of this repo MUST be private. thank you.
 
 # Installation:
 
