@@ -1,3 +1,4 @@
+print("MASTER BRANCH- all the code here is excpeceted to be stable, if not, contact a dev.")
 import time
 import subprocess
 import ctypes
@@ -44,6 +45,16 @@ def PressAndHoldKey(hexKeyCode, seconds):
     PressKeyPynput(hexKeyCode)
     time.sleep(seconds)
     ReleaseKeyPynput(hexKeyCode)
+def exctwitchchat():
+            data = {}
+            data["embeds"] = []
+            embed = {}
+            embed["description"] = msg
+            embed["title"] = "Exception:"
+            data["username"] = usr
+            data["content"] = "A exception was encountered while reading twitch chat, information is contained in this message/embed/username."
+            data["embeds"].append(embed)    
+            result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
 #DirectX codes are found at:https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
 mouse = Controller()
 Q=0x10
@@ -138,6 +149,7 @@ while True:
         nothing()
         continue
     else:
+
         try:
             for message in new_messages:
                 msg = message['message'].lower()
@@ -380,3 +392,4 @@ while True:
                     ReleaseKeyPynput(LEFT_CONTROL)
         except:
             print('Encountered an exception while reading chat.')
+
