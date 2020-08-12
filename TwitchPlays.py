@@ -22,7 +22,7 @@ botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5r
 data = {}
 data["content"] = "script running"
 result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-print("(max) - start message sent")
+print("(ME) - start message sent")
 text_file = open("executing.txt", "w")
 SendInput = ctypes.windll.user32.SendInput
 def nothing():
@@ -392,4 +392,4 @@ while True:
                     ReleaseKeyPynput(LEFT_CONTROL)
         except:
             print('Encountered an exception while reading chat.')
-
+            exctwitchchat() #dont remove this line, only put a # in front of it to disable the webhook messages.
