@@ -1,4 +1,4 @@
-print("MASTER BRANCH- all the code here is excpeceted to be stable, if not, contact a dev.")
+print("HOLDCMMDS BRANCH- this code might be unstable, please check all of it before merging 2 master.")
 import time
 import subprocess
 import ctypes
@@ -22,7 +22,7 @@ botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5r
 data = {}
 data["content"] = "script running"
 result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-print("(ME) - start message sent")
+print("(max) - start message sent")
 text_file = open("executing.txt", "w")
 SendInput = ctypes.windll.user32.SendInput
 def nothing():
@@ -176,41 +176,54 @@ while True:
                 
 
                 
-            if msg in ['left', 'l']:
+            if msg in ['left']:
                 obs()
                 pydirectinput.move(-100,0)
-            if msg in ['light left', 'light l']:
+            if msg in ['light left']:
                 obs()
                 pydirectinput.move(-25,0)
-            if msg in ['right', 'r']:
+            if msg in ['super light left']:
+                obs()
+                pydirectinput.move(-10, 0)
+            if msg in ['right']:
                 obs()
                 pydirectinput.move(100,0)
-            if msg in ['light right', 'light r']:
+            if msg in ['light right']:
                 obs()
                 pydirectinput.move(25,0)
-            if msg in ['up', 'u']:
+            if msg in ['super light right']:
+                obs()
+                pydirectinput.move(10, 0)
+            if msg in ['up']:
                 obs()
                 pydirectinput.move(0, -100)
-            if msg in ['light up', 'light u']:
+            if msg in ['light up']:
                 obs()
                 pydirectinput.move(0, -25)
-            if msg in ['down', 'd']:
+            if msg in ['super light up']:
+                obs()
+                pydirectinput.move(0, -10)
+            if msg in ['down']:
                 obs()
                 pydirectinput.move(0, 100)
-            if msg in ['light down', 'light d']:
+            if msg in ['light down']:
                 obs()
-                pydirectinput.move(0, 25)              
-            if msg in ['rightclick', 'right click', 'click right', 'right cl', 'rightcl']:
+                pydirectinput.move(0, 25) 
+            if msg in ['super light down']:
+                obs()
+                pydirectinput.move(0, 10)
+
+            if msg in ['rightclick', 'right click']:
                 obs()
                 mouse.press(Button.right)
                 time.sleep(0.1)
                 mouse.release(Button.right)
-            if msg in ['click', 'cl']:
+            if msg in ['click']:
                 obs()
                 mouse.press(Button.left)
                 time.sleep(0.1)
                 mouse.release(Button.left)
-            if msg in ['doubleclick', 'double click', 'double cl', 'doublecl']:
+            if msg in ['doubleclick', 'double click']:
                 obs()
                 mouse.press(Button.left)
                 time.sleep(0.1)
@@ -222,11 +235,11 @@ while True:
                 obs()
                 PressKeyPynput(TAB)
                 ReleaseKeyPynput(TAB)
-            if msg in ['enter', 'en']:
+            if msg in ['enter']:
                 obs()
                 PressKeyPynput(ENTER)
                 ReleaseKeyPynput(ENTER)
-            if msg in ['space', 'spc']:
+            if msg in ['space', 'spacebar']:
                 obs()
                 PressKeyPynput(SPACE)
                 ReleaseKeyPynput(SPACE)
@@ -234,7 +247,7 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['win', 'windows key', 'win key', 'windows']:
+            if msg in ['win', 'windows key', 'win key']:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
@@ -270,18 +283,18 @@ while True:
                 PressKeyPynput(W)
                 ReleaseKeyPynput(RIGHT_CONTROL)
                 ReleaseKeyPynput(W)
-            if msg in ['drag mouse up', 'drag up mouse']:
+            if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
-            if msg in ['drag mouse down', 'drag down mouse']:
+            if msg in ['drag mouse down']:
                 obs()
                 pyautogui.drag(0, 50, 0.25, button='left')
-            if msg in ['drag mouse right', 'drag right mouse']:
+            if msg in ['drag mouse right']:
                 obs()
                 pyautogui.drag(50, 0, 0.25, button='left')
-            if msg in ['drag mouse left', 'drag left mouse']:
+            if msg in ['drag mouse left']:
                 pyautogui.drag(-50, 0, 0.25, button='left')
-            if msg in ['backspace', 'back space']:
+            if msg in ['backspace', 'back space', 'delete']:
                 obs()
                 PressKeyPynput(BACKSPACE)
                 time.sleep(0.1)
@@ -306,7 +319,7 @@ while True:
                 PressKeyPynput(RIGHT_ARROW)
                 time.sleep(1)
                 ReleaseKeyPynput(RIGHT_ARROW)
-            if msg in ['quit', 'exit']:
+            if msg in ['quit']:
                 obs()
                 PressKeyPynput(LEFT_ALT)
                 PressAndHoldKey(Ffour, 0.1)
@@ -333,7 +346,7 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(9)
                 mouse.release(Button.left)
-            if msg in ['!modalert', '!alertmods']:
+            if msg in ['!modalert']:
                 print("Mod alert called.")
                 data["username"] = usr
                 data["content"] = "Quick link: https://twitch.tv/controlmypc"
@@ -375,7 +388,12 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print("Typing this particular message didn't work: " + msg)
-            if msg.startswith("go to "): 
+            if msg in ['select all', 'ctrl a', 'control a']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    PressAndHoldKey(A, 0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
+            if msg.startswith("go to "):
                 try:
                     obs()
                     coord = msg[6:]
@@ -385,11 +403,80 @@ while True:
                     pydirectinput.moveTo(xval, yval) 
                 except:
                     print("Typing this particular message didn't work: " + msg)
-            if msg in ['select all', 'control all', 'ctrl all', 'ctrl a']:
+            if msg.startswith('d for '): 
+                try:
                     obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(A, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(D,timee)
+                except:
+                    print('error')
+            if msg.startswith('a for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(A,timee)
+                except:
+                    print('error')
+            if msg.startswith('s for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(S,timee)
+                except:
+                    print('error')
+            if msg.startswith('w for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(W,timee)
+                except:
+                    print('error')
+            if msg.startswith('arrow up for '): 
+                try:
+                    obs()
+                    timee = msg[13:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(UP_ARROW,timee)
+                except:
+                    print('er')   
+            if msg.startswith('arrow left for '): 
+                try:
+                    obs()
+                    timee = msg[15:]
+                    timee = float(timee)
+                    if timee<=10:
+                        PressAndHoldKey(LEFT_ARROW,timee)
+                except:
+                    print('er')    
+            if msg.startswith('arrow right for '): 
+                try:
+                    obs()
+                    timee = msg[16:]
+                    timee = float(timee)
+                    if timee<=10 and time>=0:
+                        PressAndHoldKey(RIGHT_ARROW,timee)
+                except:
+                    print('er')
+            if msg.startswith('arrow down for '): 
+                try:
+                    obs()   
+                    timee = msg[15:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(DOWN_ARROW,timee)
+                except:
+                    print('er')
+            
         except:
             print('Encountered an exception while reading chat.')
-            exctwitchchat() #dont remove this line, only put a # in front of it to disable the webhook messages.
+            exctwitchchat()
+
