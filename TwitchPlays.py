@@ -1,4 +1,4 @@
-print("HOLDCMMDS BRANCH- this code might be unstable, please check all of it before merging 2 master.")
+print("MASTER BRANCH - this code is stable. If not contact other devs.")
 import time
 import subprocess
 import ctypes
@@ -478,5 +478,5 @@ while True:
             
         except:
             print('Encountered an exception while reading chat.')
-            exctwitchchat()
+            exctwitchchat() #dont delete this line, only put a # in front of it to disable the webhook (discord) messages.
 
