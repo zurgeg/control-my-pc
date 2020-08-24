@@ -24,6 +24,7 @@ data["content"] = "script running"
 result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
 print("(max) - start message sent")
 text_file = open("executing.txt", "w")
+
 SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
@@ -54,7 +55,7 @@ def exctwitchchat():
             data["username"] = usr
             data["content"] = "A exception was encountered while reading twitch chat, information is contained in this message/embed/username."
             data["embeds"].append(embed)    
-            result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
+            result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
 #DirectX codes are found at:https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
 mouse = Controller()
 Q=0x10
@@ -347,18 +348,18 @@ while True:
                 time.sleep(9)
                 mouse.release(Button.left)
             if msg in ['!modalert']:
-                print("Mod alert called.")
+                print("(MA) called.")
                 data["username"] = usr
-                data["content"] = "Quick link: https://twitch.tv/controlmypc"
                 data = {}
                 data["embeds"] = []
                 embed = {}  
                 embed["title"] = ":rotating_light: **The user above needs a moderator on the stream.** :rotating_light:"
                 data["username"] = usr
-                data["embeds"].append(embed)    
-                print("Sending request...")
+                data["embeds"].append(embed)
+                data["content"] = "<@&741308237135216650> https://twitch.tv/controlmypc"
+                print("(MA) Sending request...")
                 result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
-                print("somthing happened, i dunno")
+                print("(MA) Request sent")
                 
             if usr == "controlmypc":
                 if msg == "starting soon":
