@@ -8,7 +8,7 @@ import re
 import sys
 import TwitchPlays_Connection
 import pyautogui
-#import pydirectinput
+import pydirectinput
 import requests
 from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
 import pynput
@@ -25,7 +25,7 @@ result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": 
 print("(max) - start message sent")
 text_file = open("executing.txt", "w")
 
-#SendInput = ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
