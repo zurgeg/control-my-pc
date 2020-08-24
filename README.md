@@ -25,14 +25,10 @@ An overhaul update to DougDoug TwitchPlays script.
 
 # What's New:
 
-DirectX Applications now work.
+!modalert will ping any mods with "alert notifs" 
 
-Script should work faster.
+Commands will now be logged into a channel that is gurreneted to annoy any first time mods.
 
-Print every valid command in case you want to change *.txt* thingy.
+Whenever the script is running will also now be logged.
 
-New Commands: Windows key, ctrl+T, ctrl+W, hold keys for (ctrl,alt,shift,tab), stop command *for hold commands*, go to [xxxx xxxx]  for mouse movement *example go to 1280 720*
-
-SOS: You use some weird stuff with alt and ctrl *//like right ctrl shows mouse or something*
-
-Please!!!!!! check that this doesn't interfere with what you have implemented.
+Theres also been general command additions and removles. i didnt spell that right but who fkin cares
