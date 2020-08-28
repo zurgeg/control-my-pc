@@ -157,6 +157,8 @@ while True:
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 usr = username.decode()
+                if LOG_ALL == "true":
+                    print('CHAT LOG: ' + usr + ': ' + msg)
             def obs():
                 text_file.seek(0,0)
                 text_file.write(msg_preserve_caps + " (" + usr + ")")
