@@ -10,7 +10,7 @@ import TwitchPlays_Connection
 import pyautogui
 import pydirectinput
 import requests
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL
 import pynput
 import json
 from pynput.mouse import Button, Controller
@@ -157,6 +157,8 @@ while True:
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 usr = username.decode()
+                if LOG_ALL == "true":
+                    print('CHAT LOG: ' + usr + ': ' + msg)
             def obs():
                 text_file.seek(0,0)
                 text_file.write(msg_preserve_caps + " (" + usr + ")")
