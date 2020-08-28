@@ -10,7 +10,7 @@ import TwitchPlays_Connection
 import pyautogui
 import pydirectinput
 import requests
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL
 import pynput
 import json
 from pynput.mouse import Button, Controller
