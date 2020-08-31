@@ -31,7 +31,7 @@ if os.path.exists("chat.log"):
 else:
     print('chat log file dont exist, mvoing on')    
 text_file = open("executing.txt", "w")
-#SendInput = ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
