@@ -8,7 +8,6 @@ import string
 import re
 import sys
 import os
-import test
 import pyautogui
 import pydirectinput
 import requests
