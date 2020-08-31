@@ -1,4 +1,5 @@
 print("MASTER BRANCH - this code is stable. If not contact other devs.")
+import TwitchPlays_Connection
 import time
 import subprocess
 import ctypes
@@ -6,26 +7,32 @@ import random
 import string
 import re
 import sys
-import TwitchPlays_Connection
+import os
+import test
 import pyautogui
-import pydirectinput
+#import pydirectinput
 import requests
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL
 import pynput
 import json
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
 from pynput.mouse import Button, Controller
 chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
 chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6uNPeIflzIBuw6SQ5cZnsd_E6YHvl6BowBp-BPEVRl_cj0pN3TpYcxPcl"
 modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0PTjBkTJzddh4i4vTj1H-_A1zJJVMZEYOIGWsP_1e60vTIJK-PQTOhEk"
 botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
 #<--Webhook-->
-data = {}
-data["content"] = "script running"
-result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-print("(max) - start message sent")
+if START_MSG == "true":
+    data = {}
+    data["content"] = "script running"
+    result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print("(max) - start message sent")
+#<--File mgmt-->
+if os.path.exists("chat.log"):
+  os.remove("chat.log")
+else:
+    print('chat log file dont exist, mvoing on')    
 text_file = open("executing.txt", "w")
-
-SendInput = ctypes.windll.user32.SendInput
+#SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -159,6 +166,11 @@ while True:
                 usr = username.decode()
                 if LOG_ALL == "true":
                     print('CHAT LOG: ' + usr + ': ' + msg)
+                if LOG_PPR == "true":
+                    f = open("chat.log", "a")
+                    f.write(usr + ':' + msg)
+                    f.write("\n")
+                    f.close()
             def obs():
                 text_file.seek(0,0)
                 text_file.write(msg_preserve_caps + " (" + usr + ")")
@@ -176,8 +188,6 @@ while True:
                 data["content"] = current_time_modded
                 data["embeds"].append(embed)    
                 result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
-                
-
                 
             if msg in ['left']:
                 obs()
@@ -481,5 +491,5 @@ while True:
             
         except:
             print('Encountered an exception while reading chat.')
-            exctwitchchat() #dont delete this line, only put a # in front of it to disable the webhook (discord) messages.
-
+            if EXC_MSG == "true":
+                exctwitchchat()
