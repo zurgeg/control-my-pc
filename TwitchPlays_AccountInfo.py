@@ -6,3 +6,9 @@ TWITCH_OAUTH_TOKEN = 'oauth:'
 DEVS = ['maxlovetoby', 'controlmypc', 'forevertoo']
 # log all chat to console?
 LOG_ALL = 'true'
+# Send start message to discord?
+START_MSG = 'true'
+# Send exceptions to discord?
+EXC_MSG = 'true'
+# Log all chat to a .log?
+LOG_PPR = 'true'
