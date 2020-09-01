@@ -385,21 +385,21 @@ while True:
                     PressKeyPynput(LEFT_ALT)
                     PressAndHoldKey(S, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-                    if msg == "main":
-                        obs()
-                        PressKeyPynput(LEFT_ALT)
-                        PressAndHoldKey(C, 0.1)
-                        ReleaseKeyPynput(LEFT_ALT)
-                    if msg == "stop the stream!":
-                        obs()
-                        PressKeyPynput(LEFT_ALT)
-                        PressAndHoldKey(Q, 0.1)
-                        ReleaseKeyPynput(LEFT_ALT)
-                    if msg == "maintenance":
-                        obs()
-                        PressKeyPynput(LEFT_ALT)    
-                        PressAndHoldKey(M, 0.1)
-                        ReleaseKeyPynput(LEFT_ALT)
+                if msg == "main":
+                    obs()
+                    PressKeyPynput(LEFT_ALT)
+                    PressAndHoldKey(C, 0.1)
+                    ReleaseKeyPynput(LEFT_ALT)
+                if msg == "stop the stream!":
+                    obs()
+                    PressKeyPynput(LEFT_ALT)
+                    PressAndHoldKey(Q, 0.1)
+                    ReleaseKeyPynput(LEFT_ALT)
+                if msg == "maintenance":
+                    obs()
+                    PressKeyPynput(LEFT_ALT)   
+                    PressAndHoldKey(M, 0.1)
+                    ReleaseKeyPynput(LEFT_ALT)
             if msg.startswith("type "): 
                 try:
                     obs()
