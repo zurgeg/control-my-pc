@@ -11,6 +11,7 @@ import os
 import pyautogui
 import pydirectinput
 import requests
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, DEVS
 import pynput
 import json
 from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
@@ -371,7 +372,13 @@ while True:
                 print("(MA) Sending request...")
                 result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 print("(MA) Request sent")
-                
+            
+            if usr in DEVS:
+                if msg == "script- testconn":
+                    data = {}
+                    data["content"] = "Connection made between twitch->script->webhook->discord"
+                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+
             if usr == "controlmypc":
                 if msg == "starting soon":
                     obs()
