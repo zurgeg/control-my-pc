@@ -264,24 +264,24 @@ while True:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
-            if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
-                obs()
-                ReleaseKeyPynput(RIGHT_CONTROL)
-                ReleaseKeyPynput(RIGHT_ALT)
-                ReleaseKeyPynput(TAB)
-                ReleaseKeyPynput(LEFT_SHIFT)   
-            if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
-                obs()
-                PressKeyPynput(RIGHT_CONTROL)
-            if msg in ['hold alt', 'hold alt key']:
-                obs()
-                PressKeyPynput(RIGHT_ALT)
-            if msg in ['hold tab', 'hold tab key']:
-                obs()
-                PressKeyPynput(TAB)
-            if msg in ['hold shift', 'hold shift key']:
-                obs()
-                PressKeyPynput(LEFT_SHIFT)
+            #if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
+                #obs()
+                #ReleaseKeyPynput(RIGHT_CONTROL)
+                #ReleaseKeyPynput(RIGHT_ALT)
+                #ReleaseKeyPynput(TAB)
+                #ReleaseKeyPynput(LEFT_SHIFT)   
+            #if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
+                #obs()
+                #PressKeyPynput(RIGHT_CONTROL)
+            #if msg in ['hold alt', 'hold alt key']:
+                #obs()
+                #PressKeyPynput(RIGHT_ALT)
+            #if msg in ['hold tab', 'hold tab key']:
+                #obs()
+                #PressKeyPynput(TAB)
+            #if msg in ['hold shift', 'hold shift key']:
+                #obs()
+                #PressKeyPynput(LEFT_SHIFT)
             if msg in ['control T', 'ctrl T']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
