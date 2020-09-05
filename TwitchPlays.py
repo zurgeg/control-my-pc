@@ -263,7 +263,7 @@ while True:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
-            if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
+            """if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
                 obs()
                 ReleaseKeyPynput(RIGHT_CONTROL)
                 ReleaseKeyPynput(RIGHT_ALT)
@@ -281,6 +281,7 @@ while True:
             if msg in ['hold shift', 'hold shift key']:
                 obs()
                 PressKeyPynput(LEFT_SHIFT)
+"""
             if msg in ['control T', 'ctrl T']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
