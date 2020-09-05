@@ -9,12 +9,11 @@ import re
 import sys
 import os
 import pyautogui
-import pydirectinput
+#import pydirectinput
 import requests
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, DEVS
 import pynput
 import json
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, DEVS, MODS
 from pynput.mouse import Button, Controller
 chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
 chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6uNPeIflzIBuw6SQ5cZnsd_E6YHvl6BowBp-BPEVRl_cj0pN3TpYcxPcl"
@@ -32,7 +31,7 @@ if os.path.exists("chat.log"):
 else:
     print('chat log file dont exist, mvoing on')    
 text_file = open("executing.txt", "w")
-SendInput = ctypes.windll.user32.SendInput
+#SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -264,24 +263,24 @@ while True:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
-            #if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
-                #obs()
-                #ReleaseKeyPynput(RIGHT_CONTROL)
-                #ReleaseKeyPynput(RIGHT_ALT)
-                #ReleaseKeyPynput(TAB)
-                #ReleaseKeyPynput(LEFT_SHIFT)   
-            #if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
-                #obs()
-                #PressKeyPynput(RIGHT_CONTROL)
-            #if msg in ['hold alt', 'hold alt key']:
-                #obs()
-                #PressKeyPynput(RIGHT_ALT)
-            #if msg in ['hold tab', 'hold tab key']:
-                #obs()
-                #PressKeyPynput(TAB)
-            #if msg in ['hold shift', 'hold shift key']:
-                #obs()
-                #PressKeyPynput(LEFT_SHIFT)
+            if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
+                obs()
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(RIGHT_ALT)
+                ReleaseKeyPynput(TAB)
+                ReleaseKeyPynput(LEFT_SHIFT)   
+            if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+            if msg in ['hold alt', 'hold alt key']:
+                obs()
+                PressKeyPynput(RIGHT_ALT)
+            if msg in ['hold tab', 'hold tab key']:
+                obs()
+                PressKeyPynput(TAB)
+            if msg in ['hold shift', 'hold shift key']:
+                obs()
+                PressKeyPynput(LEFT_SHIFT)
             if msg in ['control T', 'ctrl T']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
@@ -373,11 +372,38 @@ while True:
                 result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 print("(MA) Request sent")
             
+
             if usr in DEVS:
                 if msg == "script- testconn":
                     data = {}
                     data["content"] = "Connection made between twitch->script->webhook->discord"
                     result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                if msg == "script- reqdata":
+                    print("such a whore")
+                    data = {}
+                    data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
+                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                if msg.startswith("modsay "): 
+                    try:
+                        typeMsg = msg_preserve_caps[7:]
+                        data = {}
+                        data["content"] = typeMsg
+                        data["username"] = usr
+                        result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    except:
+                        print("Could not modsay this moderators message!" + msg)
+
+            if usr in MODS:
+                if msg.startswith("modsay "): 
+                    try:
+                        typeMsg = msg_preserve_caps[7:]
+                        data = {}
+                        data["content"] = typeMsg
+                        data["username"] = usr
+                        result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    except:
+                        print("Could not modsay this moderators message!" + msg)
+                
 
             if usr == "controlmypc":
                 if msg == "starting soon":
@@ -497,5 +523,6 @@ while True:
             
         except:
             print('Encountered an exception while reading chat.')
+            print(Exception)
             if EXC_MSG == "true":
                 exctwitchchat()
