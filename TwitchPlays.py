@@ -9,7 +9,7 @@ import re
 import sys
 import os
 import pyautogui
-#import pydirectinput
+import pydirectinput
 import requests
 import pynput
 import json
@@ -31,7 +31,7 @@ if os.path.exists("chat.log"):
 else:
     print('chat log file dont exist, mvoing on')    
 text_file = open("executing.txt", "w")
-#SendInput = ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -380,7 +380,6 @@ while True:
                     data["content"] = "Connection made between twitch->script->webhook->discord"
                     result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg == "script- reqdata":
-                    print("such a whore")
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
                     result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
@@ -524,6 +523,5 @@ while True:
             
         except:
             print('Encountered an exception while reading chat.')
-            print(Exception)
             if EXC_MSG == "true":
                 exctwitchchat()
