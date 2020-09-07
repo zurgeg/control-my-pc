@@ -3,7 +3,7 @@ TWITCH_USERNAME = 'Bot&StreamName'
 TWITCH_OAUTH_TOKEN = 'oauth:'
 # user configuration
 # -------------
-DEVS = ['maxlovetoby', 'ne3k', 'controlmypc', 'joel_mcb', 'vsolars228']
+DEVS = ['maxlovetoby', 'ne3k', 'controlmypc', 'joel_mcb', 'vsolars228', 'pocketzhungry']
 MODS = ['F1nn17_', 'ne3k', 'f1nn17_', 'TheMaddestPancake', 'Vsolars228', 'pocketzhungry', 'Wbubbler1',]
 # configuration
 # -------------
