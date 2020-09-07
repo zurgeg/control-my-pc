@@ -11,7 +11,7 @@ class Twitch:
     def twitch_connect(self, user, key):
         self.user = user;
         self.oauth= key;
-        print("Connecting to twitch.tv");
+        print("trying to connect");
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
         s.settimeout(0.6);
         connect_host = "irc.twitch.tv";
@@ -19,19 +19,19 @@ class Twitch:
         try:
             s.connect((connect_host, connect_port));
         except:
-            print("Failed to connect to twitch");
+            print("we could not connect");
             sys.exit();
-        print("Connected to twitch");
-        print("Sending our details to twitch...");
+        print("now connected to twitch");
+        print("sending auth");
         s.send(b'USER %s\r\n' % user.encode());
         s.send(b'PASS %s\r\n' % key.encode());
         s.send(b'NICK %s\r\n' % user.encode());
         if not self.twitch_login_status(s.recv(1024)):
-            print("... and they didn't accept our details");
+            print("twitch denied auth");
             sys.exit();
         else:
-            print("... they accepted our details");
-            print("Connected to twitch.tv!")
+            print("auth accepeted");
+            print("connected to twitch yaypogchamp")
             self.s = s;
             s.send(b'JOIN #%s\r\n' % user.encode())
             s.recv(1024);
