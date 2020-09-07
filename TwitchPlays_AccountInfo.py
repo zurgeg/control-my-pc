@@ -11,9 +11,9 @@ MODS = ['ne3k', 'f1nn17_', 'themaddestpancake', 'vsolars228', 'pocketzhungry', '
 # Log all chat messages in console?
 LOG_ALL = 'true'
 # Send start message to discord?
-START_MSG = 'false'
+START_MSG = 'true'
 # Send exceptions to discord?
-EXC_MSG = 'false'
+EXC_MSG = 'true'
 # Log all chat to a .log?
 LOG_PPR = 'true'
 # webhook config
