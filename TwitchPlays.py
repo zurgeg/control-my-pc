@@ -1,4 +1,11 @@
 print("MASTER BRANCH - this code is stable. If not contact other devs.")
+print("------------------------------------------");
+print("           TWITCH PLLAYS         ");
+print("           https://cmpc.live     ");
+print("           © 2020-2020 fadedmax");
+print("           By fadedmax, with cmpc devs.");
+print("------------------------------------------");
+
 import TwitchPlays_Connection
 import time
 import subprocess
@@ -432,7 +439,7 @@ while True:
                     typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
                 except:
-                    print("Typing this particular message didn't work: " + msg)
+                    print("COULD NOT TYPE: " + msg)
             if msg in ['select all', 'ctrl a', 'control a']:
                     obs()
                     PressKeyPynput(LEFT_CONTROL)
@@ -522,6 +529,6 @@ while True:
                     print('er')
             
         except:
-            print('Encountered an exception while reading chat.')
+            print('EXCEPTION HAPPENED')
             if EXC_MSG == "true":
                 exctwitchchat()
