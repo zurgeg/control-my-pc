@@ -4,7 +4,7 @@ TWITCH_OAUTH_TOKEN = 'oauth:'
 # user configuration
 # -------------
 DEVS = ['maxlovetoby', 'ne3k', 'controlmypc', 'joel_mcb', 'vsolars228', 'pocketzhungry']
-MODS = ['ne3k', 'f1nn17_', 'themaddestpancake', 'vsolars228', 'pocketzhungry', 'wbubbler1','streamelements', 'forevertoo', 'pverte', 'supersonicandmario', 'just_jotaro_kujo','ttv_pedro270707', 'smbfam_smm', 'densetsu___', 'hetytkanaal', 'stookygreenbonnie1', 'maxlovetoby','fulquit', 'controlmybot', 'nightbot']
+MODS = ['f1nn17_', 'themaddestpancake', 'wbubbler1','streamelements', 'forevertoo', 'pverte', 'supersonicandmario', 'just_jotaro_kujo','ttv_pedro270707', 'smbfam_smm', 'densetsu___', 'hetytkanaal', 'stookygreenbonnie1','fulquit', 'controlmybot', 'nightbot']
 #mod list: streamelements, forevertoo, pverte, wbubbler1, supersonicandmario, themaddestpancake, just_jotaro_kujo, ttv_pedro270707, smbfan_smm, densetsu___, hetytkanaal, stookygreenbonnie1, maxlovetoby, f1nn17_, fulquit, vsolars228, controlmybot, nightbot
 # configuration
 # -------------
