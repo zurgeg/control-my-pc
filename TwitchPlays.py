@@ -1,6 +1,6 @@
-print("MASTER BRANCH - this code is stable. If not contact other devs.")
 print("------------------------------------------");
-print("           TWITCH PLLAYS         ");
+print("           TWITCH PLAYS         ");
+print("           MASTER BRANCH         ")
 print("           https://cmpc.live     ");
 print("           © 2020-2020 fadedmax");
 print("           By fadedmax, with cmpc devs.");
