@@ -16,4 +16,8 @@ START_MSG = 'false'
 EXC_MSG = 'false'
 # Log all chat to a .log?
 LOG_PPR = 'true'
-# 
+# webhook config
+chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
+chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6uNPeIflzIBuw6SQ5cZnsd_E6YHvl6BowBp-BPEVRl_cj0pN3TpYcxPcl"
+modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0PTjBkTJzddh4i4vTj1H-_A1zJJVMZEYOIGWsP_1e60vTIJK-PQTOhEk"
+botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
