@@ -20,12 +20,8 @@ import pydirectinput
 import requests
 import pynput
 import json
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, DEVS, MODS
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, DEVS, MODS, chatalerts, chatrelay, modtalk, botstat
 from pynput.mouse import Button, Controller
-chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
-chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6uNPeIflzIBuw6SQ5cZnsd_E6YHvl6BowBp-BPEVRl_cj0pN3TpYcxPcl"
-modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0PTjBkTJzddh4i4vTj1H-_A1zJJVMZEYOIGWsP_1e60vTIJK-PQTOhEk"
-botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
 #<--Webhook-->
 if START_MSG == "true":
     data = {}
