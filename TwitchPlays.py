@@ -5,7 +5,6 @@ print("           https://cmpc.live     ");
 print("           © 2020-2020 fadedmax");
 print("           By fadedmax, with cmpc devs.");
 print("------------------------------------------");
-
 import TwitchPlays_Connection
 import time
 import subprocess
@@ -20,14 +19,18 @@ import pydirectinput
 import requests
 import pynput
 import json
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, DEVS, MODS, chatalerts, chatrelay, modtalk, botstat
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, chatalerts, chatrelay, modtalk, botstat
 from pynput.mouse import Button, Controller
+devsr = requests.get('https://api.cmpc.live/devs.txt')
+modsr = requests.get('https://api.cmpc.live/mods.txt')
+MODS = modsr.text
+DEVS = devsr.text
 #<--Webhook-->
 if START_MSG == "true":
     data = {}
     data["content"] = "script running"
     result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-    print("(max) - start message sent")
+    print("(max) start message sent")
 #<--File mgmt-->
 if os.path.exists("chat.log"):
   os.remove("chat.log")
