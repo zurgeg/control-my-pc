@@ -30,6 +30,7 @@ if START_MSG == "true":
     data = {}
     data["content"] = "script running"
     result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print("(max) start message sent")
 #<--File mgmt-->
 if os.path.exists("chat.log"):
   os.remove("chat.log")
