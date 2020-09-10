@@ -11,7 +11,7 @@ class Twitch:
     def twitch_connect(self, user, key):
         self.user = user;
         self.oauth= key;
-        print("trying to connect");
+        print("[TWITCH] Trying to connect");
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
         s.settimeout(0.6);
         connect_host = "irc.twitch.tv";
@@ -19,19 +19,17 @@ class Twitch:
         try:
             s.connect((connect_host, connect_port));
         except:
-            print("we could not connect");
+            print("[TWITCH] Failed to connect!");
             sys.exit();
-        print("now connected to twitch");
-        print("sending auth");
+        print("[TWITCH] Connected, sending auth");
         s.send(b'USER %s\r\n' % user.encode());
         s.send(b'PASS %s\r\n' % key.encode());
         s.send(b'NICK %s\r\n' % user.encode());
         if not self.twitch_login_status(s.recv(1024)):
-            print("twitch denied auth");
+            print("[TWITCH] Auth denied!");
             sys.exit();
         else:
-            print("auth accepeted");
-            print("connected to twitch yaypogchamp")
+            print("[TWITCH] Auth accepted and we are connected to twitch");
             self.s = s;
             s.send(b'JOIN #%s\r\n' % user.encode())
             s.recv(1024);
@@ -48,8 +46,8 @@ class Twitch:
         try: data = self.s.recv(1024);
         except: return False;
         if not data:
-            print("Lost connection to Twitch, attempting to reconnect...");
+            print("[TWITCH] Connection lost, trying to reconnect");
             self.twitch_connect(self.user, self.oauth);
             return None
         if self.check_has_message(data):
-            return [self.parse_message(line) for line in [_f for _f in data.split(b'\r\n') if _f]];
+            return [self.parse_message(line) for line in [_f for _f in data.split(b'\r\n') if _f]];   
