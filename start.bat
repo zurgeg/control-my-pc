@@ -1,1 +1,6 @@
-forever start -c python twitchplays.py
+@echo off
+goto loop
+
+:loop
+python TwitchPlays.py
+goto loop
