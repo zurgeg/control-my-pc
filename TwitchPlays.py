@@ -453,6 +453,11 @@ while True:
                     PressKeyPynput(LEFT_CONTROL)
                     PressAndHoldKey(A, 0.1)
                     ReleaseKeyPynput(LEFT_CONTROL)
+            if msg in ['tayne', 'ctrl k', 'control k']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    PressAndHoldKey(K, 0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
             if msg.startswith("go to "):
                 try:
                     obs()
