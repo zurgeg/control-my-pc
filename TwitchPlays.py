@@ -19,23 +19,26 @@ import pydirectinput
 import requests
 import pynput
 import json
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR, chatalerts, chatrelay, modtalk, botstat
+from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
+from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API
 from pynput.mouse import Button, Controller
-devsr = requests.get('https://api.cmpc.live/devs.txt')
-modsr = requests.get('https://api.cmpc.live/mods.txt')
+print("[API] Requsting data!")
+devsr = requests.get(DEV_API)
+modsr = requests.get(MOD_API)
 MODS = modsr.text
 DEVS = devsr.text
+print("[API] Data here, and parsed!")
 #<--Webhook-->
 if START_MSG == "true":
     data = {}
     data["content"] = "script running"
     result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-    print("(max) start message sent")
+    print("[DISCORD] Start webhook message sent!")
 #<--File mgmt-->
 if os.path.exists("chat.log"):
   os.remove("chat.log")
 else:
-    print('chat log file dont exist, mvoing on')    
+    print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
 SendInput = ctypes.windll.user32.SendInput
 def nothing():
