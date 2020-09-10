@@ -201,7 +201,7 @@ while True:
             if msg in ['left']:
                 obs()
                 pydirectinput.move(-100,0)
-            if msg in ['light left']:
+            if msg in ['light left', 'little left']:
                 obs()
                 pydirectinput.move(-25,0)
             if msg in ['super light left']:
@@ -210,7 +210,7 @@ while True:
             if msg in ['right']:
                 obs()
                 pydirectinput.move(100,0)
-            if msg in ['light right']:
+            if msg in ['light right', 'little right']:
                 obs()
                 pydirectinput.move(25,0)
             if msg in ['super light right']:
@@ -219,7 +219,7 @@ while True:
             if msg in ['up']:
                 obs()
                 pydirectinput.move(0, -100)
-            if msg in ['light up']:
+            if msg in ['light up', 'little up']:
                 obs()
                 pydirectinput.move(0, -25)
             if msg in ['super light up']:
@@ -228,7 +228,7 @@ while True:
             if msg in ['down']:
                 obs()
                 pydirectinput.move(0, 100)
-            if msg in ['light down']:
+            if msg in ['light down', 'little down']:
                 obs()
                 pydirectinput.move(0, 25) 
             if msg in ['super light down']:
