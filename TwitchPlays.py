@@ -152,6 +152,7 @@ MOUSE7=0x107
 MOUSE_WHEEL_UP=0x108
 MOUSE_WHEEL_DOWN=0x109
 Ffour=0x3E
+Ffive=0x3F
 RIGHT_SHIFT=0x36
 RIGHT_CONTROL=0xA3
 RIGHT_ALT=0xA5
@@ -345,6 +346,11 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_ALT)
                 PressAndHoldKey(Ffour, 0.1)
+                ReleaseKeyPynput(LEFT_ALT)
+            if msg in ['refresh', 'F5']:
+                obs()
+                PressKeyPynput(LEFT_ALT)
+                PressAndHoldKey(Ffive, 0.1)
                 ReleaseKeyPynput(LEFT_ALT)
             if msg in ['its stuck', 'it is stuck']:
                 obs()
