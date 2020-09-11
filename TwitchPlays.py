@@ -467,7 +467,7 @@ while True:
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval) 
                 except:
-                    print("Typing this particular message didn't work: " + msg)
+                    print("could not go to somehow: " + msg)
 
             if msg.startswith("drag to "):
                 try:
@@ -480,7 +480,7 @@ while True:
                     pydirectinput.moveTo(xval, yval)
                     mouse.release(Button.right) 
                 except:
-                    print("Typing this particular message didn't work: " + msg)
+                    print("could not drag to cuz: " + msg)
 
             if msg.startswith('d for '): 
                 try:
