@@ -472,13 +472,13 @@ while True:
             if msg.startswith("drag to "):
                 try:
                     obs()
-                    mouse.press(Button.right)
+                    mouse.press(Button.left)
                     coord = msg[6:]
                     xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval)
-                    mouse.release(Button.right) 
+                    mouse.release(Button.left) 
                 except:
                     print("could not drag to cuz: " + msg)
 
