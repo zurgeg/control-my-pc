@@ -468,6 +468,20 @@ while True:
                     pydirectinput.moveTo(xval, yval) 
                 except:
                     print("Typing this particular message didn't work: " + msg)
+
+            if msg.startswith("drag to "):
+                try:
+                    obs()
+                    mouse.press(Button.right)
+                    coord = msg[6:]
+                    xval,yval = coord.split(' ',1)
+                    xval = int(xval)
+                    yval = int(yval)
+                    pydirectinput.moveTo(xval, yval)
+                    mouse.release(Button.right) 
+                except:
+                    print("Typing this particular message didn't work: " + msg)
+
             if msg.startswith('d for '): 
                 try:
                     obs()
