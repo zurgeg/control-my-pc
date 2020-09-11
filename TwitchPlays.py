@@ -473,7 +473,7 @@ while True:
                 try:
                     obs()
                     mouse.press(Button.left)
-                    coord = msg[6:]
+                    coord = msg[8:]
                     xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
