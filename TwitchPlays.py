@@ -20,7 +20,7 @@ import requests
 import pynput
 import json
 from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
-from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API
+from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API, devtalk
 from pynput.mouse import Button, Controller
 print("[API] Requsting data!")
 devsr = requests.get(DEV_API)
@@ -393,11 +393,11 @@ while True:
                 if msg == "script- testconn":
                     data = {}
                     data["content"] = "Connection made between twitch->script->webhook->discord"
-                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    result = requests.post(devtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg == "script- reqdata":
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
-                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    result = requests.post(devtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg.startswith("modsay "): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
