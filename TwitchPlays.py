@@ -451,7 +451,7 @@ while True:
             if msg.startswith("gtype "): 
                 try:
                     obs()
-                    typeMsg = msg_preserve_caps[6:]
+                    typeMsg = msg
                     pydirectinput.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
