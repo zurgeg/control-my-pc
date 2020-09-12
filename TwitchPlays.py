@@ -445,9 +445,18 @@ while True:
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
+
+            if msg.startswith("gtype "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
                     pydirectinput.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
+
             if msg in ['select all', 'ctrl a', 'control a']:
                     obs()
                     PressKeyPynput(LEFT_CONTROL)
