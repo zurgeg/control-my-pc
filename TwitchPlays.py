@@ -445,7 +445,7 @@ while True:
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
-                    pypydirectinput.typewrite(typeMsg)
+                    pydirectinput.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
             if msg in ['select all', 'ctrl a', 'control a']:
