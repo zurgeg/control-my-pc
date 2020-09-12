@@ -15,7 +15,7 @@ import re
 import sys
 import os
 import pyautogui
-#import pydirectinput
+import pydirectinput
 import requests
 import pynput
 import json
@@ -40,7 +40,7 @@ if os.path.exists("chat.log"):
 else:
     print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
-#SendInput = ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
