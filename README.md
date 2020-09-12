@@ -2,7 +2,7 @@
 
 An overhaul update to DougDoug TwitchPlays script.
 
-**this script is meant for twitch.tv/controlmypc / https://cmpc.cf and its developers, you must have authentication from the development team, or cmpc to run this script.**
+**this script is meant for twitch.tv/controlmypc / https://cmpc.live and its developers, you must have authentication from the development team, or cmpc to run this script.**
 
 
 # NOTICE: Any forks of this repo MUST be private. thank you.
