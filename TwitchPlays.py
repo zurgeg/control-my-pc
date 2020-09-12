@@ -15,7 +15,7 @@ import re
 import sys
 import os
 import pyautogui
-import pydirectinput
+#import pydirectinput
 import requests
 import pynput
 import json
@@ -40,7 +40,7 @@ if os.path.exists("chat.log"):
 else:
     print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
-SendInput = ctypes.windll.user32.SendInput
+#SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -204,7 +204,7 @@ while True:
             if msg in ['light left', 'little left']:
                 obs()
                 pydirectinput.move(-25,0)
-            if msg in ['super light left']:
+            if msg in ['super light left', 'super little left']:
                 obs()
                 pydirectinput.move(-10, 0)
             if msg in ['right']:
@@ -213,7 +213,7 @@ while True:
             if msg in ['light right', 'little right']:
                 obs()
                 pydirectinput.move(25,0)
-            if msg in ['super light right']:
+            if msg in ['super light right', 'super little right']:
                 obs()
                 pydirectinput.move(10, 0)
             if msg in ['up']:
@@ -222,7 +222,7 @@ while True:
             if msg in ['light up', 'little up']:
                 obs()
                 pydirectinput.move(0, -25)
-            if msg in ['super light up']:
+            if msg in ['super light up', 'super little up']:
                 obs()
                 pydirectinput.move(0, -10)
             if msg in ['down']:
@@ -231,7 +231,7 @@ while True:
             if msg in ['light down', 'little down']:
                 obs()
                 pydirectinput.move(0, 25) 
-            if msg in ['super light down']:
+            if msg in ['super light down', 'super little down']:
                 obs()
                 pydirectinput.move(0, 10)
 
@@ -387,8 +387,12 @@ while True:
                 print("(MA) Sending request...")
                 result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 print("(MA) Request sent")
-            
 
+            if usr == "cmpcscript":
+                print("CMPC SCRIPT")
+                print(msg)
+                if msg_preserve_caps == "c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy":
+                    break       
             if usr in DEVS:
                 if msg == "script- testconn":
                     data = {}
