@@ -532,7 +532,7 @@ while True:
                     obs()
                     timee = msg[15:]
                     timee = float(timee)
-                    if timee<=10:
+                    if timee<=10 and timee>=0:
                         PressAndHoldKey(LEFT_ARROW,timee)
                 except:
                     print('er')    
@@ -541,7 +541,7 @@ while True:
                     obs()
                     timee = msg[16:]
                     timee = float(timee)
-                    if timee<=10 and time>=0:
+                    if timee<=10 and timee>=0:
                         PressAndHoldKey(RIGHT_ARROW,timee)
                 except:
                     print('er')
