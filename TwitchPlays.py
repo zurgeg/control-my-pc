@@ -15,12 +15,12 @@ import re
 import sys
 import os
 import pyautogui
-import pydirectinput
+#import pydirectinput
 import requests
 import pynput
 import json
 from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
-from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API, devtalk
+from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API
 from pynput.mouse import Button, Controller
 print("[API] Requsting data!")
 devsr = requests.get(DEV_API)
@@ -40,7 +40,7 @@ if os.path.exists("chat.log"):
 else:
     print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
-SendInput = ctypes.windll.user32.SendInput
+#SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -387,17 +387,21 @@ while True:
                 print("(MA) Sending request...")
                 result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 print("(MA) Request sent")
-            
 
+            if usr == "cmpcscript":
+                print("CMPC SCRIPT")
+                print(msg)
+                if msg_preserve_caps == "c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy":
+                    break       
             if usr in DEVS:
                 if msg == "script- testconn":
                     data = {}
                     data["content"] = "Connection made between twitch->script->webhook->discord"
-                    result = requests.post(devtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg == "script- reqdata":
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
-                    result = requests.post(devtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg.startswith("modsay "): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
