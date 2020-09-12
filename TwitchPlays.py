@@ -448,11 +448,10 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
-
             if msg.startswith("gtype "): 
                 try:
                     obs()
-                    typeMsg = msg_preserve_caps[5:]
+                    typeMsg = msg_preserve_caps[6:]
                     pydirectinput.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
