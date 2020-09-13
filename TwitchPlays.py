@@ -292,13 +292,22 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_SHIFT)
 """
-            if msg in ['control t', 'ctrl t', 'new tab']:
-                obs()
-                PressKeyPynput(RIGHT_CONTROL)
-                time.sleep(0.1)
-                PressKeyPynput(T)
-                ReleaseKeyPynput(RIGHT_CONTROL)
-                ReleaseKeyPynput(T)
+                if msg in ['control t', 'ctrl t', 'new tab']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    time.sleep(0.1)
+                    PressKeyPynput(T)
+                    time.sleep(0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
+                    ReleaseKeyPynput(T)
+                if msg in ['control w', 'ctrl w', 'close tab']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    time.sleep(0.1)
+                    PressKeyPynput(W)
+                    time.sleep(0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
+                    ReleaseKeyPynput(W)
             if msg in ['control w', 'ctrl w', 'close tab']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
