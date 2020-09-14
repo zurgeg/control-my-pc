@@ -141,6 +141,8 @@ LEFT_ARROW=0xCB
 RIGHT_ARROW=0xCD
 UP_ARROW=0xC8
 DOWN_ARROW=0xD0
+PAGE_UP=0xC9
+PAGE_DOWN=0xD1
 LEFT_MOUSE=0x100
 RIGHT_MOUSE=0x101
 MIDDLE_MOUSE=0x102
@@ -359,6 +361,14 @@ while True:
                 obs()
                 PressKeyPynput(ESC)
                 ReleaseKeyPynput(ESC)
+            if msg in ['page up']:
+                obs()
+                PressKeyPynput(PAGE_UP)
+                ReleaseKeyPynput(PAGE_UP)
+            if msg in ['page down']:
+                obs()
+                PressKeyPynput(PAGE_DOWN)
+                ReleaseKeyPynput(PAGE_DOWN)
             if msg in ['close tab', 'close the tab']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
@@ -446,6 +456,13 @@ while True:
                     PressAndHoldKey(M, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
             if msg.startswith("type "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
+            if msg.startswith("press "): 
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
