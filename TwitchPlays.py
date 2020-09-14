@@ -361,11 +361,11 @@ while True:
                 obs()
                 PressKeyPynput(ESC)
                 ReleaseKeyPynput(ESC)
-            if msg in ['page up']
+            if msg in ['page up']:
                 obs()
                 PressKeyPynput(PAGE_UP)
                 ReleaseKeyPynput(PAGE_UP)
-            if msg in ['page down']
+            if msg in ['page down']:
                 obs()
                 PressKeyPynput(PAGE_DOWN)
                 ReleaseKeyPynput(PAGE_DOWN)
