@@ -15,7 +15,7 @@ import re
 import sys
 import os
 import pyautogui
-#import pydirectinput
+import pydirectinput
 import requests
 import pynput
 import json
@@ -40,7 +40,7 @@ if os.path.exists("chat.log"):
 else:
     print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
-#SendInput = ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
@@ -452,6 +452,21 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
+            if msg.startswith("press "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
+            if msg.startswith("gtype "): 
+                try:
+                    obs()
+                    typeMsg = msg[6:]
+                    pydirectinput.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
+
             if msg in ['select all', 'ctrl a', 'control a']:
                     obs()
                     PressKeyPynput(LEFT_CONTROL)
@@ -536,7 +551,7 @@ while True:
                     obs()
                     timee = msg[15:]
                     timee = float(timee)
-                    if timee<=10:
+                    if timee<=10 and timee>=0:
                         PressAndHoldKey(LEFT_ARROW,timee)
                 except:
                     print('er')    
@@ -545,7 +560,7 @@ while True:
                     obs()
                     timee = msg[16:]
                     timee = float(timee)
-                    if timee<=10 and time>=0:
+                    if timee<=10 and timee>=0:
                         PressAndHoldKey(RIGHT_ARROW,timee)
                 except:
                     print('er')
