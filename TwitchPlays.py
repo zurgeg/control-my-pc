@@ -261,6 +261,13 @@ while True:
                 obs()
                 PressKeyPynput(ENTER)
                 ReleaseKeyPynput(ENTER)
+            if msg in ['alt tab', 'alt-tab']:
+                obs()
+                PressKeyPynput(LEFT_ALT)
+                time.sleep(0.1)
+                PressKeyPynput(TAB)
+                ReleaseKeyPynput(LEFT_ALT)
+                ReleaseKeyPynput(TAB)
             if msg in ['space', 'spacebar']:
                 obs()
                 PressKeyPynput(SPACE)
