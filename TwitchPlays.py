@@ -452,6 +452,13 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
+            if msg.startswith("press "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
             if msg.startswith("gtype "): 
                 try:
                     obs()
