@@ -236,7 +236,10 @@ while True:
             if msg in ['super light down', 'super little down']:
                 obs()
                 pydirectinput.move(0, 10)
-
+            if msg in ['center']:
+                obs()
+                xval,yval = tuple(res/2 for res in pyautogui.size())
+                pydirectinput.moveTo(xval,yval)
             if msg in ['rightclick', 'right click']:
                 obs()
                 mouse.press(Button.right)
@@ -491,7 +494,10 @@ while True:
                 try:
                     obs()
                     coord = msg[6:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval) 
@@ -503,7 +509,10 @@ while True:
                     obs()
                     mouse.press(Button.left)
                     coord = msg[8:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval)
