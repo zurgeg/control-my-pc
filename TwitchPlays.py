@@ -311,6 +311,13 @@ while True:
                 PressKeyPynput(W)
                 ReleaseKeyPynput(RIGHT_CONTROL)
                 ReleaseKeyPynput(W)
+            if msg in ['control s', 'ctrl s', 'save']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(S)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(S)
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
