@@ -1,6 +1,6 @@
 print("------------------------------------------");
 print("           TWITCH PLAYS         ");
-print("           MASTER BRANCH         ")
+print("           STAGING BRANCH         ")
 print("           https://cmpc.live     ");
 print("           © 2020-2020 fadedmax");
 print("           By fadedmax, with cmpc devs.");
