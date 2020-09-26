@@ -1,6 +1,6 @@
 print("------------------------------------------");
 print("           TWITCH PLAYS         ");
-print("           MASTER BRANCH         ")
+print("           STAGING BRANCH         ")
 print("           https://cmpc.live     ");
 print("           © 2020-2020 fadedmax");
 print("           By fadedmax, with cmpc devs.");
@@ -236,7 +236,10 @@ while True:
             if msg in ['super light down', 'super little down']:
                 obs()
                 pydirectinput.move(0, 10)
-
+            if msg in ['center']:
+                obs()
+                xval,yval = tuple(res/2 for res in pyautogui.size())
+                pydirectinput.moveTo(xval,yval)
             if msg in ['rightclick', 'right click']:
                 obs()
                 mouse.press(Button.right)
@@ -273,10 +276,17 @@ while True:
                 ReleaseKeyPynput(LEFT_CONTROL)
             if msg in ['win', 'windows key', 'win key', 'windows']:
                 obs()
+                PressKeyPynput(L_WIN)
+                ReleaseKeyPynput(L_WIN)
+           if msg in ['win s', 'windows s', 'windows search', 'win search']:
+                obs()
                 PressKeyPynput(LEFT_CONTROL)
                 PressKeyPynput(ESC)
                 ReleaseKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(ESC)
+                time.sleep(0.004)
+                PressKeyPynput(SPACE)
+                ReleaseKeyPynput(SPACE)
             """if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
                 obs()
                 ReleaseKeyPynput(RIGHT_CONTROL)
@@ -310,6 +320,13 @@ while True:
                 PressKeyPynput(W)
                 ReleaseKeyPynput(RIGHT_CONTROL)
                 ReleaseKeyPynput(W)
+            if msg in ['control s', 'ctrl s', 'save']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(S)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(S)
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
@@ -493,7 +510,10 @@ while True:
                 try:
                     obs()
                     coord = msg[6:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval) 
@@ -505,7 +525,10 @@ while True:
                     obs()
                     mouse.press(Button.left)
                     coord = msg[8:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval)
