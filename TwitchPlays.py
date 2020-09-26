@@ -278,6 +278,15 @@ while True:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
+           if msg in ['win s', 'windows s', 'windows search', 'win search']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                PressKeyPynput(ESC)
+                ReleaseKeyPynput(LEFT_CONTROL)
+                ReleaseKeyPynput(ESC)
+                time.sleep(0.004)
+                PressKeyPynput(SPACE)
+                ReleaseKeyPynput(SPACE)
             """if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
                 obs()
                 ReleaseKeyPynput(RIGHT_CONTROL)
