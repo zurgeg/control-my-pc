@@ -141,6 +141,8 @@ LEFT_ARROW=0xCB
 RIGHT_ARROW=0xCD
 UP_ARROW=0xC8
 DOWN_ARROW=0xD0
+PAGE_UP=0xC9
+PAGE_DOWN=0xD1
 LEFT_MOUSE=0x100
 RIGHT_MOUSE=0x101
 MIDDLE_MOUSE=0x102
@@ -234,7 +236,10 @@ while True:
             if msg in ['super light down', 'super little down']:
                 obs()
                 pydirectinput.move(0, 10)
-
+            if msg in ['center']:
+                obs()
+                xval,yval = tuple(res/2 for res in pyautogui.size())
+                pydirectinput.moveTo(xval,yval)
             if msg in ['rightclick', 'right click']:
                 obs()
                 mouse.press(Button.right)
@@ -292,14 +297,27 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_SHIFT)
 """
-                if msg in ['control t', 'ctrl t', 'new tab']:
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    time.sleep(0.1)
-                    PressKeyPynput(T)
-                    time.sleep(0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-                    ReleaseKeyPynput(T)
+            if msg in ['control t', 'ctrl t', 'new tab']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(T)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(T)
+            if msg in ['control w', 'ctrl w', 'close tab']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(W)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(W)
+            if msg in ['control s', 'ctrl s', 'save']:
+                obs()
+                PressKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(S)
+                ReleaseKeyPynput(RIGHT_CONTROL)
+                ReleaseKeyPynput(S)
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
@@ -353,6 +371,14 @@ while True:
                 obs()
                 PressKeyPynput(ESC)
                 ReleaseKeyPynput(ESC)
+            if msg in ['page up']:
+                obs()
+                PressKeyPynput(PAGE_UP)
+                ReleaseKeyPynput(PAGE_UP)
+            if msg in ['page down']:
+                obs()
+                PressKeyPynput(PAGE_DOWN)
+                ReleaseKeyPynput(PAGE_DOWN)
             if msg in ['close tab', 'close the tab']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
@@ -446,6 +472,13 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
+            if msg.startswith("press "): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print("COULD NOT TYPE: " + msg)
             if msg.startswith("gtype "): 
                 try:
                     obs()
@@ -468,7 +501,10 @@ while True:
                 try:
                     obs()
                     coord = msg[6:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval) 
@@ -480,7 +516,10 @@ while True:
                     obs()
                     mouse.press(Button.left)
                     coord = msg[8:]
-                    xval,yval = coord.split(' ',1)
+                    if coord == "center":
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
                     pydirectinput.moveTo(xval, yval)
