@@ -265,6 +265,7 @@ while True:
             if msg in ['enter']:
                 obs()
                 PressKeyPynput(ENTER)
+                time.sleep(0.04)
                 ReleaseKeyPynput(ENTER)
             if msg in ['space', 'spacebar']:
                 obs()
@@ -370,6 +371,7 @@ while True:
             if msg in ['escape', 'esc']:
                 obs()
                 PressKeyPynput(ESC)
+                time.sleep(0.04)
                 ReleaseKeyPynput(ESC)
             if msg in ['page up']:
                 obs()
