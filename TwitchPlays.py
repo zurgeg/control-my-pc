@@ -526,7 +526,34 @@ while True:
                     mouse.release(Button.left) 
                 except:
                     print("could not drag to cuz: " + msg)
-
+            if msg in ['scroll down']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(-1)
+            if msg in ['scroll up']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(1)
+            if msg.startswith('scroll up for '):
+                try:
+                    scrll = msg[14:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(1)
+                except:
+                    print('error')
+            if msg.startswith('scroll down for '):
+                try:
+                    scrll = msg[16:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(-1)
+                except:
+                    print('error')                
             if msg.startswith('d for '): 
                 try:
                     obs()
