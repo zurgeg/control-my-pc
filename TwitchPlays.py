@@ -297,13 +297,7 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_SHIFT)
 """
-            if msg in ['control t', 'ctrl t', 'new tab']:
-                obs()
-                PressKeyPynput(RIGHT_CONTROL)
-                time.sleep(0.1)
-                PressKeyPynput(T)
-                ReleaseKeyPynput(RIGHT_CONTROL)
-                ReleaseKeyPynput(T)
+
             if msg in ['control w', 'ctrl w', 'close tab']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
@@ -379,11 +373,22 @@ while True:
                 obs()
                 PressKeyPynput(PAGE_DOWN)
                 ReleaseKeyPynput(PAGE_DOWN)
-            if msg in ['close tab', 'close the tab']:
+            if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
-                PressAndHoldKey(W, 0.1)
+                time.sleep(0.1)
+                PressKeyPynput(T)
+                time.sleep(0.1)
                 ReleaseKeyPynput(LEFT_CONTROL)
+                ReleaseKeyPynput(T)
+            if msg in ['control w', 'ctrl w', 'close tab']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                time.sleep(0.1)
+                PressKeyPynput(W)
+                time.sleep(0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
+                ReleaseKeyPynput(W)
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
                 mouse.press(Button.left)
