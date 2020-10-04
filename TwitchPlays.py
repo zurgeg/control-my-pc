@@ -318,6 +318,13 @@ while True:
                 PressKeyPynput(S)
                 ReleaseKeyPynput(RIGHT_CONTROL)
                 ReleaseKeyPynput(S)
+            if msg in ['alt tab']:
+                obs()
+                PressKeyPynput(LEFT_ALT)
+                time.sleep(0.1)
+                PressKeyPynput(TAB)
+                ReleaseKeyPynput(LEFT_ALT)
+                ReleaseKeyPynput(TAB)
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
