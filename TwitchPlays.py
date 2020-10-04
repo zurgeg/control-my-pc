@@ -2,7 +2,7 @@ print("------------------------------------------");
 print("           TWITCH PLAYS         ");
 print("           STAGING BRANCH         ")
 print("           https://cmpc.live     ");
-print("           © 2020-2020 fadedmax");
+print("           © 2020 fadedmax");
 print("           By fadedmax, with cmpc devs.");
 print("------------------------------------------");
 import TwitchPlays_Connection
