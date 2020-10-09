@@ -315,13 +315,6 @@ while True:
                 time.sleep(0.1)
                 ReleaseKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(T)
-            if msg in ['control w', 'ctrl w', 'close tab']:
-                obs()
-                PressKeyPynput(LEFT_CONTROL)
-                time.sleep(0.1)
-                PressKeyPynput(W)
-                ReleaseKeyPynput(LEFT_CONTROL)
-                ReleaseKeyPynput(W)
             if msg in ['control s', 'ctrl s', 'save']:
                 obs()
                 PressKeyPynput(RIGHT_CONTROL)
