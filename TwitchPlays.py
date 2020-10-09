@@ -373,19 +373,17 @@ while True:
                 ReleaseKeyPynput(LEFT_ALT)
             if msg in ['refresh', 'F5']:
                 obs()
-                PressKeyPynput(LEFT_ALT)
                 PressAndHoldKey(Ffive, 0.1)
-                ReleaseKeyPynput(LEFT_ALT)
             if msg in ['copy', 'control c']:
                 obs()
-                PressKeyPynput(LEFT_ALT)
+                PressKeyPynput(LEFT_CONTROL)
                 PressAndHoldKey(C, 0.1)
-                ReleaseKeyPynput(LEFT_ALT)
+                ReleaseKeyPynput(LEFT_CONTROL)
             if msg in ['paste', 'control v']:
                 obs()
-                PressKeyPynput(LEFT_ALT)
+                PressKeyPynput(LEFT_CONTROL)
                 PressAndHoldKey(V, 0.1)
-                ReleaseKeyPynput(LEFT_ALT)
+                ReleaseKeyPynput(LEFT_CONTROL)
             if msg in ['its stuck', 'it is stuck']:
                 obs()
                 mouse.position = (500, 500)
