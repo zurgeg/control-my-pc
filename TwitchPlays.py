@@ -1,9 +1,9 @@
 print("------------------------------------------");
 print("           TWITCH PLAYS         ");
-print("           MASTER BRANCH         ")
+print("           STAGING BRANCH         ")
 print("           https://cmpc.live     ");
-print("           © 2020-2020 fadedmax");
-print("           By fadedmax, with cmpc devs.");
+print("           © 2020 controlmypc");
+print("           By cmpc & fadedmax, with cmpc devs.");
 print("------------------------------------------");
 import TwitchPlays_Connection
 import time
@@ -265,6 +265,7 @@ while True:
             if msg in ['enter']:
                 obs()
                 PressKeyPynput(ENTER)
+                time.sleep(0.04)
                 ReleaseKeyPynput(ENTER)
             if msg in ['space', 'spacebar']:
                 obs()
@@ -274,10 +275,19 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['win', 'windows key', 'win key']:
+            if msg in ['win', 'windows key', 'win key', 'windows']:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
+            if msg in ['win s', 'windows s', 'windows search', 'win search']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                PressKeyPynput(ESC)
+                ReleaseKeyPynput(LEFT_CONTROL)
+                ReleaseKeyPynput(ESC)
+                time.sleep(0.004)
+                PressKeyPynput(SPACE)
+                ReleaseKeyPynput(SPACE)
             """if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
                 obs()
                 ReleaseKeyPynput(RIGHT_CONTROL)
@@ -299,17 +309,19 @@ while True:
 """
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
-                PressKeyPynput(RIGHT_CONTROL)
+                PressKeyPynput(LEFT_CONTROL)
                 time.sleep(0.1)
                 PressKeyPynput(T)
-                ReleaseKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(T)
             if msg in ['control w', 'ctrl w', 'close tab']:
                 obs()
-                PressKeyPynput(RIGHT_CONTROL)
+                PressKeyPynput(LEFT_CONTROL)
                 time.sleep(0.1)
                 PressKeyPynput(W)
-                ReleaseKeyPynput(RIGHT_CONTROL)
+                time.sleep(0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(W)
             if msg in ['control s', 'ctrl s', 'save']:
                 obs()
@@ -361,15 +373,24 @@ while True:
                 ReleaseKeyPynput(LEFT_ALT)
             if msg in ['refresh', 'F5']:
                 obs()
-                PressKeyPynput(LEFT_ALT)
                 PressAndHoldKey(Ffive, 0.1)
-                ReleaseKeyPynput(LEFT_ALT)
+            if msg in ['copy', 'control c']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                PressAndHoldKey(C, 0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
+            if msg in ['paste', 'control v']:
+                obs()
+                PressKeyPynput(LEFT_CONTROL)
+                PressAndHoldKey(V, 0.1)
+                ReleaseKeyPynput(LEFT_CONTROL)
             if msg in ['its stuck', 'it is stuck']:
                 obs()
                 mouse.position = (500, 500)
             if msg in ['escape', 'esc']:
                 obs()
                 PressKeyPynput(ESC)
+                time.sleep(0.04)
                 ReleaseKeyPynput(ESC)
             if msg in ['page up']:
                 obs()
@@ -421,6 +442,15 @@ while True:
                 if msg == "script- reqdata":
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
+                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                if msg == 'script- apirefresh':
+                    devsr = requests.get(DEV_API)
+                    modsr = requests.get(MOD_API)
+                    MODS = modsr.text
+                    DEVS = devsr.text
+                    print('API Refreshed!')
+                    data = {}
+                    data["content"] = "The api was refreshed"
                     result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 if msg.startswith("modsay "): 
                     try:
@@ -526,7 +556,34 @@ while True:
                     mouse.release(Button.left) 
                 except:
                     print("could not drag to cuz: " + msg)
-
+            if msg in ['scroll down']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(-60)
+            if msg in ['scroll up']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(60)
+            if msg.startswith('scroll up for '):
+                try:
+                    scrll = msg[14:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(1)
+                except:
+                    print('error')
+            if msg.startswith('scroll down for '):
+                try:
+                    scrll = msg[16:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(-1)
+                except:
+                    print('error')                
             if msg.startswith('d for '): 
                 try:
                     obs()

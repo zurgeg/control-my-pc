@@ -1,53 +1,95 @@
 import socket
 import sys
 import re
-class Twitch:
-    user = "";
-    oauth = "";
-    s = None;
-    def twitch_login_status(self, data):
-        if not re.match(b'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data): return True
-        else: return False
-    def twitch_connect(self, user, key):
-        self.user = user;
-        self.oauth= key;
-        print("[TWITCH] Trying to connect");
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-        s.settimeout(0.6);
-        connect_host = "irc.twitch.tv";
-        connect_port = 6667;
+import typing
+
+
+class Twitch(object):
+
+    def __init__(self):
+        self.user = None
+        self.oauth = None
+        self.socket = None
+
+    def _twitch_login_status(self, data:bytes) -> bool:
+        """Check the login data to see if login was successful
+
+        Args:
+            data (bytes): RThe IRC data from Twitch
+
+        Returns:
+            bool: Whether or not the login was successful
+        """
+
+        if not re.match(rb'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data):
+            return True
+        return False
+
+    def twitch_connect(self, user:str, key:str) -> None:
+        """Makes a socket connection to Twitch.tv
+
+        Args:
+            user (str): The username for the account
+            key (str): The twitch oauth token for the account
+        """
+
+        self.user = user
+        self.oauth = key
+        print("[TWITCH] Trying to connect")
+
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.settimeout(0.6)
+        connect_host = "irc.twitch.tv"
+        connect_port = 6667
+
         try:
-            s.connect((connect_host, connect_port));
-        except:
-            print("[TWITCH] Failed to connect!");
-            sys.exit();
-        print("[TWITCH] Connected, sending auth");
-        s.send(b'USER %s\r\n' % user.encode());
-        s.send(b'PASS %s\r\n' % key.encode());
-        s.send(b'NICK %s\r\n' % user.encode());
-        if not self.twitch_login_status(s.recv(1024)):
-            print("[TWITCH] Auth denied!");
-            sys.exit();
+            self.socket.connect((connect_host, connect_port))
+        except Exception:
+            print("[TWITCH] Failed to connect!")
+            sys.exit(1)
+
+        print("[TWITCH] Connected, sending auth")
+        self.socket.send(b'USER %s\r\n' % user.encode())
+        self.socket.send(b'PASS %s\r\n' % key.encode())
+        self.socket.send(b'NICK %s\r\n' % user.encode())
+
+        if not self._twitch_login_status(self.socket.recv(1024)):
+            print("[TWITCH] Auth denied!")
+            sys.exit()
         else:
-            print("[TWITCH] Auth accepted and we are connected to twitch");
-            self.s = s;
-            s.send(b'JOIN #%s\r\n' % user.encode())
-            s.recv(1024);
-    def check_has_message(self, data):
-        return re.match(b'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
-    def parse_message(self, data):
+            print("[TWITCH] Auth accepted and we are connected to twitch")
+            self.socket.send(b'JOIN #%s\r\n' % user.encode())
+            self.socket.recv(1024)
+
+    def _check_has_message(self, data:bytes):
+        return re.match(rb'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
+
+    def _parse_message(self, data:bytes):
         return {
-            'channel': re.findall(b'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
-            'username': re.findall(b'^:([a-zA-Z0-9_]+)\!', data)[0],
-            'message': re.findall(b'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf_8')
+            'channel': re.findall(rb'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
+            'username': re.findall(rb'^:([a-zA-Z0-9_]+)\!', data)[0],
+            'message': re.findall(rb'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf_8')
         }
-    def twitch_recieve_messages(self, amount=1024):
-        data = None
-        try: data = self.s.recv(1024);
-        except: return False;
+
+    def twitch_recieve_messages(self, amount:int=1024) -> typing.List[bytes]:
+        """Receives data from the websocket and returns the lines
+
+        Args:
+            amount (int, optional): The number of bytes to receive
+
+        Returns:
+            typing.List[bytes]: A list of received messages
+        """
+
+        try:
+            data = self.socket.recv(1024)
+        except Exception:
+            return list()
+
         if not data:
-            print("[TWITCH] Connection lost, trying to reconnect");
-            self.twitch_connect(self.user, self.oauth);
-            return None
-        if self.check_has_message(data):
-            return [self.parse_message(line) for line in [_f for _f in data.split(b'\r\n') if _f]];   
+            print("[TWITCH] Connection lost, trying to reconnect")
+            self.twitch_connect(self.user, self.oauth)
+            return list()
+
+        if self._check_has_message(data):
+            return [self._parse_message(line) for line in [_f for _f in data.split(b'\r\n') if _f]]

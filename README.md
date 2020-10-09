@@ -2,7 +2,7 @@
 
 An overhaul update to DougDoug TwitchPlays script.
 
-**this script is meant for twitch.tv/controlmypc / https://cmpc.live and its developers, you must have authentication from the development team, or cmpc to run this script.**
+**This script is meant for twitch.tv/controlmypc / https://cmpc.live and its developers, you must have authentication from the development team, or CMPC to run this script.**
 
 
 # NOTICE: Any forks of this repo MUST be private. thank you.
@@ -13,23 +13,16 @@ An overhaul update to DougDoug TwitchPlays script.
 
   2) After downloading open a cmd and run these commands:
   
-  • python -m pip install --upgrade pip
-  
-  • pip install pyautogui
-  
-  • pip install pydirectinput
-  
-  • pip install forever
+  * `python -m pip install --upgrade pip`
+  * `python -m pip install -r requirements.txt`
 
-  3)Edit TwitchPlays_AccountInfo.py with the username and oauth: (You can find your oauth from the link provided inside the file or just click this http://twitchapps.com/tmi/)
+  3) Edit `TwitchPlays_AccountInfo.py` with the username and oauth (you can find your oauth token [here](http://twitchapps.com/tmi/))
 
   4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
 
-
-
 # What's New:
 
-!modalert will ping any mods with "alert notifs" 
+`!modalert` will ping any mods with "alert notifs" 
 
 Commands will now be logged into a channel that is gurreneted to annoy any first time mods.
 

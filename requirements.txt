@@ -1,0 +1,4 @@
+pyautogui
+pydirectinput
+requests
+pynput
