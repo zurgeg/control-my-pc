@@ -279,7 +279,7 @@ while True:
                 obs()
                 PressKeyPynput(L_WIN)
                 ReleaseKeyPynput(L_WIN)
-           if msg in ['win s', 'windows s', 'windows search', 'win search']:
+            if msg in ['win s', 'windows s', 'windows search', 'win search']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
                 PressKeyPynput(ESC)
@@ -445,7 +445,7 @@ while True:
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
                     result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
-                if msg == 'script- apirefresh'':
+                if msg == 'script- apirefresh':
                     devsr = requests.get(DEV_API)
                     modsr = requests.get(MOD_API)
                     MODS = modsr.text
@@ -561,11 +561,11 @@ while True:
             if msg in ['scroll down']:
                 obs()
                 for scrl in range(5):
-                    pyautogui.scroll(-1)
+                    pyautogui.scroll(-60)
             if msg in ['scroll up']:
                 obs()
                 for scrl in range(5):
-                    pyautogui.scroll(1)
+                    pyautogui.scroll(60)
             if msg.startswith('scroll up for '):
                 try:
                     scrll = msg[14:]
