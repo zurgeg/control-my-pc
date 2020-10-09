@@ -320,7 +320,6 @@ while True:
                 PressKeyPynput(LEFT_CONTROL)
                 time.sleep(0.1)
                 PressKeyPynput(W)
-                time.sleep(0.1)
                 ReleaseKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(W)
             if msg in ['control s', 'ctrl s', 'save']:
