@@ -1,10 +1,10 @@
-print("------------------------------------------");
-print("           TWITCH PLAYS         ");
-print("           STAGING BRANCH         ")
-print("           https://cmpc.live     ");
-print("           © 2020 controlmypc");
-print("           By cmpc & fadedmax, with cmpc devs.");
-print("------------------------------------------");
+print("------------------------------------------")
+print("           TWITCH PLAYS                   ")
+print("           MASTER BRANCH                  ")
+print("           https://cmpc.live              ")
+print("           © 2020 controlmypc             ")
+print("           by CMPC Developers             ")
+print("------------------------------------------")
 import TwitchPlays_Connection
 import time
 import subprocess
