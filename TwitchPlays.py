@@ -16,7 +16,6 @@ import random
 import string
 import re
 import sys
-import os
 import pyautogui
 import requests
 import pynput
