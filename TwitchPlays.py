@@ -1,11 +1,12 @@
-print("------------------------------------------")
-print("           TWITCH PLAYS                   ")
-print("           MASTER BRANCH                  ")
-print("           https://cmpc.live              ")
-print("           © 2020 controlmypc             ")
-print("           by CMPC Developers             ")
-print("------------------------------------------")
+print("------------------------------------------");
+print("           TWITCH PLAYS         ");
+print("           STAGING BRANCH         ")
+print("           https://cmpc.live     ");
+print("           © 2020 controlmypc");
+print("           By cmpc & fadedmax, with cmpc devs.");
+print("------------------------------------------");
 import TwitchPlays_Connection
+import cmpc
 import time
 import subprocess
 import ctypes
@@ -15,151 +16,34 @@ import re
 import sys
 import os
 import pyautogui
-import pydirectinput
 import requests
 import pynput
 import json
-from TwitchPlays_AccountInfo import TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, LOG_ALL, START_MSG, EXC_MSG, LOG_PPR
-from TwitchPlays_AccountInfo import chatalerts, chatrelay, modtalk, botstat, DEV_API, MOD_API
+import os
+from TwitchPlays_AccountInfo import *
 from pynput.mouse import Button, Controller
+if START_MSG == "true":
+    cmpc.send_webhook(devtalk, 'script online (max)')
 print("[API] Requsting data!")
-devsr = requests.get(DEV_API)
+"""devsr = requests.get(DEV_API)
 modsr = requests.get(MOD_API)
 MODS = modsr.text
-DEVS = devsr.text
+DEVS = devsr.text"""
+DEVS = ['maxlovetoby', 'controlmypc', 'joel_mcb', 'pocketzhungry', 'glitchmasta47', 'winnerspiros']
+MODS = ['f1nn17_', 'themaddestpancake', 'wbubbler1','streamelements', 'pverte', 'supersonicandmario', 'just_jotaro_kujo','ttv_pedro270707', 'smbfamsmm', 'densetsu__', 'hetytkanaal', 'stookygreenbonnie1','fulquit', 'controlmybot', 'nightbot', 'SilverDimond'] 
 print("[API] Data here, and parsed!")
-#<--Webhook-->
-if START_MSG == "true":
-    data = {}
-    data["content"] = "script running"
-    result = requests.post(botstat, data=json.dumps(data), headers={"Content-Type": "application/json"})
-    print("[DISCORD] Start webhook message sent!")
 #<--File mgmt-->
 if os.path.exists("chat.log"):
   os.remove("chat.log")
 else:
     print('[LOG] does not exist')
 text_file = open("executing.txt", "w")
-SendInput = ctypes.windll.user32.SendInput
+# SendInput = ctypes.windll.user32.SendInput
 def nothing():
     open("executing.txt", "w")
     text_file.seek(0,0)
     n = text_file.write("nothing")
-def PressKeyPynput(hexKeyCode):
-    extra = ctypes.c_ulong(0)
-    ii_ = pynput._util.win32.INPUT_union()
-    ii_.ki = pynput._util.win32.KEYBDINPUT(0, hexKeyCode, 0x0008, 0, ctypes.cast(ctypes.pointer(extra), ctypes.c_void_p))
-    x = pynput._util.win32.INPUT(ctypes.c_ulong(1), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-def ReleaseKeyPynput(hexKeyCode):
-    extra = ctypes.c_ulong(0)
-    ii_ = pynput._util.win32.INPUT_union()
-    ii_.ki = pynput._util.win32.KEYBDINPUT(0, hexKeyCode, 0x0008 | 0x0002, 0, ctypes.cast(ctypes.pointer(extra), ctypes.c_void_p))
-    x = pynput._util.win32.INPUT(ctypes.c_ulong(1), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-def PressAndHoldKey(hexKeyCode, seconds):
-    PressKeyPynput(hexKeyCode)
-    time.sleep(seconds)
     ReleaseKeyPynput(hexKeyCode)
-def exctwitchchat():
-            data = {}
-            data["embeds"] = []
-            embed = {}
-            embed["description"] = msg
-            embed["title"] = "Exception:"
-            data["username"] = usr
-            data["content"] = "A exception was encountered while reading twitch chat, information is contained in this message/embed/username."
-            data["embeds"].append(embed)    
-            result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
-#DirectX codes are found at:https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
-mouse = Controller()
-Q=0x10
-W=0x11
-E=0x12
-R=0x13
-T=0x14
-Y=0x15
-U=0x16
-I=0x17
-O=0x18
-P=0x19
-A=0x1E
-S=0x1F
-D=0x20
-F=0x21
-G=0x22
-H=0x23
-J=0x24
-K=0x25
-L=0x26
-Z=0x2C
-X=0x2D
-C=0x2E
-V=0x2F
-B=0x30
-N=0x31
-M=0x32
-ESC=0x01
-ONE=0x02
-TWO=0x03
-THREE=0x04
-FOUR=0x05
-FIVE=0x06
-SIX=0x07
-SEVEN=0x08
-EIGHT=0x09
-NINE=0x0A
-ZERO=0x0B
-MINUS=0x0C
-EQUALS=0x0D
-BACKSPACE=0x0E
-SEMICOLON=0x27
-TAB=0x0F
-CAPS=0x3A
-ENTER=0x1C
-LEFT_CONTROL=0x1D
-LEFT_ALT=0x38
-LEFT_SHIFT=0x2A
-SPACE=0x39
-DELETE=0x53
-COMMA=0x33
-PERIOD=0x34
-BACKSLASH=0x35
-NUMPAD_0=0x52
-NUMPAD_1=0x4F
-NUMPAD_2=0x50
-NUMPAD_3=0x51
-NUMPAD_4=0x4B
-NUMPAD_5=0x4C
-NUMPAD_6=0x4D
-NUMPAD_7=0x47
-NUMPAD_8=0x48
-NUMPAD_9=0x49
-NUMPAD_PLUS=0x4E
-NUMPAD_MINUS=0x4A
-LEFT_ARROW=0xCB
-RIGHT_ARROW=0xCD
-UP_ARROW=0xC8
-DOWN_ARROW=0xD0
-PAGE_UP=0xC9
-PAGE_DOWN=0xD1
-LEFT_MOUSE=0x100
-RIGHT_MOUSE=0x101
-MIDDLE_MOUSE=0x102
-MOUSE3=0x103
-MOUSE4=0x104
-MOUSE5=0x105
-MOUSE6=0x106
-MOUSE7=0x107
-MOUSE_WHEEL_UP=0x108
-MOUSE_WHEEL_DOWN=0x109
-Ffour=0x3E
-Ffive=0x3F
-RIGHT_SHIFT=0x36
-RIGHT_CONTROL=0xA3
-RIGHT_ALT=0xA5
-L_WIN=0x5B
-R_WIN=0x5C
 t = TwitchPlays_Connection.Twitch();
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN);
 while True:
@@ -199,65 +83,41 @@ while True:
                 data["content"] = current_time_modded
                 data["embeds"].append(embed)    
                 result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
-                
-            if msg in ['left']:
-                obs()
-                pydirectinput.move(-100,0)
-            if msg in ['light left', 'little left']:
-                obs()
-                pydirectinput.move(-25,0)
-            if msg in ['super light left', 'super little left']:
-                obs()
-                pydirectinput.move(-10, 0)
-            if msg in ['right']:
-                obs()
-                pydirectinput.move(100,0)
-            if msg in ['light right', 'little right']:
-                obs()
-                pydirectinput.move(25,0)
-            if msg in ['super light right', 'super little right']:
-                obs()
-                pydirectinput.move(10, 0)
-            if msg in ['up']:
-                obs()
-                pydirectinput.move(0, -100)
-            if msg in ['light up', 'little up']:
-                obs()
-                pydirectinput.move(0, -25)
-            if msg in ['super light up', 'super little up']:
-                obs()
-                pydirectinput.move(0, -10)
-            if msg in ['down']:
-                obs()
-                pydirectinput.move(0, 100)
-            if msg in ['light down', 'little down']:
-                obs()
-                pydirectinput.move(0, 25) 
-            if msg in ['super light down', 'super little down']:
-                obs()
-                pydirectinput.move(0, 10)
+
+            keycode_compare_data = {
+                ('left',): (-100,0),
+                ('light left', 'little left',): (-25,0),
+                ('super light left', 'super little left',): (-10, 0),
+                ('right',): (100,0),
+                ('light right', 'little right',): (25,0),
+                ('super light right', 'super little right',): (10, 0),
+                ('up',): (0, -100),
+                ('light up', 'little up',): (0, -25),
+                ('super light up', 'super little up',): (0, -10),
+                ('down',): (0, 100),
+            }
+            for key, value in keycode_compare_data.items():
+                if msg in key:
+                    cmpc.move(*value)
+
             if msg in ['center']:
                 obs()
                 xval,yval = tuple(res/2 for res in pyautogui.size())
-                pydirectinput.moveTo(xval,yval)
+                pyautogui.moveTo(xval,yval)
             if msg in ['rightclick', 'right click']:
                 obs()
-                mouse.press(Button.right)
+                pyautogui.click(button='right')
                 time.sleep(0.1)
-                mouse.release(Button.right)
             if msg in ['click']:
                 obs()
-                mouse.press(Button.left)
+                pyautogui.click(button='left')
                 time.sleep(0.1)
-                mouse.release(Button.left)
             if msg in ['doubleclick', 'double click']:
                 obs()
-                mouse.press(Button.left)
+                pyautogui.click(button='left')
                 time.sleep(0.1)
-                mouse.release(Button.left)
-                mouse.press(Button.left)
+                pyautogui.click(button='left')
                 time.sleep(0.1)
-                mouse.release(Button.left)
             if msg in ['tab']:
                 obs()
                 PressKeyPynput(TAB)
@@ -275,10 +135,6 @@ while True:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
                 ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['win', 'windows key', 'win key', 'windows']:
-                obs()
-                PressKeyPynput(L_WIN)
-                ReleaseKeyPynput(L_WIN)
             if msg in ['win s', 'windows s', 'windows search', 'win search']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
@@ -288,25 +144,6 @@ while True:
                 time.sleep(0.004)
                 PressKeyPynput(SPACE)
                 ReleaseKeyPynput(SPACE)
-            """if msg in ['stop all keys', 'stop keys', '!stop', '!end', 'end keys', 'end all keys', 'release key', 'release keys', 'release all keys']:
-                obs()
-                ReleaseKeyPynput(RIGHT_CONTROL)
-                ReleaseKeyPynput(RIGHT_ALT)
-                ReleaseKeyPynput(TAB)
-                ReleaseKeyPynput(LEFT_SHIFT)   
-            if msg in ['hold ctrl', 'hold control', 'hold ctrl key', 'hold control key']:
-                obs()
-                PressKeyPynput(RIGHT_CONTROL)
-            if msg in ['hold alt', 'hold alt key']:
-                obs()
-                PressKeyPynput(RIGHT_ALT)
-            if msg in ['hold tab', 'hold tab key']:
-                obs()
-                PressKeyPynput(TAB)
-            if msg in ['hold shift', 'hold shift key']:
-                obs()
-                PressKeyPynput(LEFT_SHIFT)
-"""
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
@@ -428,9 +265,7 @@ while True:
                     break       
             if usr in DEVS:
                 if msg == "script- testconn":
-                    data = {}
-                    data["content"] = "Connection made between twitch->script->webhook->discord"
-                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    cmpc.send_webhook(modtalk, 'Connection made between twitch->script->webhook->discord')
                 if msg == "script- reqdata":
                     data = {}
                     data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
@@ -441,9 +276,7 @@ while True:
                     MODS = modsr.text
                     DEVS = devsr.text
                     print('API Refreshed!')
-                    data = {}
-                    data["content"] = "The api was refreshed"
-                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    cmpc.send_webhook(modtalk, 'API was refreshed.')
                 if msg.startswith("modsay "): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
@@ -453,6 +286,8 @@ while True:
                         result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                     except:
                         print("Could not modsay this moderators message!" + msg)
+                if msg == "script- forceerror":
+                    raise Exception('Forced error!')
 
             if usr in MODS:
                 if msg.startswith("modsay "): 
@@ -497,15 +332,8 @@ while True:
             if msg.startswith("press "): 
                 try:
                     obs()
-                    typeMsg = msg_preserve_caps[6:]
+                    typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
-                except:
-                    print("COULD NOT TYPE: " + msg)
-            if msg.startswith("gtype "): 
-                try:
-                    obs()
-                    typeMsg = msg[6:]
-                    pydirectinput.typewrite(typeMsg)
                 except:
                     print("COULD NOT TYPE: " + msg)
 
@@ -529,25 +357,10 @@ while True:
                         xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
-                    pydirectinput.moveTo(xval, yval) 
+                    pyautogui.moveTo(xval, yval) 
                 except:
                     print("could not go to somehow: " + msg)
 
-            if msg.startswith("drag to "):
-                try:
-                    obs()
-                    mouse.press(Button.left)
-                    coord = msg[8:]
-                    if coord == "center":
-                        xval,yval = tuple(res/2 for res in pyautogui.size())
-                    else:
-                        xval,yval = coord.split(' ',1)
-                    xval = int(xval)
-                    yval = int(yval)
-                    pydirectinput.moveTo(xval, yval)
-                    mouse.release(Button.left) 
-                except:
-                    print("could not drag to cuz: " + msg)
             if msg in ['scroll down']:
                 obs()
                 for scrl in range(5):
@@ -629,7 +442,7 @@ while True:
                     if timee<=10 and timee>=0:
                         PressAndHoldKey(LEFT_ARROW,timee)
                 except:
-                    print('er')    
+                    print('er')
             if msg.startswith('arrow right for '): 
                 try:
                     obs()
@@ -648,8 +461,7 @@ while True:
                         PressAndHoldKey(DOWN_ARROW,timee)
                 except:
                     print('er')
-            
-        except:
-            print('EXCEPTION HAPPENED')
-            if EXC_MSG == "true":
-                exctwitchchat()
+        except Exception as error:
+            print(f"!!Exception: {error}")
+            cmpc.send_error(errorlog, error, msg, usr)
+
