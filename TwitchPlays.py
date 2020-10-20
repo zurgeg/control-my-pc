@@ -23,14 +23,12 @@ import os
 from TwitchPlays_AccountInfo import *
 from pynput.mouse import Button, Controller
 if START_MSG == "true":
-    cmpc.send_webhook(systemlog, 'script online (max)')
+    cmpc.send_webhook(systemlog, 'script online')
 print("[API] Requsting data!")
-"""devsr = requests.get(DEV_API)
+devsr = requests.get(DEV_API)
 modsr = requests.get(MOD_API)
 MODS = modsr.text
-DEVS = devsr.text"""
-DEVS = ['maxlovetoby', 'controlmypc', 'joel_mcb', 'pocketzhungry', 'glitchmasta47', 'winnerspiros']
-MODS = ['f1nn17_', 'themaddestpancake', 'wbubbler1','streamelements', 'pverte', 'supersonicandmario', 'just_jotaro_kujo','ttv_pedro270707', 'smbfamsmm', 'densetsu__', 'hetytkanaal', 'stookygreenbonnie1','fulquit', 'controlmybot', 'nightbot', 'SilverDimond'] 
+DEVS = devsr.text
 print("[API] Data here, and parsed!")
 #<--File mgmt-->
 if os.path.exists("chat.log"):
