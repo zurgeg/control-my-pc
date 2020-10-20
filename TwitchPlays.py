@@ -23,7 +23,7 @@ import os
 from TwitchPlays_AccountInfo import *
 from pynput.mouse import Button, Controller
 if START_MSG == "true":
-    cmpc.send_webhook(devtalk, 'script online (max)')
+    cmpc.send_webhook(systemlog, 'script online (max)')
 print("[API] Requsting data!")
 """devsr = requests.get(DEV_API)
 modsr = requests.get(MOD_API)
@@ -219,8 +219,7 @@ while True:
                         result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
                     except:
                         print("Could not modsay this moderators message!" + msg)
-                if msg == "script- forceerror":
-                    raise Exception('Forced error!')
+
 
             if usr in MODS:
                 if msg.startswith("modsay "): 
@@ -396,5 +395,5 @@ while True:
                     print('er')
         except Exception as error:
             print(f"!!Exception: {error}")
-            cmpc.send_error(errorlog, error, msg, usr)
+            cmpc.send_error(systemlog, error, msg, usr)
 

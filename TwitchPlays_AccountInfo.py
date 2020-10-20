@@ -20,3 +20,4 @@ chatrelay = "https://discordapp.com/api/webhooks/741316193369194506/slrRQYiTHPP6
 modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0PTjBkTJzddh4i4vTj1H-_A1zJJVMZEYOIGWsP_1e60vTIJK-PQTOhEk"
 devtalk = "https://discordapp.com/api/webhooks/754130531188342909/WXK8aAiNyYPwLJgCMntBGEvewvmzdCoYba5TdVl_9Vy6jZfbKkrHb3OI1gZMJr5rbWJJ"
 botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
+systemlog = "https://discordapp.com/api/webhooks/761678428562259969/GYBmtMAFwvo2iVJ6onxyG1Q1B0TKeAUhSQFZe1c219fm7kX_pZUQzmAbF9mi9CDdAYNP"
