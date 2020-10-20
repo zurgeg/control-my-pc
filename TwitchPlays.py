@@ -99,6 +99,15 @@ while True:
                 ('enter'): ('enter'),
                 ('windows key', 'win'): ('win'),
                 ('backspace', 'back space', 'delete'): ('backspace'),
+                ('space', 'spacebar'): ('space'),
+                ('page up', 'pageup'): ('pageup'),
+                ('page down', 'pagedown'): ('pagedown'),
+                ('esc', 'escape'): ('esc'),
+                ('arrow down'): ('down'),
+                ('arrow up'): ('up'),
+                ('arrow left'): ('left'),
+                ('arrow right'): ('right'),
+                ('refresh', 'F5'): ('f5'),
             }
             click_data = {
                 ('click', 'left click'): ('left'),
@@ -113,9 +122,10 @@ while True:
                     obs()
             for key, ktp in press_key_data.items():
                 if msg in key: # press_key_data
+                    time.sleep(3)
                     pyautogui.press(ktp)
                     obs()
-            for key, btp, times in click_data.items():
+            for key, btp in click_data.items():
                 if msg in key: # press_key_data
                     if key == "doubleclick":
                         times = 2
@@ -128,20 +138,6 @@ while True:
                 obs()
                 xval,yval = tuple(res/2 for res in pyautogui.size())
                 pyautogui.moveTo(xval,yval)
-            if msg in ['rightclick', 'right click']:
-                obs()
-                pyautogui.click(button='right')
-                time.sleep(0.1)
-            if msg in ['doubleclick', 'double click']:
-                obs()
-                pyautogui.click(button='left')
-                time.sleep(0.1)
-                pyautogui.click(button='left')
-                time.sleep(0.1)
-            if msg in ['space', 'spacebar']:
-                obs()
-                PressKeyPynput(SPACE)
-                ReleaseKeyPynput(SPACE)
             if msg in ['where?', 'where']:
                 obs()
                 PressKeyPynput(LEFT_CONTROL)
@@ -172,65 +168,18 @@ while True:
                 pyautogui.drag(50, 0, 0.25, button='left')
             if msg in ['drag mouse left']:
                 pyautogui.drag(-50, 0, 0.25, button='left')
-            if msg in ['arrow up', 'up arrow']:
-                obs()
-                PressKeyPynput(UP_ARROW)
-                time.sleep(1)
-                ReleaseKeyPynput(UP_ARROW)
-            if msg in ['arrow down', 'down arrow']:
-                obs()
-                PressKeyPynput(DOWN_ARROW)
-                time.sleep(1)
-                ReleaseKeyPynput(DOWN_ARROW)
-            if msg in ['arrow left', 'left arrow']:
-                obs()
-                PressKeyPynput(LEFT_ARROW)
-                time.sleep(1)
-                ReleaseKeyPynput(LEFT_ARROW)
-            if msg in ['arrow right', 'right arrow']:
-                obs()
-                PressKeyPynput(RIGHT_ARROW)
-                time.sleep(1)
-                ReleaseKeyPynput(RIGHT_ARROW)
-            if msg in ['quit']:
-                obs()
-                PressKeyPynput(LEFT_ALT)
-                PressAndHoldKey(Ffour, 0.1)
-                ReleaseKeyPynput(LEFT_ALT)
-            if msg in ['refresh', 'F5']:
-                obs()
-                PressAndHoldKey(Ffive, 0.1)
             if msg in ['copy', 'control c']:
                 obs()
-                PressKeyPynput(LEFT_CONTROL)
-                PressAndHoldKey(C, 0.1)
-                ReleaseKeyPynput(LEFT_CONTROL)
+                pyautogui.hotkey('ctrl', 'c')
             if msg in ['paste', 'control v']:
                 obs()
-                PressKeyPynput(LEFT_CONTROL)
-                PressAndHoldKey(V, 0.1)
-                ReleaseKeyPynput(LEFT_CONTROL)
+                pyautogui.hotkey('ctrl', 'v')
             if msg in ['its stuck', 'it is stuck']:
                 obs()
                 mouse.position = (500, 500)
-            if msg in ['escape', 'esc']:
-                obs()
-                PressKeyPynput(ESC)
-                time.sleep(0.04)
-                ReleaseKeyPynput(ESC)
-            if msg in ['page up']:
-                obs()
-                PressKeyPynput(PAGE_UP)
-                ReleaseKeyPynput(PAGE_UP)
-            if msg in ['page down']:
-                obs()
-                PressKeyPynput(PAGE_DOWN)
-                ReleaseKeyPynput(PAGE_DOWN)
             if msg in ['close tab', 'close the tab']:
                 obs()
-                PressKeyPynput(LEFT_CONTROL)
-                PressAndHoldKey(W, 0.1)
-                ReleaseKeyPynput(LEFT_CONTROL)
+                pyautogui.hotkey('ctrl', 'w')
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
                 mouse.press(Button.left)
