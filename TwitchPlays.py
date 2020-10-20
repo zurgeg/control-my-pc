@@ -144,6 +144,9 @@ while True:
             if msg in ['control s', 'ctrl s', 'save']:
                 obs()
                 pyautogui.hotkey('ctrl', 's')
+            if msg in ['control z', 'undo']:
+                obs()
+                pyautogui.hotkey('ctrl', 'z')
             if msg in ['alt tab', 'alt-tab']:
                 obs()
                 pyautogui.hotkey('altleft', 'tab')
