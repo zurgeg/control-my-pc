@@ -144,6 +144,9 @@ while True:
             if msg in ['control s', 'ctrl s', 'save']:
                 obs()
                 pyautogui.hotkey('ctrl', 's')
+            if msg in ['alt tab', 'alt-tab']:
+                obs()
+                pyautogui.hotkey('altleft', 'tab')
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
