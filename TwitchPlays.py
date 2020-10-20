@@ -1,10 +1,12 @@
-print("------------------------------------------")
-print("           TWITCH PLAYS                   ")
-print("           REWRITE BRANCH                 ")
-print("           https://cmpc.live              ")
-print("           © 2020 controlmypc             ")
-print("           by CMPC Developers             ")
-print("------------------------------------------")
+print("""\
+------------------------------------------
+           TWITCH PLAYS                   
+           REWRITE BRANCH                 
+           https://cmpc.live              
+           © 2020 controlmypc             
+           by CMPC Developers             
+------------------------------------------
+      """)
 import TwitchPlays_Connection
 import cmpc
 import time
