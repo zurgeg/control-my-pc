@@ -1,10 +1,10 @@
-print("------------------------------------------");
-print("           TWITCH PLAYS         ");
-print("           STAGING BRANCH         ")
-print("           https://cmpc.live     ");
-print("           © 2020 controlmypc");
-print("           By cmpc & fadedmax, with cmpc devs.");
-print("------------------------------------------");
+print("------------------------------------------")
+print("           TWITCH PLAYS                   ")
+print("           MASTER BRANCH                  ")
+print("           https://cmpc.live              ")
+print("           © 2020 controlmypc             ")
+print("           by CMPC Developers             ")
+print("------------------------------------------")
 import TwitchPlays_Connection
 import cmpc
 import time
@@ -37,13 +37,11 @@ if os.path.exists("chat.log"):
   os.remove("chat.log")
 else:
     print('[LOG] does not exist')
-text_file = open("executing.txt", "w")
-# SendInput = ctypes.windll.user32.SendInput
+currentexec = open("executing.txt", "w")
 def nothing():
     open("executing.txt", "w")
-    text_file.seek(0,0)
-    n = text_file.write("nothing")
-    ReleaseKeyPynput(hexKeyCode)
+    currentexec.seek(0,0)
+    n = currentexec.write("nothing")
 t = TwitchPlays_Connection.Twitch();
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN);
 while True:
@@ -67,10 +65,10 @@ while True:
                     f.write("\n")
                     f.close()
             def obs():
-                text_file.seek(0,0)
-                text_file.write(msg_preserve_caps + " (" + usr + ")")
+                currentexec.seek(0,0)
+                currentexec.write(msg_preserve_caps + " (" + usr + ")")
                 time.sleep(0.5)
-                print (msg_preserve_caps + ' (' + usr + ')')
+                print(msg_preserve_caps + ' (' + usr + ')')
                 t = time.localtime()
                 current_time = time.strftime("%H:%M:%S", t)
                 current_time_modded = "Time: " + current_time
@@ -96,9 +94,35 @@ while True:
                 ('super light up', 'super little up',): (0, -10),
                 ('down',): (0, 100),
             }
+            press_key_data = {
+                ('tab',): ('tab'),
+                ('enter'): ('enter'),
+                ('windows key', 'win'): ('win'),
+                ('backspace', 'back space', 'delete'): ('backspace'),
+            }
+            click_data = {
+                ('click', 'left click'): ('left'),
+                ('doubleclick', 'left click'): ('left'),
+                ('rightclick', 'right click'): ('right'),
+                ('middleclick', 'middle click'): ('middle'),
+            }
+
             for key, value in keycode_compare_data.items():
-                if msg in key:
+                if msg in key: # keycode_compare_data
                     cmpc.move(*value)
+                    obs()
+            for key, ktp in press_key_data.items():
+                if msg in key: # press_key_data
+                    pyautogui.press(ktp)
+                    obs()
+            for key, btp, times in click_data.items():
+                if msg in key: # press_key_data
+                    if key == "doubleclick":
+                        times = 2
+                    else: 
+                        times = 1
+                    pyautogui.click(button=btp, clicks=times)
+                    obs()
 
             if msg in ['center']:
                 obs()
@@ -108,25 +132,12 @@ while True:
                 obs()
                 pyautogui.click(button='right')
                 time.sleep(0.1)
-            if msg in ['click']:
-                obs()
-                pyautogui.click(button='left')
-                time.sleep(0.1)
             if msg in ['doubleclick', 'double click']:
                 obs()
                 pyautogui.click(button='left')
                 time.sleep(0.1)
                 pyautogui.click(button='left')
                 time.sleep(0.1)
-            if msg in ['tab']:
-                obs()
-                PressKeyPynput(TAB)
-                ReleaseKeyPynput(TAB)
-            if msg in ['enter']:
-                obs()
-                PressKeyPynput(ENTER)
-                time.sleep(0.04)
-                ReleaseKeyPynput(ENTER)
             if msg in ['space', 'spacebar']:
                 obs()
                 PressKeyPynput(SPACE)
@@ -146,19 +157,10 @@ while True:
                 ReleaseKeyPynput(SPACE)
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
-                PressKeyPynput(LEFT_CONTROL)
-                time.sleep(0.1)
-                PressKeyPynput(T)
-                time.sleep(0.1)
-                ReleaseKeyPynput(LEFT_CONTROL)
-                ReleaseKeyPynput(T)
+                pyautogui.hotkey('ctrl', 'n')
             if msg in ['control s', 'ctrl s', 'save']:
                 obs()
-                PressKeyPynput(RIGHT_CONTROL)
-                time.sleep(0.1)
-                PressKeyPynput(S)
-                ReleaseKeyPynput(RIGHT_CONTROL)
-                ReleaseKeyPynput(S)
+                pyautogui.hotkey('ctrl', 's')
             if msg in ['drag mouse up']:
                 obs()
                 pyautogui.drag(0, -50, 0.25, button='left')
@@ -170,11 +172,6 @@ while True:
                 pyautogui.drag(50, 0, 0.25, button='left')
             if msg in ['drag mouse left']:
                 pyautogui.drag(-50, 0, 0.25, button='left')
-            if msg in ['backspace', 'back space', 'delete']:
-                obs()
-                PressKeyPynput(BACKSPACE)
-                time.sleep(0.1)
-                ReleaseKeyPynput(BACKSPACE)
             if msg in ['arrow up', 'up arrow']:
                 obs()
                 PressKeyPynput(UP_ARROW)
