@@ -1,6 +1,6 @@
 print("------------------------------------------")
 print("           TWITCH PLAYS                   ")
-print("           MASTER BRANCH                  ")
+print("           REWRITE BRANCH                 ")
 print("           https://cmpc.live              ")
 print("           © 2020 controlmypc             ")
 print("           by CMPC Developers             ")
@@ -108,10 +108,11 @@ while True:
                 ('arrow left'): ('left'),
                 ('arrow right'): ('right'),
                 ('refresh', 'F5'): ('f5'),
+                ('where', 'where?'): ('ctrl'),
             }
             click_data = {
                 ('click', 'left click'): ('left'),
-                ('doubleclick', 'left click'): ('left'),
+                ('doubleclick', 'double click'): ('doubleclick'),
                 ('rightclick', 'right click'): ('right'),
                 ('middleclick', 'middle click'): ('middle'),
             }
@@ -122,7 +123,6 @@ while True:
                     obs()
             for key, ktp in press_key_data.items():
                 if msg in key: # press_key_data
-                    time.sleep(3)
                     pyautogui.press(ktp)
                     obs()
             for key, btp in click_data.items():
@@ -138,19 +138,6 @@ while True:
                 obs()
                 xval,yval = tuple(res/2 for res in pyautogui.size())
                 pyautogui.moveTo(xval,yval)
-            if msg in ['where?', 'where']:
-                obs()
-                PressKeyPynput(LEFT_CONTROL)
-                ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['win s', 'windows s', 'windows search', 'win search']:
-                obs()
-                PressKeyPynput(LEFT_CONTROL)
-                PressKeyPynput(ESC)
-                ReleaseKeyPynput(LEFT_CONTROL)
-                ReleaseKeyPynput(ESC)
-                time.sleep(0.004)
-                PressKeyPynput(SPACE)
-                ReleaseKeyPynput(SPACE)
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'n')
