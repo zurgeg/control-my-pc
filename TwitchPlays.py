@@ -170,6 +170,9 @@ while True:
             if msg in ['close tab', 'close the tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'w')
+            if msg in ['screenshot', 'screen shot']:
+                obs()
+                pyautogui.hotkey('win', 'prtsc')
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
                 mouse.press(Button.left)
