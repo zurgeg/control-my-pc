@@ -212,9 +212,14 @@ while True:
                 if msg == "script- testconn":
                     cmpc.send_webhook(modtalk, 'Connection made between twitch->script->webhook->discord')
                 if msg == "script- reqdata":
-                    data = {}
-                    data["content"] = "Data Requested from twitch! **LOG_ALL** " + LOG_ALL + " **START_MSG** " + START_MSG + " **EXC_MSG** " + EXC_MSG + " **LOG_PPR** " + LOG_PPR + " **MODS** " + str(MODS) + " **DEVS** " + str(DEVS) + " **CHANNEL** " + str(TWITCH_USERNAME) 
-                    result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                    optionsstr = f"Log All: {LOG_ALL}\nStart Message: {START_MSG}\nEXC_MSG: {EXC_MSG}\nLog PPR: {LOG_PPR}"
+                    context = {}
+                    context["options"] = optionsstr
+                    context["user"] = usr
+                    context["devlist"] = DEVS
+                    context["modlist"] = MODS
+                    context["channel"] = TWITCH_USERNAME
+                    cmpc.senddata(modtalk, context)
                 if msg == 'script- apirefresh':
                     devsr = requests.get(DEV_API)
                     modsr = requests.get(MOD_API)
@@ -222,6 +227,8 @@ while True:
                     DEVS = devsr.text
                     print('API Refreshed!')
                     cmpc.send_webhook(modtalk, 'API was refreshed.')
+                if msg == 'script- forceerror':
+                    cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
                 if msg.startswith("modsay "): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
@@ -406,6 +413,6 @@ while True:
                 except:
                     print('er')
         except Exception as error:
-            print(f"!!Exception: {error}")
-            cmpc.send_error(systemlog, error, msg, usr)
+            print(f"[ERROR]: {error}")
+            cmpc.send_error(systemlog, error, msg, usr, TWITCH_USERNAME)
 
