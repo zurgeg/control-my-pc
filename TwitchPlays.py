@@ -1,4 +1,4 @@
-print("""\
+print('''\
 ------------------------------------------
            TWITCH PLAYS                   
            REWRITE BRANCH                 
@@ -6,7 +6,7 @@ print("""\
            © 2020 controlmypc             
            by CMPC Developers             
 ------------------------------------------
-      """)
+      ''')
 import TwitchPlays_Connection
 import cmpc
 import time
@@ -23,24 +23,24 @@ import json
 import os
 from TwitchPlays_AccountInfo import *
 from pynput.mouse import Button, Controller
-if START_MSG == "true":
+if START_MSG == 'true':
     cmpc.send_webhook(systemlog, 'script online')
-print("[API] Requsting data!")
+print('[API] Requsting data!')
 devsr = requests.get(DEV_API)
 modsr = requests.get(MOD_API)
 MODS = modsr.text
 DEVS = devsr.text
-print("[API] Data here, and parsed!")
+print('[API] Data here, and parsed!')
 #<--File mgmt-->
-if os.path.exists("chat.log"):
-  os.remove("chat.log")
+if os.path.exists('chat.log'):
+  os.remove('chat.log')
 else:
     print('[LOG] does not exist')
-currentexec = open("executing.txt", "w")
+currentexec = open('executing.txt', 'w')
 def nothing():
-    open("executing.txt", "w")
+    open('executing.txt', 'w')
     currentexec.seek(0,0)
-    n = currentexec.write("nothing")
+    n = currentexec.write('nothing')
 t = TwitchPlays_Connection.Twitch();
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN);
 while True:
@@ -56,30 +56,31 @@ while True:
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 usr = username.decode()
-                if LOG_ALL == "true":
+                if LOG_ALL == 'true':
                     print('CHAT LOG: ' + usr + ': ' + msg)
-                if LOG_PPR == "true":
-                    f = open("chat.log", "a")
+                if LOG_PPR == 'true':
+                    f = open('chat.log', 'a')
                     f.write(usr + ':' + msg)
-                    f.write("\n")
+                    f.write('\n')
                     f.close()
             def obs():
                 currentexec.seek(0,0)
-                currentexec.write(msg_preserve_caps + " (" + usr + ")")
+                currentexec.write(msg_preserve_caps + ' (' + usr + ')')
                 time.sleep(0.5)
                 print(msg_preserve_caps + ' (' + usr + ')')
                 t = time.localtime()
-                current_time = time.strftime("%H:%M:%S", t)
-                current_time_modded = "Time: " + current_time
+                current_time = time.strftime('%H:%M:%S', t)
+                current_time_modded = 'Time: ' + current_time
                 data = {}
-                data["embeds"] = []
+                data['embeds'] = []
                 embed = {}
-                embed["description"] = msg_preserve_caps
-                embed["title"] = "Command event:"
-                data["username"] = usr
-                data["content"] = current_time_modded
-                data["embeds"].append(embed)    
-                result = requests.post(chatrelay, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                embed['description'] = msg_preserve_caps
+                embed['title'] = 'Command event:'
+                data['username'] = usr
+                data['content'] = current_time_modded
+                data['embeds'].append(embed)    
+                result = requests.post(chatrelay, data=json.dumps(data),
+                                       headers={'Content-Type': 'application/json'})
 
             keycode_compare_data = {
                 ('left',): (-100,0),
@@ -130,7 +131,7 @@ while True:
                     obs()
             for key, btp in click_data.items():
                 if msg in key: # press_key_data
-                    if key == "doubleclick":
+                    if key == 'doubleclick':
                         times = 2
                     else: 
                         times = 1
@@ -184,41 +185,44 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(3)
                 mouse.release(Button.left)
-            if msg == "hold mouse long":
+            if msg == 'hold mouse long':
                 obs()
                 mouse.press(Button.left)
                 time.sleep(9)
                 mouse.release(Button.left)
             if msg in ['!modalert']:
-                print("(MA) called.")
-                data["username"] = usr
+                print('(MA) called.')
+                data['username'] = usr
                 data = {}
-                data["embeds"] = []
+                data['embeds'] = []
                 embed = {}  
-                embed["title"] = ":rotating_light: **The user above needs a moderator on the stream.** :rotating_light:"
-                data["username"] = usr
-                data["embeds"].append(embed)
-                data["content"] = "<@&741308237135216650> https://twitch.tv/controlmypc"
-                print("(MA) Sending request...")
-                result = requests.post(chatalerts, data=json.dumps(data), headers={"Content-Type": "application/json"})
-                print("(MA) Request sent")
+                embed['title'] = ':rotating_light: '\
+                                 '**The user above needs a moderator on the stream.** '\
+                                 ':rotating_light:'
+                data['username'] = usr
+                data['embeds'].append(embed)
+                data['content'] = '<@&741308237135216650> https://twitch.tv/controlmypc'
+                print('(MA) Sending request...')
+                result = requests.post(chatalerts, data=json.dumps(data),
+                                       headers={'Content-Type': 'application/json'})
+                print('(MA) Request sent')
 
-            if usr == "cmpcscript":
-                print("CMPC SCRIPT")
+            if usr == 'cmpcscript':
+                print('CMPC SCRIPT')
                 print(msg)
-                if msg_preserve_caps == "c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy":
+                if msg_preserve_caps == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
                     break       
             if usr in DEVS:
-                if msg == "script- testconn":
+                if msg == 'script- testconn':
                     cmpc.send_webhook(modtalk, 'Connection made between twitch->script->webhook->discord')
-                if msg == "script- reqdata":
-                    optionsstr = f"Log All: {LOG_ALL}\nStart Message: {START_MSG}\nEXC_MSG: {EXC_MSG}\nLog PPR: {LOG_PPR}"
+                if msg == 'script- reqdata':
+                    optionsstr = f'Log All: {LOG_ALL}\nStart Message: {START_MSG}\nEXC_MSG: {EXC_MSG}\nLog PPR: {LOG_PPR}'
                     context = {}
-                    context["options"] = optionsstr
-                    context["user"] = usr
-                    context["devlist"] = DEVS
-                    context["modlist"] = MODS
-                    context["channel"] = TWITCH_USERNAME
+                    context['options'] = optionsstr
+                    context['user'] = usr
+                    context['devlist'] = DEVS
+                    context['modlist'] = MODS
+                    context['channel'] = TWITCH_USERNAME
                     cmpc.senddata(modtalk, context)
                 if msg == 'script- apirefresh':
                     devsr = requests.get(DEV_API)
@@ -229,64 +233,66 @@ while True:
                     cmpc.send_webhook(modtalk, 'API was refreshed.')
                 if msg == 'script- forceerror':
                     cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
-                if msg.startswith("modsay "): 
+                if msg.startswith('modsay '): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {}
-                        data["content"] = typeMsg
-                        data["username"] = usr
-                        result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                        data['content'] = typeMsg
+                        data['username'] = usr
+                        result = requests.post(modtalk, data=json.dumps(data),
+                                               headers={'Content-Type': 'application/json'})
                     except:
-                        print("Could not modsay this moderators message!" + msg)
+                        print('Could not modsay this moderators message!' + msg)
 
 
             if usr in MODS:
-                if msg.startswith("modsay "): 
+                if msg.startswith('modsay '): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {}
-                        data["content"] = typeMsg
-                        data["username"] = usr
-                        result = requests.post(modtalk, data=json.dumps(data), headers={"Content-Type": "application/json"})
+                        data['content'] = typeMsg
+                        data['username'] = usr
+                        result = requests.post(modtalk, data=json.dumps(data),
+                                               headers={'Content-Type': 'application/json'})
                     except:
-                        print("Could not modsay this moderators message!" + msg)
+                        print('Could not modsay this moderators message!' + msg)
                 
 
-            if usr == "controlmypc":
-                if msg == "starting soon":
+            if usr == 'controlmypc':
+                if msg == 'starting soon':
                     obs()
                     PressKeyPynput(LEFT_ALT)
                     PressAndHoldKey(S, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-                if msg == "main":
+                if msg == 'main':
                     obs()
                     PressKeyPynput(LEFT_ALT)
                     PressAndHoldKey(C, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-                if msg == "stop the stream!":
+                if msg == 'stop the stream!':
                     obs()
                     PressKeyPynput(LEFT_ALT)
                     PressAndHoldKey(Q, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-                if msg == "maintenance":
+                if msg == 'maintenance':
                     obs()
                     PressKeyPynput(LEFT_ALT)   
                     PressAndHoldKey(M, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
-            if msg.startswith("type "): 
+            if msg.startswith('type '): 
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
                 except:
-                    print("COULD NOT TYPE: " + msg)
-            if msg.startswith("press "): 
+                    print('COULD NOT TYPE: ' + msg)
+            if msg.startswith('press '): 
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
                 except:
-                    print("COULD NOT TYPE: " + msg)
+                    print('COULD NOT TYPE: ' + msg)
 
             if msg in ['select all', 'ctrl a', 'control a']:
                     obs()
@@ -298,11 +304,11 @@ while True:
                     PressKeyPynput(LEFT_CONTROL)
                     PressAndHoldKey(K, 0.1)
                     ReleaseKeyPynput(LEFT_CONTROL)
-            if msg.startswith("go to "):
+            if msg.startswith('go to '):
                 try:
                     obs()
                     coord = msg[6:]
-                    if coord == "center":
+                    if coord == 'center':
                         xval,yval = tuple(res/2 for res in pyautogui.size())
                     else:
                         xval,yval = coord.split(' ',1)
@@ -310,7 +316,7 @@ while True:
                     yval = int(yval)
                     pyautogui.moveTo(xval, yval) 
                 except:
-                    print("could not go to somehow: " + msg)
+                    print('could not go to somehow: ' + msg)
 
             if msg in ['scroll down']:
                 obs()
@@ -413,6 +419,6 @@ while True:
                 except:
                     print('er')
         except Exception as error:
-            print(f"[ERROR]: {error}")
+            print(f'[ERROR]: {error}')
             cmpc.send_error(systemlog, error, msg, usr, TWITCH_USERNAME)
 
