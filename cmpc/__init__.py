@@ -69,4 +69,5 @@ def senddata (url, context):
         }
     ]
     }
-    result = requests.post(url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    result = requests.post(url, data=json.dumps(data),
+                           headers={"Content-Type": "application/json"})
