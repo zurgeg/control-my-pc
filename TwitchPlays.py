@@ -1,3 +1,4 @@
+# Log copyright notice.
 print("""\
 ------------------------------------------
            TWITCH PLAYS                   
@@ -7,8 +8,8 @@ print("""\
            by CMPC Developers             
 ------------------------------------------
       """)
-import TwitchPlays_Connection
-import cmpc
+
+# Stock Python imports
 import time
 import subprocess
 import ctypes
@@ -16,13 +17,22 @@ import random
 import string
 import re
 import sys
-import pyautogui
-import requests
-import pynput
 import json
 import os
-from TwitchPlays_AccountInfo import *
+
+# PyPI dependency imports.
+import requests
+import pyautogui
+import pynput
+
 from pynput.mouse import Button, Controller
+
+# File imports.
+import cmpc
+import TwitchPlays_Connection
+
+from TwitchPlays_AccountInfo import *
+
 if START_MSG == 'true':
     cmpc.send_webhook(systemlog, 'script online')
 print('[API] Requsting data!')
