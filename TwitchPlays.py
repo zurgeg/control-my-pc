@@ -7,7 +7,7 @@ print("""\
            © 2020 controlmypc             
            by CMPC Developers             
 ------------------------------------------
-      """)
+""")
 
 # Stock Python imports
 import time
@@ -33,39 +33,59 @@ import TwitchPlays_Connection
 
 from TwitchPlays_AccountInfo import *
 
+
+# Send starting up message with webhook if in config.
 if START_MSG == 'true':
     cmpc.send_webhook(systemlog, 'script online')
+
+# Get dev and mod lists from API.
 print('[API] Requsting data!')
 devsr = requests.get(DEV_API)
 modsr = requests.get(MOD_API)
 MODS = modsr.text
 DEVS = devsr.text
 print('[API] Data here, and parsed!')
-#<--File mgmt-->
+
+# File management
+
+# Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
   os.remove('chat.log')
 else:
     print('[LOG] does not exist')
+    
 currentexec = open('executing.txt', 'w')
+
+# Function to write the default status to OBS file if no commands in progress.
 def nothing():
     open('executing.txt', 'w')
     currentexec.seek(0,0)
     n = currentexec.write('nothing')
-t = TwitchPlays_Connection.Twitch();
-t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN);
+
+# Connect to Twitch API.  
+t = TwitchPlays_Connection.Twitch()
+t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+
+
+
+# Mainloop
 while True:
-    new_messages = t.twitch_recieve_messages();
+    new_messages = t.twitch_recieve_messages()
+    # If new messages list is empty, write default status to OBS and continue
     if not new_messages:
         nothing()
         continue
+    
     else:
-
         try:
             for message in new_messages:
+                # Get message data.
                 msg = message['message'].lower()
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 usr = username.decode()
+
+                # Log new message if in config.
                 if LOG_ALL == 'true':
                     print('CHAT LOG: ' + usr + ': ' + msg)
                 if LOG_PPR == 'true':
@@ -73,11 +93,16 @@ while True:
                     f.write(usr + ':' + msg)
                     f.write('\n')
                     f.close()
+
+            # Function to write the currently executing command to OBS.
             def obs():
                 currentexec.seek(0,0)
                 currentexec.write(msg_preserve_caps + ' (' + usr + ')')
                 time.sleep(0.5)
+                
                 print(msg_preserve_caps + ' (' + usr + ')')
+
+                # Send command info to chatrelay webhook.
                 t = time.localtime()
                 current_time = time.strftime('%H:%M:%S', t)
                 current_time_modded = 'Time: ' + current_time
@@ -92,6 +117,7 @@ while True:
                 result = requests.post(chatrelay, data=json.dumps(data),
                                        headers={'Content-Type': 'application/json'})
 
+            # Co-ordinate data for mosue move commands.
             keycode_compare_data = {
                 ('left',): (-100,0),
                 ('light left', 'little left',): (-25,0),
@@ -108,6 +134,8 @@ while True:
                 ('far up'): (0,-300),
                 ('far down'): (0, 300),
             }
+
+            # Aliases to pyautogui key codes for keypress commands.
             press_key_data = {
                 ('tab',): ('tab'),
                 ('enter'): ('enter'),
@@ -124,6 +152,8 @@ while True:
                 ('refresh', 'F5'): ('f5'),
                 ('where', 'where?'): ('ctrl'),
             }
+
+            # Aliases to pyautogui key codes for clicking commands.
             click_data = {
                 ('click', 'left click'): ('left'),
                 ('doubleclick', 'double click'): ('doubleclick'),
@@ -131,6 +161,8 @@ while True:
                 ('middleclick', 'middle click'): ('middle'),
             }
 
+            # Compare command with aliases in each dict.
+            # This replaces a large if statement chain.
             for key, value in keycode_compare_data.items():
                 if msg in key: # keycode_compare_data
                     cmpc.move(*value)
@@ -148,6 +180,7 @@ while True:
                     pyautogui.click(button=btp, clicks=times)
                     obs()
 
+            # Other regular commands
             if msg in ['center']:
                 obs()
                 xval,yval = tuple(res/2 for res in pyautogui.size())
@@ -200,7 +233,10 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(9)
                 mouse.release(Button.left)
+
+            # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
+                # Log and send to chatalert webhook.
                 print('(MA) called.')
                 data['username'] = usr
                 data = {}
@@ -217,11 +253,17 @@ while True:
                                        headers={'Content-Type': 'application/json'})
                 print('(MA) Request sent')
 
+            # Commands for cmpcscript only.
             if usr == 'cmpcscript':
+                # Log
                 print('CMPC SCRIPT')
                 print(msg)
+
+                # Stop the script if message matches this key.
                 if msg_preserve_caps == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
-                    break       
+                    break
+
+            # Commands for authorised developers in dev list only.
             if usr in DEVS:
                 if msg == 'script- testconn':
                     cmpc.send_webhook(modtalk, 'Connection made between twitch->script->webhook->discord')
@@ -254,8 +296,9 @@ while True:
                     except:
                         print('Could not modsay this moderators message!' + msg)
 
-
+            # Commands for moderators in mod list only.
             if usr in MODS:
+                # Command to send message to modtalk webhook.
                 if msg.startswith('modsay '): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
@@ -266,8 +309,8 @@ while True:
                                                headers={'Content-Type': 'application/json'})
                     except:
                         print('Could not modsay this moderators message!' + msg)
-                
 
+            # Commands for big man controlmypc only.
             if usr == 'controlmypc':
                 if msg == 'starting soon':
                     obs()
@@ -289,6 +332,8 @@ while True:
                     PressKeyPynput(LEFT_ALT)   
                     PressAndHoldKey(M, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
+
+            # Regular commands that take arguments.
             if msg.startswith('type '): 
                 try:
                     obs()
@@ -304,6 +349,7 @@ while True:
                 except:
                     print('COULD NOT TYPE: ' + msg)
 
+            # More regular commands I guess
             if msg in ['select all', 'ctrl a', 'control a']:
                     obs()
                     PressKeyPynput(LEFT_CONTROL)
@@ -383,6 +429,7 @@ while True:
                         PressAndHoldKey(S,timee)
                 except:
                     print('error')
+            # Ok there's no order to this atm
             if msg.startswith('w for '): 
                 try:
                     obs()
@@ -428,7 +475,9 @@ while True:
                         PressAndHoldKey(DOWN_ARROW,timee)
                 except:
                     print('er')
+                    
         except Exception as error:
+            # Send error data to systemlog.
             print(f'[ERROR]: {error}')
             cmpc.send_error(systemlog, error, msg, usr, TWITCH_USERNAME)
 
