@@ -228,7 +228,7 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(3)
                 mouse.release(Button.left)
-            if msg == 'hold mouse long':
+            if msg in ['hold mouse long']:
                 obs()
                 mouse.press(Button.left)
                 time.sleep(9)
@@ -238,16 +238,18 @@ while True:
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
                 print('(MA) called.')
-                data['username'] = usr
-                data = {}
-                data['embeds'] = []
-                embed = {}  
-                embed['title'] = ':rotating_light: '\
-                                 '**The user above needs a moderator on the stream.** '\
-                                 ':rotating_light:'
-                data['username'] = usr
+                
+                data = {'embeds': [],
+                        'username': usr,
+                        'content': '<@&741308237135216650> '\
+                                   'https://twitch.tv/controlmypc'}
+
+                embed = {'title': ':rotating_light: '\
+                                  '**The user above needs a moderator '\
+                                  'on the stream.** '\
+                                  ':rotating_light:'}
                 data['embeds'].append(embed)
-                data['content'] = '<@&741308237135216650> https://twitch.tv/controlmypc'
+
                 print('(MA) Sending request...')
                 result = requests.post(chatalerts, data=json.dumps(data),
                                        headers={'Content-Type': 'application/json'})
