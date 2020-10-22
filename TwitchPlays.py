@@ -58,9 +58,7 @@ currentexec = open('executing.txt', 'w')
 
 # Function to write the default status to OBS file if no commands in progress.
 def nothing():
-    open('executing.txt', 'w')
-    currentexec.seek(0,0)
-    n = currentexec.write('nothing')
+    currentexec.write('nothing')
 
 # Connect to Twitch API.  
 t = TwitchPlays_Connection.Twitch()
