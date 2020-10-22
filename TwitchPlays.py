@@ -58,6 +58,7 @@ currentexec = open('executing.txt', 'w')
 
 # Function to write the default status to OBS file if no commands in progress.
 def nothing():
+    currentexec.truncate()
     currentexec.write('nothing')
 
 # Connect to Twitch API.  
@@ -104,14 +105,15 @@ while True:
                 t = time.localtime()
                 current_time = time.strftime('%H:%M:%S', t)
                 current_time_modded = 'Time: ' + current_time
-                data = {}
-                data['embeds'] = []
-                embed = {}
-                embed['description'] = msg_preserve_caps
-                embed['title'] = 'Command event:'
-                data['username'] = usr
-                data['content'] = current_time_modded
-                data['embeds'].append(embed)    
+                
+                data = {'embeds': [],
+                        'username': usr,
+                        'content': current_time_modded}
+                
+                embed = {'description': msg_preserve_caps,
+                         'title': 'Command event:'}
+                data['embeds'].append(embed)
+                
                 result = requests.post(chatrelay, data=json.dumps(data),
                                        headers={'Content-Type': 'application/json'})
 
