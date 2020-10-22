@@ -119,19 +119,19 @@ while True:
 
             # Co-ordinate data for mosue move commands.
             keycode_compare_data = {
-                ('left',): (-100,0),
-                ('light left', 'little left',): (-25,0),
+                ('left',): (-100, 0),
+                ('light left', 'little left',): (-25, 0),
                 ('super light left', 'super little left',): (-10, 0),
-                ('right',): (100,0),
-                ('light right', 'little right',): (25,0),
+                ('right',): (100, 0),
+                ('light right', 'little right',): (25, 0),
                 ('super light right', 'super little right',): (10, 0),
                 ('up',): (0, -100),
                 ('light up', 'little up',): (0, -25),
                 ('super light up', 'super little up',): (0, -10),
                 ('down',): (0, 100),
-                ('far left'): (-300,0),
-                ('far right'): (300,0),
-                ('far up'): (0,-300),
+                ('far left'): (-300, 0),
+                ('far right'): (300, 0),
+                ('far up'): (0, -300),
                 ('far down'): (0, 300),
             }
 
