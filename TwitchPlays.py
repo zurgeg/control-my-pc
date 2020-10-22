@@ -242,12 +242,14 @@ while True:
                 data = {'embeds': [],
                         'username': usr,
                         'content': '<@&741308237135216650> '\
-                                   'https://twitch.tv/controlmypc'}
+                                   'https://twitch.tv/controlmypc',
+                }
 
                 embed = {'title': ':rotating_light: '\
                                   '**The user above needs a moderator '\
                                   'on the stream.** '\
-                                  ':rotating_light:'}
+                                  ':rotating_light:',
+                }
                 data['embeds'].append(embed)
 
                 print('(MA) Sending request...')
@@ -275,7 +277,8 @@ while True:
                                'user': usr,
                                'devlist': DEVS,
                                'modlist': MODS,
-                               'channel': TWITCH_USERNAME}
+                               'channel': TWITCH_USERNAME,
+                    }
 
                     cmpc.senddata(modtalk, context)
                 if msg == 'script- apirefresh':
@@ -292,7 +295,8 @@ while True:
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {'username': usr,
-                                'content': typeMsg}
+                                'content': typeMsg,
+                        }
                         
                         result = requests.post(modtalk, data=json.dumps(data),
                                                headers={'Content-Type': 'application/json'})
@@ -306,7 +310,8 @@ while True:
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {'username': usr,
-                                'content': typeMsg}
+                                'content': typeMsg,
+                        }
 
                         result = requests.post(modtalk, data=json.dumps(data),
                                                headers={'Content-Type': 'application/json'})
