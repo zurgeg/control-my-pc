@@ -1,4 +1,4 @@
-print('''\
+print("""\
 ------------------------------------------
            TWITCH PLAYS                   
            REWRITE BRANCH                 
@@ -6,7 +6,7 @@ print('''\
            © 2020 controlmypc             
            by CMPC Developers             
 ------------------------------------------
-      ''')
+      """)
 import TwitchPlays_Connection
 import cmpc
 import time
