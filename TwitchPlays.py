@@ -202,6 +202,9 @@ while True:
             if msg in ['close tab', 'close the tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'w')
+            if msg in ['quit', 'alt f4']:
+                obs()
+                pyautogui.hotkey('altleft', 'f4')
             if msg in ['screenshot', 'screen shot']:
                 obs()
                 pyautogui.hotkey('win', 'prtsc')
