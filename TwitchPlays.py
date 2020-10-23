@@ -233,7 +233,29 @@ while True:
                 mouse.press(Button.left)
                 time.sleep(9)
                 mouse.release(Button.left)
+            if msg in ['scroll down']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(-60)
+            if msg in ['scroll up']:
+                obs()
+                for scrl in range(5):
+                    pyautogui.scroll(60)
 
+            # More regular commands, using pynput
+            if msg in ['select all', 'ctrl a', 'control a']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    PressAndHoldKey(A, 0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
+            if msg in ['tayne', 'ctrl k', 'control k']:
+                    obs()
+                    PressKeyPynput(LEFT_CONTROL)
+                    PressAndHoldKey(K, 0.1)
+                    ReleaseKeyPynput(LEFT_CONTROL)
+
+            # Regular commands that take arguments.
+            
             # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
@@ -257,15 +279,133 @@ while True:
                                        headers={'Content-Type': 'application/json'})
                 print('(MA) Request sent')
 
-            # Commands for cmpcscript only.
-            if usr == 'cmpcscript':
-                # Log
-                print('CMPC SCRIPT')
-                print(msg)
+            # PyAutoGUI commands with arguments
+            if msg.startswith('type '): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print('COULD NOT TYPE: ' + msg)
+            if msg.startswith('press '): 
+                try:
+                    obs()
+                    typeMsg = msg_preserve_caps[5:]
+                    pyautogui.typewrite(typeMsg)
+                except:
+                    print('COULD NOT TYPE: ' + msg)
 
-                # Stop the script if message matches this key.
-                if msg_preserve_caps == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
-                    break
+            if msg.startswith('go to '):
+                try:
+                    obs()
+                    coord = msg[6:]
+                    if coord == 'center':
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
+                    xval = int(xval)
+                    yval = int(yval)
+                    pyautogui.moveTo(xval, yval) 
+                except:
+                    print('could not go to somehow: ' + msg)
+                    
+            if msg.startswith('scroll up for '):
+                try:
+                    scrll = msg[14:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(1)
+                except:
+                    print('error')
+            if msg.startswith('scroll down for '):
+                try:
+                    scrll = msg[16:]
+                    scrll = int(scrll)
+                    if scrll<=20 and scrll>=0:
+                        obs()
+                        for scrl in range(scrll):
+                            pyautogui.scroll(-1)
+                except:
+                    print('error')
+
+            # pynput commands with arguments
+            if msg.startswith('d for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(D,timee)
+                except:
+                    print('error')
+            if msg.startswith('a for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(A,timee)
+                except:
+                    print('error')
+            if msg.startswith('s for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(S,timee)
+                except:
+                    print('error')
+            if msg.startswith('w for '): 
+                try:
+                    obs()
+                    timee = msg[6:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(W,timee)
+                except:
+                    print('error')
+            if msg.startswith('arrow up for '): 
+                try:
+                    obs()
+                    timee = msg[13:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(UP_ARROW,timee)
+                except:
+                    print('er')   
+            if msg.startswith('arrow left for '): 
+                try:
+                    obs()
+                    timee = msg[15:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(LEFT_ARROW,timee)
+                except:
+                    print('er')
+            if msg.startswith('arrow right for '): 
+                try:
+                    obs()
+                    timee = msg[16:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(RIGHT_ARROW,timee)
+                except:
+                    print('er')
+            if msg.startswith('arrow down for '): 
+                try:
+                    obs()   
+                    timee = msg[15:]
+                    timee = float(timee)
+                    if timee<=10 and timee>=0:
+                        PressAndHoldKey(DOWN_ARROW,timee)
+                except:
+                    print('er')
+
+
+            # Commands that are exclusive to certain users
 
             # Commands for authorised developers in dev list only.
             if usr in DEVS:
@@ -291,6 +431,7 @@ while True:
                 if msg == 'script- forceerror':
                     cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
                 # TODO: remove duplicated modsay code
+                # Command to send message to modtalk webhook.
                 if msg.startswith('modsay '): 
                     try:
                         typeMsg = msg_preserve_caps[7:]
@@ -341,148 +482,15 @@ while True:
                     PressAndHoldKey(M, 0.1)
                     ReleaseKeyPynput(LEFT_ALT)
 
-            # Regular commands that take arguments.
-            if msg.startswith('type '): 
-                try:
-                    obs()
-                    typeMsg = msg_preserve_caps[5:]
-                    pyautogui.typewrite(typeMsg)
-                except:
-                    print('COULD NOT TYPE: ' + msg)
-            if msg.startswith('press '): 
-                try:
-                    obs()
-                    typeMsg = msg_preserve_caps[5:]
-                    pyautogui.typewrite(typeMsg)
-                except:
-                    print('COULD NOT TYPE: ' + msg)
+            # Commands for cmpcscript only.
+            if usr == 'cmpcscript':
+                # Log
+                print('CMPC SCRIPT')
+                print(msg)
 
-            # More regular commands I guess
-            if msg in ['select all', 'ctrl a', 'control a']:
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(A, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['tayne', 'ctrl k', 'control k']:
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(K, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-            if msg.startswith('go to '):
-                try:
-                    obs()
-                    coord = msg[6:]
-                    if coord == 'center':
-                        xval,yval = tuple(res/2 for res in pyautogui.size())
-                    else:
-                        xval,yval = coord.split(' ',1)
-                    xval = int(xval)
-                    yval = int(yval)
-                    pyautogui.moveTo(xval, yval) 
-                except:
-                    print('could not go to somehow: ' + msg)
-
-            if msg in ['scroll down']:
-                obs()
-                for scrl in range(5):
-                    pyautogui.scroll(-60)
-            if msg in ['scroll up']:
-                obs()
-                for scrl in range(5):
-                    pyautogui.scroll(60)
-            if msg.startswith('scroll up for '):
-                try:
-                    scrll = msg[14:]
-                    scrll = int(scrll)
-                    if scrll<=20 and scrll>=0:
-                        obs()
-                        for scrl in range(scrll):
-                            pyautogui.scroll(1)
-                except:
-                    print('error')
-            if msg.startswith('scroll down for '):
-                try:
-                    scrll = msg[16:]
-                    scrll = int(scrll)
-                    if scrll<=20 and scrll>=0:
-                        obs()
-                        for scrl in range(scrll):
-                            pyautogui.scroll(-1)
-                except:
-                    print('error')                
-            if msg.startswith('d for '): 
-                try:
-                    obs()
-                    timee = msg[6:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(D,timee)
-                except:
-                    print('error')
-            if msg.startswith('a for '): 
-                try:
-                    obs()
-                    timee = msg[6:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(A,timee)
-                except:
-                    print('error')
-            if msg.startswith('s for '): 
-                try:
-                    obs()
-                    timee = msg[6:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(S,timee)
-                except:
-                    print('error')
-            # Ok there's no order to this atm
-            if msg.startswith('w for '): 
-                try:
-                    obs()
-                    timee = msg[6:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(W,timee)
-                except:
-                    print('error')
-            if msg.startswith('arrow up for '): 
-                try:
-                    obs()
-                    timee = msg[13:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(UP_ARROW,timee)
-                except:
-                    print('er')   
-            if msg.startswith('arrow left for '): 
-                try:
-                    obs()
-                    timee = msg[15:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(LEFT_ARROW,timee)
-                except:
-                    print('er')
-            if msg.startswith('arrow right for '): 
-                try:
-                    obs()
-                    timee = msg[16:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(RIGHT_ARROW,timee)
-                except:
-                    print('er')
-            if msg.startswith('arrow down for '): 
-                try:
-                    obs()   
-                    timee = msg[15:]
-                    timee = float(timee)
-                    if timee<=10 and timee>=0:
-                        PressAndHoldKey(DOWN_ARROW,timee)
-                except:
-                    print('er')
+                # Stop the script if message matches this key.
+                if msg_preserve_caps == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
+                    break
                     
         except Exception as error:
             # Send error data to systemlog.
