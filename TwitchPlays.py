@@ -119,14 +119,14 @@ while True:
 
             # Aliases to pyautogui key codes for keypress commands.
             press_key_data = {
-                ('tab',): ('tab'),
                 ('enter'): ('enter'),
+                ('tab',): ('tab'),
+                ('esc', 'escape'): ('esc'),
                 ('windows key', 'win'): ('win'),
                 ('backspace', 'back space', 'delete'): ('backspace'),
                 ('space', 'spacebar'): ('space'),
                 ('page up', 'pageup'): ('pageup'),
                 ('page down', 'pagedown'): ('pagedown'),
-                ('esc', 'escape'): ('esc'),
                 ('arrow down'): ('down'),
                 ('arrow up'): ('up'),
                 ('arrow left'): ('left'),
@@ -193,26 +193,12 @@ while True:
             if msg in ['alt tab', 'alt-tab']:
                 obs()
                 pyautogui.hotkey('altleft', 'tab')
-            if msg in ['drag mouse up']:
-                obs()
-                pyautogui.drag(0, -50, 0.25, button='left')
-            if msg in ['drag mouse down']:
-                obs()
-                pyautogui.drag(0, 50, 0.25, button='left')
-            if msg in ['drag mouse right']:
-                obs()
-                pyautogui.drag(50, 0, 0.25, button='left')
-            if msg in ['drag mouse left']:
-                pyautogui.drag(-50, 0, 0.25, button='left')
             if msg in ['copy', 'control c']:
                 obs()
                 pyautogui.hotkey('ctrl', 'c')
             if msg in ['paste', 'control v']:
                 obs()
                 pyautogui.hotkey('ctrl', 'v')
-            if msg in ['its stuck', 'it is stuck']:
-                obs()
-                mouse.position = (500, 500)
             if msg in ['close tab', 'close the tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'w')
@@ -220,6 +206,7 @@ while True:
                 obs()
                 pyautogui.hotkey('win', 'prtsc')
 
+            # Mouse
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
                 mouse.press(Button.left)
@@ -238,10 +225,25 @@ while True:
                 obs()
                 for scrl in range(5):
                     pyautogui.scroll(60)
+            if msg in ['drag mouse up']:
+                obs()
+                pyautogui.drag(0, -50, 0.25, button='left')
+            if msg in ['drag mouse down']:
+                obs()
+                pyautogui.drag(0, 50, 0.25, button='left')
+            if msg in ['drag mouse right']:
+                obs()
+                pyautogui.drag(50, 0, 0.25, button='left')
+            if msg in ['drag mouse left']:
+                obs()
+                pyautogui.drag(-50, 0, 0.25, button='left')
             if msg in ['center']:
                 obs()
                 xval,yval = tuple(res/2 for res in pyautogui.size())
                 pyautogui.moveTo(xval,yval)
+            if msg in ['its stuck', 'it is stuck']:
+                obs()
+                mouse.position = (500, 500)
 
             # More regular commands, using pynput
             if msg in ['select all', 'ctrl a', 'control a']:
