@@ -1,3 +1,5 @@
+[More documentation in the central wiki.](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script)
+
 # Twitch-Plays-Control-My-PC
 
 An overhaul update to DougDoug TwitchPlays script.
