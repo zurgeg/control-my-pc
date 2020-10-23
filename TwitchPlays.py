@@ -117,24 +117,6 @@ while True:
                 result = requests.post(chatrelay, data=json.dumps(data),
                                        headers={'Content-Type': 'application/json'})
 
-            # Co-ordinate data for mosue move commands.
-            keycode_compare_data = {
-                ('left',): (-100, 0),
-                ('light left', 'little left',): (-25, 0),
-                ('super light left', 'super little left',): (-10, 0),
-                ('right',): (100, 0),
-                ('light right', 'little right',): (25, 0),
-                ('super light right', 'super little right',): (10, 0),
-                ('up',): (0, -100),
-                ('light up', 'little up',): (0, -25),
-                ('super light up', 'super little up',): (0, -10),
-                ('down',): (0, 100),
-                ('far left'): (-300, 0),
-                ('far right'): (300, 0),
-                ('far up'): (0, -300),
-                ('far down'): (0, 300),
-            }
-
             # Aliases to pyautogui key codes for keypress commands.
             press_key_data = {
                 ('tab',): ('tab'),
@@ -160,31 +142,45 @@ while True:
                 ('rightclick', 'right click'): ('right'),
                 ('middleclick', 'middle click'): ('middle'),
             }
+            
+            # Co-ordinate data for mouse move commands.
+            keycode_compare_data = {
+                ('left',): (-100, 0),
+                ('light left', 'little left',): (-25, 0),
+                ('super light left', 'super little left',): (-10, 0),
+                ('right',): (100, 0),
+                ('light right', 'little right',): (25, 0),
+                ('super light right', 'super little right',): (10, 0),
+                ('up',): (0, -100),
+                ('light up', 'little up',): (0, -25),
+                ('super light up', 'super little up',): (0, -10),
+                ('down',): (0, 100),
+                ('far left'): (-300, 0),
+                ('far right'): (300, 0),
+                ('far up'): (0, -300),
+                ('far down'): (0, 300),
+            }
 
             # Compare command with aliases in each dict.
             # This replaces a large if statement chain.
-            for key, value in keycode_compare_data.items():
-                if msg in key: # keycode_compare_data
-                    cmpc.move(*value)
-                    obs()
             for key, ktp in press_key_data.items():
                 if msg in key: # press_key_data
                     pyautogui.press(ktp)
                     obs()
             for key, btp in click_data.items():
-                if msg in key: # press_key_data
+                if msg in key: # click_data
                     if key == 'doubleclick':
                         times = 2
                     else: 
                         times = 1
                     pyautogui.click(button=btp, clicks=times)
                     obs()
+            for key, value in keycode_compare_data.items():
+                if msg in key: # keycode_compare_data
+                    cmpc.move(*value)
+                    obs()
 
             # Other regular commands
-            if msg in ['center']:
-                obs()
-                xval,yval = tuple(res/2 for res in pyautogui.size())
-                pyautogui.moveTo(xval,yval)
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'n')
@@ -223,6 +219,7 @@ while True:
             if msg in ['screenshot', 'screen shot']:
                 obs()
                 pyautogui.hotkey('win', 'prtsc')
+
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
                 mouse.press(Button.left)
@@ -241,6 +238,10 @@ while True:
                 obs()
                 for scrl in range(5):
                     pyautogui.scroll(60)
+            if msg in ['center']:
+                obs()
+                xval,yval = tuple(res/2 for res in pyautogui.size())
+                pyautogui.moveTo(xval,yval)
 
             # More regular commands, using pynput
             if msg in ['select all', 'ctrl a', 'control a']:
@@ -294,20 +295,6 @@ while True:
                     pyautogui.typewrite(typeMsg)
                 except:
                     print('COULD NOT TYPE: ' + msg)
-
-            if msg.startswith('go to '):
-                try:
-                    obs()
-                    coord = msg[6:]
-                    if coord == 'center':
-                        xval,yval = tuple(res/2 for res in pyautogui.size())
-                    else:
-                        xval,yval = coord.split(' ',1)
-                    xval = int(xval)
-                    yval = int(yval)
-                    pyautogui.moveTo(xval, yval) 
-                except:
-                    print('could not go to somehow: ' + msg)
                     
             if msg.startswith('scroll up for '):
                 try:
@@ -329,6 +316,19 @@ while True:
                             pyautogui.scroll(-1)
                 except:
                     print('error')
+            if msg.startswith('go to '):
+                try:
+                    obs()
+                    coord = msg[6:]
+                    if coord == 'center':
+                        xval,yval = tuple(res/2 for res in pyautogui.size())
+                    else:
+                        xval,yval = coord.split(' ',1)
+                    xval = int(xval)
+                    yval = int(yval)
+                    pyautogui.moveTo(xval, yval) 
+                except:
+                    print('could not go to somehow: ' + msg)
 
             # pynput commands with arguments
             if msg.startswith('d for '): 
