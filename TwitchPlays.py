@@ -57,21 +57,49 @@ if os.path.exists('chat.log'):
   os.remove('chat.log')
 else:
     print('[LOG] does not exist')
-    
+
+# Open file that OBS reads from for displaying the currently executing command.
 currentexec = open('executing.txt', 'w')
+
 
 # Function to write the default status to OBS file if no commands in progress.
 def nothing():
     currentexec.truncate()
     currentexec.write('nothing')
 
+# Function to write the currently executing command to OBS and logging.
+def obs():
+    currentexec.truncate()
+    currentexec.write(msg_preserve_caps + ' (' + usr + ')')
+    time.sleep(0.5)
+    
+    print(msg_preserve_caps + ' (' + usr + ')')
+
+    # Send command info to chatrelay webhook.
+    t = time.localtime()
+    current_time = time.strftime('%H:%M:%S', t)
+    current_time_modded = 'Time: ' + current_time
+    
+    data = {'embeds': [],
+            'username': usr,
+            'content': current_time_modded}
+    
+    embed = {'description': msg_preserve_caps,
+             'title': 'Command event:'}
+    data['embeds'].append(embed)
+    
+    result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
+                           headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
+
+
+
+# Check if twitch login config is ok.
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     print('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START- No Oauth or username was provided.')
     exit(2)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-
 
 
 # Mainloop
@@ -98,30 +126,6 @@ while True:
                     f.write(usr + ':' + msg)
                     f.write('\n')
                     f.close()
-
-            # Function to write the currently executing command to OBS and logging.
-            def obs():
-                currentexec.seek(0,0)
-                currentexec.write(msg_preserve_caps + ' (' + usr + ')')
-                time.sleep(0.5)
-                
-                print(msg_preserve_caps + ' (' + usr + ')')
-
-                # Send command info to chatrelay webhook.
-                t = time.localtime()
-                current_time = time.strftime('%H:%M:%S', t)
-                current_time_modded = 'Time: ' + current_time
-                
-                data = {'embeds': [],
-                        'username': usr,
-                        'content': current_time_modded}
-                
-                embed = {'description': msg_preserve_caps,
-                         'title': 'Command event:'}
-                data['embeds'].append(embed)
-                
-                result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
-                                       headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
 
             # Aliases to pyautogui key codes for keypress commands.
             #TODO: fix pageup and arrow commands to not fuck up everything.
@@ -477,3 +481,4 @@ while True:
             print(f'[ERROR]: {error}')
             cmpc.send_error(config['discord']['systemlog'], error, msg, usr, TWITCH_USERNAME)
 
+currentexec.close()
