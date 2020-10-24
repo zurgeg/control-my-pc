@@ -151,10 +151,10 @@ while True:
                 ('light up', 'little up',): (0, -25),
                 ('super light up', 'super little up',): (0, -10),
                 ('down',): (0, 100),
-                ('far left'): (-300, 0),
-                ('far right'): (300, 0),
-                ('far up'): (0, -300),
-                ('far down'): (0, 300),
+                #('far left'): (-300, 0),
+                #('far right'): (300, 0),
+                #('far up'): (0, -300),
+                #('far down'): (0, 300),
             }
 
             # Compare command with aliases in each dict.
@@ -195,7 +195,7 @@ while True:
             if msg in ['control w', 'close tab', 'close the tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'w')
-            if msg in ['control a', 'select all', 'ctrl a':
+            if msg in ['control a', 'select all', 'ctrl a']:
                 obs()
                 pyautogui.hotkey('ctrl', 'a')
             if msg in ['control k', 'tayne', 'ctrl k']:
