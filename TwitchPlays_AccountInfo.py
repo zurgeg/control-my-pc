@@ -5,6 +5,8 @@ TWITCH_OAUTH_TOKEN = 'oauth:'
 # -------------
 DEV_API = "https://api.cmpc.live/devs.txt"
 MOD_API = "https://api.cmpc.live/mods.txt"
+# SYSTEM_ADMIN commands and commands that can kill the stream, with the script, these are the most trusted of users.
+SYSTEM_ADMINS = ['controlmypc', 'maxlovetoby']
 # Log all chat messages in console?
 LOG_ALL = 'true'
 # Send start message to discord?

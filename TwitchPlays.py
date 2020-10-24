@@ -10,33 +10,31 @@ print("""\
 """)
 
 # Stock Python imports
-import time
-import subprocess
+import time # for sleeping
 import ctypes
-import random
 import string
 import re
-import sys
-import json
-import os
+import sys # system utilitys
+import json # helper with requests
+import os # file manager
 
 # PyPI dependency imports.
-import requests
-import pyautogui
-import pynput
+import requests # api and discord webhooks 
+import pyautogui # main keyboard controller and mouse movement
+import pynput # utilitys
 
 from pynput.mouse import Button, Controller
 
 # File imports.
-import cmpc
+import cmpc # Utility local Package
 import TwitchPlays_Connection
 
-from TwitchPlays_AccountInfo import *
+from TwitchPlays_AccountInfo import *. # allll the data
 
 
 # Send starting up message with webhook if in config.
 if START_MSG == 'true':
-    cmpc.send_webhook(systemlog, 'script online')
+    cmpc.send_webhook(systemlog, 'Script Online')
 
 # Get dev and mod lists from API.
 print('[API] Requsting data!')
@@ -61,7 +59,7 @@ def nothing():
     currentexec.truncate()
     currentexec.write('nothing')
 
-# Connect to Twitch API.  
+# Connect to Twitch IRC.  
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
 
@@ -70,7 +68,7 @@ t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
 # Mainloop
 while True:
     new_messages = t.twitch_recieve_messages()
-    # If new messages list is empty, write default status to OBS and continue
+    # If new messages list is empty, write default status to OBS and continue checking nfor new messages
     if not new_messages:
         nothing()
         continue
@@ -93,7 +91,7 @@ while True:
                     f.write('\n')
                     f.close()
 
-            # Function to write the currently executing command to OBS.
+            # Function to write the currently executing command to OBS and logging.
             def obs():
                 currentexec.seek(0,0)
                 currentexec.write(msg_preserve_caps + ' (' + usr + ')')
@@ -265,7 +263,7 @@ while True:
             # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
-                print('(MA) called.')
+                print('[MODALERT] called.')
                 
                 data = {'embeds': [],
                         'username': usr,
@@ -280,10 +278,10 @@ while True:
                 }
                 data['embeds'].append(embed)
 
-                print('(MA) Sending request...')
+                print('[MODALERT] Sending request...')
                 result = requests.post(chatalerts, data=json.dumps(data),
                                        headers={'Content-Type': 'application/json'})
-                print('(MA) Request sent')
+                print('[MODALERT] Request sent')
 
             # PyAutoGUI commands with arguments
             if msg.startswith('type '): 
@@ -458,14 +456,14 @@ while True:
                         data = {'username': usr,
                                 'content': typeMsg,
                         }
-
+                        #TODO: replace this with cmpc package.
                         result = requests.post(modtalk, data=json.dumps(data),
                                                headers={'Content-Type': 'application/json'})
                     except:
                         print('Could not modsay this moderators message!' + msg)
 
-            # Commands for big man controlmypc only.
-            if usr == 'controlmypc':
+            # Commands for admins of the script (see TwitchPlays_AccountInfo.py for more info.)
+            if usr in SYSTEM_ADMINS:
                 if msg == 'starting soon':
                     obs()
                     PressKeyPynput(LEFT_ALT)
