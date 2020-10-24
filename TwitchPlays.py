@@ -8,8 +8,7 @@ print("""\
            by CMPC Developers             
 ------------------------------------------
 """)
-
-print("[SYSTEM] Importing...")
+print('[SYSTEM] Importing')
 # Stock Python imports
 import time # for sleeping
 import ctypes
@@ -29,27 +28,25 @@ from pynput.mouse import Button, Controller
 # File imports.
 import cmpc # Utility local Package
 import TwitchPlays_Connection
-#from TwitchPlays_AccountInfo import * # allll the data
-print("[SYSTEM] Finished importing;")
+print('[SYSTEM] Imported everything, starting startup proccess.')
 
 # Load Configuration
 config = toml.load('config.toml')
 TWITCH_USERNAME = config['twitch']['channel']
 TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 USERAGENT = config['api']['useragent']
+t = TwitchPlays_Connection.Twitch()
 
 # Send starting up message with webhook if in config.
 if config['options']['START_MSG'] == 'true':
     cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
 
 # Get dev and mod lists from API.
-"""print('[API] Requsting data!')
+print('[API] Requsting data!')
 devsr = requests.get(config['api']['mod'], headers={'User-Agent': USERAGENT})
 modsr = requests.get(config['api']['dev'], headers={'User-Agent': USERAGENT})
 MODS = modsr.text
-DEVS = devsr.text"""
-DEVS = ['maxlovetoby']
-MODS = ['maxlovetoby']
+DEVS = devsr.text
 print('[API] Data here, and parsed!')
 
 # Remove temp chat log or log if it doesn't exist.
@@ -76,8 +73,8 @@ def obs():
     print(msg_preserve_caps + ' (' + usr + ')')
 
     # Send command info to chatrelay webhook.
-    t = time.localtime()
-    current_time = time.strftime('%H:%M:%S', t)
+    lt = time.localtime()
+    current_time = time.strftime('%H:%M:%S', lt)
     current_time_modded = 'Time: ' + current_time
     
     data = {'embeds': [],
@@ -98,7 +95,8 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     print('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START- No Oauth or username was provided.')
     exit(2)
-t = TwitchPlays_Connection.Twitch()
+
+# Connect to Twitch IRC
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
 
 
@@ -213,7 +211,7 @@ while True:
                 obs()
                 pyautogui.hotkey('ctrl', 'k')
 
-            #other key things
+            # Misc Commands
             if msg in ['quit', 'alt f4']:
                 obs()
                 pyautogui.hotkey('altleft', 'f4')
@@ -262,8 +260,7 @@ while True:
                 obs()
                 mouse.position = (500, 500)
 
-            # Regular commands that take arguments.
-            
+
             # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
@@ -287,6 +284,7 @@ while True:
                                        headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                 print('[MODALERT] Request sent')
 
+            # Regular commands that take arguments.
             # PyAutoGUI commands with arguments
             if msg.startswith('type '): 
                 try:
@@ -419,6 +417,7 @@ while True:
             if usr in DEVS:
                 if msg == 'script- testconn':
                     cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
+                #TODO: get this to fucking work with the new config
                 #if msg == 'script- reqdata':
                     #optionsstr = str('Disabled.')
                     context = {'options': """optionsstr""",
