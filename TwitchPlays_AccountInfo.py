@@ -1,10 +1,12 @@
 # Your oauth-token can be generated at http://twitchapps.com/tmi/
 TWITCH_USERNAME = 'Bot&StreamName'
 TWITCH_OAUTH_TOKEN = 'oauth:'
+USERAGENT = 'CMPC-script, https://cmpc.live'
 # configuration
 # -------------
 DEV_API = "https://api.cmpc.live/devs.txt"
 MOD_API = "https://api.cmpc.live/mods.txt"
+
 # SYSTEM_ADMIN commands and commands that can kill the stream, with the script, these are the most trusted of users.
 SYSTEM_ADMINS = ['controlmypc', 'maxlovetoby']
 # Log all chat messages in console?
@@ -23,3 +25,4 @@ modtalk = "https://discordapp.com/api/webhooks/741311244308578392/7azdTbjAljUT0P
 devtalk = "https://discordapp.com/api/webhooks/754130531188342909/WXK8aAiNyYPwLJgCMntBGEvewvmzdCoYba5TdVl_9Vy6jZfbKkrHb3OI1gZMJr5rbWJJ"
 botstat = "https://discordapp.com/api/webhooks/741343798285697126/_XYbtaaGAyRb5rgJMqNuph6DcHHxfMs7Ast12wDUZt1EWwfdsCbszem_ZuM79WWSlQsT"
 systemlog = "https://discord.com/api/webhooks/768300258257666069/shB15CV45CHVBW9QCOPUMIbX8lp3UV_twN2da5_ZWa2yCM59aa5LN5BDlFs0d0_QkXyi"
+
