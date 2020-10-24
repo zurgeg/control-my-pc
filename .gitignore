@@ -1,1 +1,4 @@
+# Python virtualenv directory
 .venv
+# PyCharm project folder
+.idea
