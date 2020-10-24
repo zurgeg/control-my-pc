@@ -9,6 +9,7 @@ print("""\
 ------------------------------------------
 """)
 
+print("[SYSTEM] Importing...")
 # Stock Python imports
 import time # for sleeping
 import ctypes
@@ -22,28 +23,34 @@ import os # file manager
 import requests # api and discord webhooks 
 import pyautogui # main keyboard controller and mouse movement
 import pynput # utilitys
-
+import toml # configuration
 from pynput.mouse import Button, Controller
 
 # File imports.
 import cmpc # Utility local Package
 import TwitchPlays_Connection
-from TwitchPlays_AccountInfo import * # allll the data
+#from TwitchPlays_AccountInfo import * # allll the data
+print("[SYSTEM] Finished importing;")
 
+# Load Configuration
+config = toml.load('config.toml')
+TWITCH_USERNAME = config['twitch']['channel']
+TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
+USERAGENT = config['api']['useragent']
 
 # Send starting up message with webhook if in config.
-if START_MSG == 'true':
-    cmpc.send_webhook(systemlog, 'Script Online')
+if config['options']['START_MSG'] == 'true':
+    cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
 
 # Get dev and mod lists from API.
-print('[API] Requsting data!')
-devsr = requests.get(DEV_API, headers={'User-Agent': USERAGENT})
-modsr = requests.get(MOD_API, headers={'User-Agent': USERAGENT})
+"""print('[API] Requsting data!')
+devsr = requests.get(config['api']['mod'], headers={'User-Agent': USERAGENT})
+modsr = requests.get(config['api']['dev'], headers={'User-Agent': USERAGENT})
 MODS = modsr.text
-DEVS = devsr.text
+DEVS = devsr.text"""
+DEVS = ['maxlovetoby']
+MODS = ['maxlovetoby']
 print('[API] Data here, and parsed!')
-
-# File management
 
 # Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
@@ -58,7 +65,10 @@ def nothing():
     currentexec.truncate()
     currentexec.write('nothing')
 
-# Connect to Twitch IRC.  
+if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
+    print('[TWITCH] No channel or oauth token was provided.')
+    cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START- No Oauth or username was provided.')
+    exit(2)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
 
@@ -79,11 +89,11 @@ while True:
                 msg_preserve_caps = message['message']
                 username = message['username'].lower()
                 usr = username.decode()
-
+                config['options']
                 # Log new message if in config.
-                if LOG_ALL == 'true':
+                if config['options']['LOG_ALL'] == 'true':
                     print('CHAT LOG: ' + usr + ': ' + msg)
-                if LOG_PPR == 'true':
+                if config['options']['LOG_PPR'] == 'true':
                     f = open('chat.log', 'a')
                     f.write(usr + ':' + msg)
                     f.write('\n')
@@ -110,10 +120,11 @@ while True:
                          'title': 'Command event:'}
                 data['embeds'].append(embed)
                 
-                result = requests.post(chatrelay, data=json.dumps(data),
+                result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
                                        headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
 
             # Aliases to pyautogui key codes for keypress commands.
+            #TODO: fix pageup and arrow commands to not fuck up everything.
             press_key_data = {
                 ('enter'): ('enter'),
                 ('tab',): ('tab'),
@@ -121,12 +132,12 @@ while True:
                 ('windows key', 'win'): ('win'),
                 ('backspace', 'back space', 'delete'): ('backspace'),
                 ('space', 'spacebar'): ('space'),
-                ('page up', 'pageup'): ('pageup'),
-                ('page down', 'pagedown'): ('pagedown'),
-                ('arrow down'): ('down'),
-                ('arrow up'): ('up'),
-                ('arrow left'): ('left'),
-                ('arrow right'): ('right'),
+                #('page up', 'pageup'): ('pageup'),
+                #('page down', 'pagedown'): ('pagedown'),
+                #('arrow down'): ('down'),
+                #('arrow up'): ('up'),
+                #('arrow left'): ('left'),
+                #('arrow right'): ('right'),
                 ('refresh', 'F5'): ('f5'),
                 ('where', 'where?'): ('ctrl'),
             }
@@ -150,11 +161,7 @@ while True:
                 ('up',): (0, -100),
                 ('light up', 'little up',): (0, -25),
                 ('super light up', 'super little up',): (0, -10),
-                ('down',): (0, 100),
-                #('far left'): (-300, 0),
-                #('far right'): (300, 0),
-                #('far up'): (0, -300),
-                #('far down'): (0, 300),
+                ('down',): (0, 100),    
             }
 
             # Compare command with aliases in each dict.
@@ -272,7 +279,7 @@ while True:
                 data['embeds'].append(embed)
 
                 print('[MODALERT] Sending request...')
-                result = requests.post(chatalerts, data=json.dumps(data),
+                result = requests.post(config['discord']['chatalerts'], data=json.dumps(data),
                                        headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                 print('[MODALERT] Request sent')
 
@@ -407,24 +414,24 @@ while True:
             # Commands for authorised developers in dev list only.
             if usr in DEVS:
                 if msg == 'script- testconn':
-                    cmpc.send_webhook(modtalk, 'Connection made between twitch->script->webhook->discord')
-                if msg == 'script- reqdata':
-                    optionsstr = f'Log All: {LOG_ALL}\nStart Message: {START_MSG}\nEXC_MSG: {EXC_MSG}\nLog PPR: {LOG_PPR}'
-                    context = {'options': optionsstr,
+                    cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
+                #if msg == 'script- reqdata':
+                    #optionsstr = str('Disabled.')
+                    context = {'options': """optionsstr""",
                                'user': usr,
                                'devlist': DEVS,
                                'modlist': MODS,
                                'channel': TWITCH_USERNAME,
                     }
 
-                    cmpc.senddata(modtalk, context)
+                    cmpc.senddata(config['discord']['modtalk'], context)
                 if msg == 'script- apirefresh':
                     devsr = requests.get(DEV_API)
                     modsr = requests.get(MOD_API)
                     MODS = modsr.text
                     DEVS = devsr.text
                     print('[API] refresheed')
-                    cmpc.send_webhook(modtalk, 'API was refreshed.')
+                    cmpc.send_webhook(systemlog, 'API was refreshed.')
                 if msg == 'script- forceerror':
                     cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
                 # TODO: remove duplicated modsay code
@@ -436,7 +443,7 @@ while True:
                                 'content': typeMsg,
                         }
                         
-                        result = requests.post(modtalk, data=json.dumps(data),
+                        result = requests.post(config['discord']['modtalk'], data=json.dumps(data),
                                                headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                     except:
                         print('Could not modsay this moderators message!' + msg)
@@ -451,7 +458,7 @@ while True:
                                 'content': typeMsg,
                         }
                         #TODO: replace this with cmpc package.
-                        result = requests.post(modtalk, data=json.dumps(data),
+                        result = requests.post(config['discord']['modtalk'], data=json.dumps(data),
                                                headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                     except:
                         print('Could not modsay this moderators message: ' + msg)
@@ -468,5 +475,5 @@ while True:
         except Exception as error:
             # Send error data to systemlog.
             print(f'[ERROR]: {error}')
-            cmpc.send_error(systemlog, error, msg, usr, TWITCH_USERNAME)
+            cmpc.send_error(config['discord']['systemlog'], error, msg, usr, TWITCH_USERNAME)
 
