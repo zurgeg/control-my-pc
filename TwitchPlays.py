@@ -28,8 +28,7 @@ from pynput.mouse import Button, Controller
 # File imports.
 import cmpc # Utility local Package
 import TwitchPlays_Connection
-
-from TwitchPlays_AccountInfo import *. # allll the data
+from TwitchPlays_AccountInfo import * # allll the data
 
 
 # Send starting up message with webhook if in config.
@@ -38,8 +37,8 @@ if START_MSG == 'true':
 
 # Get dev and mod lists from API.
 print('[API] Requsting data!')
-devsr = requests.get(DEV_API)
-modsr = requests.get(MOD_API)
+devsr = requests.get(DEV_API, headers={'User-Agent': USERAGENT})
+modsr = requests.get(MOD_API, headers={'User-Agent': USERAGENT})
 MODS = modsr.text
 DEVS = devsr.text
 print('[API] Data here, and parsed!')
@@ -72,7 +71,6 @@ while True:
     if not new_messages:
         nothing()
         continue
-    
     else:
         try:
             for message in new_messages:
@@ -113,7 +111,7 @@ while True:
                 data['embeds'].append(embed)
                 
                 result = requests.post(chatrelay, data=json.dumps(data),
-                                       headers={'Content-Type': 'application/json'})
+                                       headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
 
             # Aliases to pyautogui key codes for keypress commands.
             press_key_data = {
@@ -178,7 +176,7 @@ while True:
                     cmpc.move(*value)
                     obs()
 
-            # Other regular commands
+            # Control Shourtcuts
             if msg in ['control t', 'ctrl t', 'new tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'n')
@@ -188,25 +186,32 @@ while True:
             if msg in ['control z', 'undo']:
                 obs()
                 pyautogui.hotkey('ctrl', 'z')
-            if msg in ['alt tab', 'alt-tab']:
-                obs()
-                pyautogui.hotkey('altleft', 'tab')
-            if msg in ['copy', 'control c']:
+            if msg in ['control c', 'copy']:
                 obs()
                 pyautogui.hotkey('ctrl', 'c')
-            if msg in ['paste', 'control v']:
+            if msg in ['control v', 'paste']:
                 obs()
                 pyautogui.hotkey('ctrl', 'v')
-            if msg in ['close tab', 'close the tab']:
+            if msg in ['control w', 'close tab', 'close the tab']:
                 obs()
                 pyautogui.hotkey('ctrl', 'w')
+            if msg in ['control a', 'select all', 'ctrl a':
+                obs()
+                pyautogui.hotkey('ctrl', 'a')
+            if msg in ['control k', 'tayne', 'ctrl k']:
+                obs()
+                pyautogui.hotkey('ctrl', 'k')
+
+            #other key things
             if msg in ['quit', 'alt f4']:
                 obs()
                 pyautogui.hotkey('altleft', 'f4')
+            if msg in ['alt tab', 'alt-tab']:
+                obs()
+                pyautogui.hotkey('altleft', 'tab')
             if msg in ['screenshot', 'screen shot']:
                 obs()
                 pyautogui.hotkey('win', 'prtsc')
-
             # Mouse
             if msg in ['hold mouse', 'hold the mouse']:
                 obs()
@@ -246,18 +251,6 @@ while True:
                 obs()
                 mouse.position = (500, 500)
 
-            # More regular commands, using pynput
-            if msg in ['select all', 'ctrl a', 'control a']:
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(A, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-            if msg in ['tayne', 'ctrl k', 'control k']:
-                    obs()
-                    PressKeyPynput(LEFT_CONTROL)
-                    PressAndHoldKey(K, 0.1)
-                    ReleaseKeyPynput(LEFT_CONTROL)
-
             # Regular commands that take arguments.
             
             # Command to send alert in discord that a mod is needed.
@@ -280,7 +273,7 @@ while True:
 
                 print('[MODALERT] Sending request...')
                 result = requests.post(chatalerts, data=json.dumps(data),
-                                       headers={'Content-Type': 'application/json'})
+                                       headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                 print('[MODALERT] Request sent')
 
             # PyAutoGUI commands with arguments
@@ -334,6 +327,7 @@ while True:
                     print('could not go to somehow: ' + msg)
 
             # pynput commands with arguments
+            #TODO: replace press and hold key with a pyautogui style thing
             if msg.startswith('d for '): 
                 try:
                     obs()
@@ -429,7 +423,7 @@ while True:
                     modsr = requests.get(MOD_API)
                     MODS = modsr.text
                     DEVS = devsr.text
-                    print('API Refreshed!')
+                    print('[API] refresheed')
                     cmpc.send_webhook(modtalk, 'API was refreshed.')
                 if msg == 'script- forceerror':
                     cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
@@ -443,11 +437,11 @@ while True:
                         }
                         
                         result = requests.post(modtalk, data=json.dumps(data),
-                                               headers={'Content-Type': 'application/json'})
+                                               headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                     except:
                         print('Could not modsay this moderators message!' + msg)
 
-            # Commands for moderators in mod list only.
+            # Commands for authorized moderators in mod list only.
             if usr in MODS:
                 # Command to send message to modtalk webhook.
                 if msg.startswith('modsay '): 
@@ -458,43 +452,19 @@ while True:
                         }
                         #TODO: replace this with cmpc package.
                         result = requests.post(modtalk, data=json.dumps(data),
-                                               headers={'Content-Type': 'application/json'})
+                                               headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                     except:
-                        print('Could not modsay this moderators message!' + msg)
-
-            # Commands for admins of the script (see TwitchPlays_AccountInfo.py for more info.)
-            if usr in SYSTEM_ADMINS:
-                if msg == 'starting soon':
-                    obs()
-                    PressKeyPynput(LEFT_ALT)
-                    PressAndHoldKey(S, 0.1)
-                    ReleaseKeyPynput(LEFT_ALT)
-                if msg == 'main':
-                    obs()
-                    PressKeyPynput(LEFT_ALT)
-                    PressAndHoldKey(C, 0.1)
-                    ReleaseKeyPynput(LEFT_ALT)
-                if msg == 'stop the stream!':
-                    obs()
-                    PressKeyPynput(LEFT_ALT)
-                    PressAndHoldKey(Q, 0.1)
-                    ReleaseKeyPynput(LEFT_ALT)
-                if msg == 'maintenance':
-                    obs()
-                    PressKeyPynput(LEFT_ALT)   
-                    PressAndHoldKey(M, 0.1)
-                    ReleaseKeyPynput(LEFT_ALT)
+                        print('Could not modsay this moderators message: ' + msg)
 
             # Commands for cmpcscript only.
             if usr == 'cmpcscript':
                 # Log
-                print('CMPC SCRIPT')
-                print(msg)
-
+                print(f'CMPC SCRIPT: {msg}')
                 # Stop the script if message matches this key.
                 if msg_preserve_caps == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
                     break
-                    
+                    exit(1)
+
         except Exception as error:
             # Send error data to systemlog.
             print(f'[ERROR]: {error}')
