@@ -1,5 +1,6 @@
 # Stock Python imports
 import os  # file manager
+import json
 
 # PyPI dependency imports.
 import requests  # api and discord webhooks
@@ -57,8 +58,8 @@ def load_user_permissions(dev_list, mod_list):
 # dev_sr = requests.get(config['api']['mod'], headers={'User-Agent': USERAGENT})
 # mod_sr = requests.get(config['api']['dev'], headers={'User-Agent': USERAGENT})
 load_user_permissions(
-    dev_list=['maxlovetoby'],
-    mod_list=['maxlovetoby'],
+    dev_list=['maxlovetoby', 'kaylum_'],
+    mod_list=[],
 )
 print('[API] Data here, and parsed!')
 
@@ -78,8 +79,10 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
 
 currentexec = open('executing.txt', 'w')
 processor = cmpc.CommandProcessor(config, currentexec, mouse)
+processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+written_nothing = True
 
 
 # Main loop
@@ -91,7 +94,9 @@ while True:
     # If we didn't get any new messages, let's log that nothing is happening and
     # keep looping for new stuff
     if not new_messages:
-        processor.log_to_obs(None)
+        if written_nothing is False:
+            processor.log_to_obs(None)
+            written_nothing = True
         continue
 
     # We got some messages, nice! In that case, let's loop through each and try and process it
@@ -111,8 +116,9 @@ while True:
                     f.write(f"{twitch_message.get_log_string()}\n")
 
             # Process this beef
-            command_has_run = processor.process_commands(message)
+            command_has_run = processor.process_commands(twitch_message)
             if command_has_run:
+                written_nothing = False
                 continue
             user_permissions = USER_PERMISSIONS.get(twitch_message.username, cmpc.Permissions())
 
@@ -120,14 +126,16 @@ while True:
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
                     cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
+
+                if twitch_message.content == 'script- reqcon':
                     context = {
-                        'options': 'optionsstr',
+                        'options': config['options'],
                         'user': twitch_message.username,
                         'devlist': [i for i, o in USER_PERMISSIONS.items() if o.developer],
                         'modlist': [i for i, o in USER_PERMISSIONS.items() if o.moderator],
                         'channel': TWITCH_USERNAME,
                     }
-                    cmpc.send_data(config['discord']['modtalk'], context)
+                    cmpc.send_webhook(config['discord']['modtalk'], f"```json\n{json.dumps(context)}```")
 
                 if twitch_message.content == 'script- apirefresh':
                     dev_sr = requests.get(config['api']['dev'])
