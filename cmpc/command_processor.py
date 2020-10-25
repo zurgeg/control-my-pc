@@ -129,9 +129,10 @@ class CommandProcessor(object):
         Log a message to the file shown on-screen for the stream
         """
 
+        self.obs_file_handle.truncate()
         if message is None:
-            self.obs_file_handle.truncate()
-            self.obs_file_handle.write('nothing')
+            self.obs_file_handle.seek(0, 0)
+            self.obs_file_handle.write("nothing")
             return
 
         self.obs_file_handle.seek(0, 0)
@@ -143,6 +144,7 @@ class CommandProcessor(object):
     def _process_key_press_commands(self, message) -> bool:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 pyautogui.press(output)
                 return True
         return False
@@ -150,6 +152,7 @@ class CommandProcessor(object):
     def _process_click_commands(self, message) -> bool:
         for valid_inputs, output in self.CLICK_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 click_count = 1
                 if output == 'doubleclick':
                     click_count = 2
@@ -160,6 +163,7 @@ class CommandProcessor(object):
     def _process_mouse_move_commands(self, message) -> bool:
         for valid_inputs, output in self.MOUSE_MOVE_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 move_mouse(*output)
                 return True
         return False
@@ -167,6 +171,7 @@ class CommandProcessor(object):
     def _process_hotkey_commands(self, message) -> bool:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 pyautogui.hotkey(*output)
                 return True
         return False
@@ -174,6 +179,7 @@ class CommandProcessor(object):
     def _process_mouse_hold_commands(self, message) -> bool:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 self.mouse.press(Button.left)
                 time.sleep(output)
                 self.mouse.release(Button.left)
@@ -183,6 +189,7 @@ class CommandProcessor(object):
     def _process_mouse_scroll_commands(self, message) -> bool:
         for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 for _ in range(5):
                     pyautogui.scroll(output)
                 return True
@@ -191,6 +198,7 @@ class CommandProcessor(object):
     def _process_mouse_drag_commands(self, message) -> bool:
         for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
             if message.content in valid_inputs:
+                self.log_to_obs(message)
                 pyautogui.drag(*output, button='left')
                 return True
         return False
@@ -226,6 +234,7 @@ class CommandProcessor(object):
                 xval = int(xval)
                 yval = int(yval)
                 pyautogui.moveTo(xval, yval)
+                self.log_to_obs(message)
             except Exception:
                 print(f'Could not move mouse to location: {message.content}')
             return True
@@ -236,6 +245,7 @@ class CommandProcessor(object):
     def _process_type_commands(self, message) -> bool:
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
+                self.log_to_obs(message)
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
                     pyautogui.typewrite(message_to_type)
@@ -265,6 +275,7 @@ class CommandProcessor(object):
     #                 assert key_to_press is not None
 
     #                 if 0 >= time_value <= 10:
+    #                     self.log_to_obs(message)
     #                     PressAndHoldKey(key_to_press, time_value)
     #             except Exception:
     #                 print(f'Error holding key: {message.content}')
