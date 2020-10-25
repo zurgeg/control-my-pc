@@ -8,7 +8,8 @@ print("""\
            by CMPC Developers             
 ------------------------------------------
 """)
-print('[SYSTEM] Importing')
+
+print("[SYSTEM] Importing...")
 # Stock Python imports
 import time # for sleeping
 import ctypes
@@ -28,25 +29,27 @@ from pynput.mouse import Button, Controller
 # File imports.
 import cmpc # Utility local Package
 import TwitchPlays_Connection
-print('[SYSTEM] Imported everything, starting startup proccess.')
-
+#from TwitchPlays_AccountInfo import * # allll the data
+print("[SYSTEM] Finished importing;")
+mouse = Controller()
 # Load Configuration
 config = toml.load('config.toml')
 TWITCH_USERNAME = config['twitch']['channel']
 TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 USERAGENT = config['api']['useragent']
-t = TwitchPlays_Connection.Twitch()
 
 # Send starting up message with webhook if in config.
 if config['options']['START_MSG'] == 'true':
     cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
 
 # Get dev and mod lists from API.
-print('[API] Requsting data!')
+"""print('[API] Requsting data!')
 devsr = requests.get(config['api']['mod'], headers={'User-Agent': USERAGENT})
 modsr = requests.get(config['api']['dev'], headers={'User-Agent': USERAGENT})
 MODS = modsr.text
-DEVS = devsr.text
+DEVS = devsr.text"""
+DEVS = ['maxlovetoby']
+MODS = ['maxlovetoby']
 print('[API] Data here, and parsed!')
 
 # Remove temp chat log or log if it doesn't exist.
@@ -54,50 +57,21 @@ if os.path.exists('chat.log'):
   os.remove('chat.log')
 else:
     print('[LOG] does not exist')
-
-# Open file that OBS reads from for displaying the currently executing command.
+    
 currentexec = open('executing.txt', 'w')
-
 
 # Function to write the default status to OBS file if no commands in progress.
 def nothing():
     currentexec.truncate()
     currentexec.write('nothing')
 
-# Function to write the currently executing command to OBS and logging.
-def obs():
-    currentexec.truncate()
-    currentexec.write(msg_preserve_caps + ' (' + usr + ')')
-    time.sleep(0.5)
-    
-    print(msg_preserve_caps + ' (' + usr + ')')
-
-    # Send command info to chatrelay webhook.
-    lt = time.localtime()
-    current_time = time.strftime('%H:%M:%S', lt)
-    current_time_modded = 'Time: ' + current_time
-    
-    data = {'embeds': [],
-            'username': usr,
-            'content': current_time_modded}
-    
-    embed = {'description': msg_preserve_caps,
-             'title': 'Command event:'}
-    data['embeds'].append(embed)
-    
-    result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
-                           headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
-
-
-
-# Check if twitch login config is ok.
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     print('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START- No Oauth or username was provided.')
     exit(2)
-
-# Connect to Twitch IRC
+t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+
 
 
 # Mainloop
@@ -124,6 +98,30 @@ while True:
                     f.write(usr + ':' + msg)
                     f.write('\n')
                     f.close()
+
+            # Function to write the currently executing command to OBS and logging.
+            def obs():
+                currentexec.seek(0,0)
+                currentexec.write(msg_preserve_caps + ' (' + usr + ')')
+                time.sleep(0.5)
+                
+                print(msg_preserve_caps + ' (' + usr + ')')
+
+                # Send command info to chatrelay webhook.
+                t = time.localtime()
+                current_time = time.strftime('%H:%M:%S', t)
+                current_time_modded = 'Time: ' + current_time
+                
+                data = {'embeds': [],
+                        'username': usr,
+                        'content': current_time_modded}
+                
+                embed = {'description': msg_preserve_caps,
+                         'title': 'Command event:'}
+                data['embeds'].append(embed)
+                
+                result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
+                                       headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
 
             # Aliases to pyautogui key codes for keypress commands.
             #TODO: fix pageup and arrow commands to not fuck up everything.
@@ -211,7 +209,7 @@ while True:
                 obs()
                 pyautogui.hotkey('ctrl', 'k')
 
-            # Misc Commands
+            #other key things
             if msg in ['quit', 'alt f4']:
                 obs()
                 pyautogui.hotkey('altleft', 'f4')
@@ -260,7 +258,8 @@ while True:
                 obs()
                 mouse.position = (500, 500)
 
-
+            # Regular commands that take arguments.
+            
             # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
@@ -284,7 +283,6 @@ while True:
                                        headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                 print('[MODALERT] Request sent')
 
-            # Regular commands that take arguments.
             # PyAutoGUI commands with arguments
             if msg.startswith('type '): 
                 try:
@@ -417,13 +415,12 @@ while True:
             if usr in DEVS:
                 if msg == 'script- testconn':
                     cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
-                #TODO: get this to fucking work with the new config
                 #if msg == 'script- reqdata':
                     #optionsstr = str('Disabled.')
                     context = {'options': """optionsstr""",
                                'user': usr,
                                'devlist': DEVS,
-                               'modlist': MODS,
+                               'modlist': MOx`  DS,
                                'channel': TWITCH_USERNAME,
                     }
 
@@ -480,4 +477,3 @@ while True:
             print(f'[ERROR]: {error}')
             cmpc.send_error(config['discord']['systemlog'], error, msg, usr, TWITCH_USERNAME)
 
-currentexec.close()
