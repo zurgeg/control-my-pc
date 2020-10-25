@@ -2,6 +2,7 @@ import socket
 import sys
 import re
 import typing
+import time
 
 
 class Twitch(object):
@@ -48,7 +49,7 @@ class Twitch(object):
             print(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
             time.sleep(5)
             print("[TWITCH] Reconnecting after 5 seconds")
-            self.twitch_connect(self.user, self.oauth)
+            return self.twitch_connect(self.user, self.oauth)
 
         print("[TWITCH] Connected, sending auth")
         self.socket.send(b'USER %s\r\n' % user.encode())
