@@ -83,6 +83,12 @@ def send_data(url, context):
         f"Total Swap: {get_size(psutil.swap_memory().total)}",
         f"Total Swap Usage: {get_size(psutil.swap_memory().percent)}",
     ])
+    options_str = '\n'.join([
+        f"Log All: {context['options']['LOG_ALL']}",
+        f"Start Message: {context['options']['START_MSG']}",
+        f"EXC_MSG: {context['options']['EXC_MSG']}",
+        f"Log PPR: {context['options']['LOG_PPR']}",
+    ])
     data = {
         "embeds": [
             {
@@ -95,7 +101,7 @@ def send_data(url, context):
                     },
                     {
                         "name": "Script Options",
-                        "value": toml.dumps(context["options"]),
+                        "value": options_str,
                     },
                     {
                         "name": "Machine Stats",
