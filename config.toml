@@ -10,7 +10,7 @@
 
 [api]
 	mod = "https://api.cmpc.live/mods.txt" # moderator command access
-	dev = "https://avpi.cmpc.live/devs.txt" # developer command access
+	dev = "https://api.cmpc.live/devs.txt" # developer command access
 	useragent = "CMPC script, https://cmpc.live" # "who are we" - this also sends in the discord webhooks
 
 [discord]
