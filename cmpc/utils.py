@@ -79,9 +79,9 @@ def send_data(url, context):
         f"CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz",
         f"Total Usage: {psutil.cpu_percent()}%",
         f"Total Ram: {get_size(psutil.virtual_memory().total)}",
-        f"Total Ram Usage: {get_size(psutil.virtual_memory().percent)}",
+        f"Total Ram Usage: {get_size(psutil.virtual_memory().used)}",
         f"Total Swap: {get_size(psutil.swap_memory().total)}",
-        f"Total Swap Usage: {get_size(psutil.swap_memory().percent)}",
+        f"Total Swap Usage: {get_size(psutil.swap_memory().used)}",
     ])
     options_str = '\n'.join([
         f"Log All: {context['options']['LOG_ALL']}",
