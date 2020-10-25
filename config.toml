@@ -1,8 +1,8 @@
 [options]
-	LOG_ALL = 'true' # Log all chat to console?
-	START_MSG = 'false' # Send a message to systemlog on starup?
-	EXC_MSG = 'true' # Send exception messages to systemlog?
-	LOG_PPR = 'true' # Log all chat to a file?
+	LOG_ALL = true  # Log all chat to console?
+	START_MSG = false  # Send a message to systemlog on starup?
+	EXC_MSG = true  # Send exception messages to systemlog?
+	LOG_PPR = true  # Log all chat to a file?
 
 [twitch]
 	channel = "controlmypc" # The channel to listen for commands on

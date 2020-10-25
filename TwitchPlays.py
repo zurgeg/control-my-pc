@@ -39,7 +39,7 @@ TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 USERAGENT = config['api']['useragent']
 
 # Send starting up message with webhook if in config.
-if config['options']['START_MSG'] == 'true':
+if config['options']['START_MSG']:
     cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
 
 # Get dev and mod lists from API.
@@ -91,9 +91,9 @@ while True:
                 usr = username.decode()
                 config['options']
                 # Log new message if in config.
-                if config['options']['LOG_ALL'] == 'true':
+                if config['options']['LOG_ALL']:
                     print('CHAT LOG: ' + usr + ': ' + msg)
-                if config['options']['LOG_PPR'] == 'true':
+                if config['options']['LOG_PPR']:
                     f = open('chat.log', 'a')
                     f.write(usr + ':' + msg)
                     f.write('\n')
