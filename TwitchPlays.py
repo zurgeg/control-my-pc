@@ -129,13 +129,13 @@ while True:
 
                 if twitch_message.content == 'script- reqcon':
                     context = {
-                        'options': config['options'],
                         'user': twitch_message.username,
-                        'devlist': [i for i, o in USER_PERMISSIONS.items() if o.developer],
-                        'modlist': [i for i, o in USER_PERMISSIONS.items() if o.moderator],
                         'channel': TWITCH_USERNAME,
+                        'modlist': [i for i, o in USER_PERMISSIONS.items() if o.moderator],
+                        'devlist': [i for i, o in USER_PERMISSIONS.items() if o.developer],
+                        'options': config['options'],
                     }
-                    cmpc.send_webhook(config['discord']['modtalk'], f"```json\n{json.dumps(context)}```")
+                    cmpc.send_data(config['discord']['modtalk'], context)
 
                 if twitch_message.content == 'script- apirefresh':
                     dev_sr = requests.get(config['api']['dev'])

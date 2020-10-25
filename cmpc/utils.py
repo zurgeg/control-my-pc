@@ -1,4 +1,5 @@
 import json
+import toml
 import sys
 
 import requests
@@ -94,7 +95,7 @@ def send_data(url, context):
                     },
                     {
                         "name": "Script Options",
-                        "value": context["options"],
+                        "value": toml.dumps(context["options"]),
                     },
                     {
                         "name": "Machine Stats",
@@ -104,4 +105,4 @@ def send_data(url, context):
             },
         ],
     }
-    requests.post(url, data=data)
+    requests.post(url, json=data)
