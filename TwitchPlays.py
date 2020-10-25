@@ -55,11 +55,12 @@ def load_user_permissions(dev_list, mod_list):
 
 # Get dev and mod lists from API.
 # print('[API] Requesting data!')
-# dev_sr = requests.get(config['api']['mod'], headers={'User-Agent': USERAGENT})
-# mod_sr = requests.get(config['api']['dev'], headers={'User-Agent': USERAGENT})
+apiconfig = requests.get(config['api']['apiconfig'])
+apiconfig = json.loads(apiconfig.text)
+
 load_user_permissions(
-    dev_list=['maxlovetoby', 'kaylum_'],
-    mod_list=[],
+    dev_list=apiconfig['devlist'],
+    mod_list=apiconfig['modlist'],
 )
 print('[API] Data here, and parsed!')
 
