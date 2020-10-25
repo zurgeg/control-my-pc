@@ -1,11 +1,11 @@
 # Log copyright notice.
 print("""\
 ------------------------------------------
-           TWITCH PLAYS                   
-           REWRITE BRANCH                 
-           https://cmpc.live              
-           © 2020 controlmypc             
-           by CMPC Developers             
+           TWITCH PLAYS
+           REWRITE BRANCH
+           https://cmpc.live
+           © 2020 controlmypc
+           by CMPC Developers
 ------------------------------------------
 """)
 
@@ -20,7 +20,7 @@ import json # helper with requests
 import os # file manager
 
 # PyPI dependency imports.
-import requests # api and discord webhooks 
+import requests # api and discord webhooks
 import pyautogui # main keyboard controller and mouse movement
 import pynput # utilitys
 import toml # configuration
@@ -57,7 +57,7 @@ if os.path.exists('chat.log'):
   os.remove('chat.log')
 else:
     print('[LOG] does not exist')
-    
+
 currentexec = open('executing.txt', 'w')
 
 # Function to write the default status to OBS file if no commands in progress.
@@ -104,22 +104,22 @@ while True:
                 currentexec.seek(0,0)
                 currentexec.write(msg_preserve_caps + ' (' + usr + ')')
                 time.sleep(0.5)
-                
+
                 print(msg_preserve_caps + ' (' + usr + ')')
 
                 # Send command info to chatrelay webhook.
                 t = time.localtime()
                 current_time = time.strftime('%H:%M:%S', t)
                 current_time_modded = 'Time: ' + current_time
-                
+
                 data = {'embeds': [],
                         'username': usr,
                         'content': current_time_modded}
-                
+
                 embed = {'description': msg_preserve_caps,
                          'title': 'Command event:'}
                 data['embeds'].append(embed)
-                
+
                 result = requests.post(config['discord']['chatrelay'], data=json.dumps(data),
                                        headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
 
@@ -149,7 +149,7 @@ while True:
                 ('rightclick', 'right click'): ('right'),
                 ('middleclick', 'middle click'): ('middle'),
             }
-            
+
             # Co-ordinate data for mouse move commands.
             keycode_compare_data = {
                 ('left',): (-100, 0),
@@ -161,7 +161,7 @@ while True:
                 ('up',): (0, -100),
                 ('light up', 'little up',): (0, -25),
                 ('super light up', 'super little up',): (0, -10),
-                ('down',): (0, 100),    
+                ('down',): (0, 100),
             }
 
             # Compare command with aliases in each dict.
@@ -174,7 +174,7 @@ while True:
                 if msg in key: # click_data
                     if key == 'doubleclick':
                         times = 2
-                    else: 
+                    else:
                         times = 1
                     pyautogui.click(button=btp, clicks=times)
                     obs()
@@ -259,12 +259,12 @@ while True:
                 mouse.position = (500, 500)
 
             # Regular commands that take arguments.
-            
+
             # Command to send alert in discord that a mod is needed.
             if msg in ['!modalert']:
                 # Log and send to chatalert webhook.
                 print('[MODALERT] called.')
-                
+
                 data = {'embeds': [],
                         'username': usr,
                         'content': '<@&741308237135216650> '\
@@ -284,21 +284,21 @@ while True:
                 print('[MODALERT] Request sent')
 
             # PyAutoGUI commands with arguments
-            if msg.startswith('type '): 
+            if msg.startswith('type '):
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
                 except:
                     print('COULD NOT TYPE: ' + msg)
-            if msg.startswith('press '): 
+            if msg.startswith('press '):
                 try:
                     obs()
                     typeMsg = msg_preserve_caps[5:]
                     pyautogui.typewrite(typeMsg)
                 except:
                     print('COULD NOT TYPE: ' + msg)
-                    
+
             if msg.startswith('scroll up for '):
                 try:
                     scrll = msg[14:]
@@ -329,13 +329,13 @@ while True:
                         xval,yval = coord.split(' ',1)
                     xval = int(xval)
                     yval = int(yval)
-                    pyautogui.moveTo(xval, yval) 
+                    pyautogui.moveTo(xval, yval)
                 except:
                     print('could not go to somehow: ' + msg)
 
             # pynput commands with arguments
             #TODO: replace press and hold key with a pyautogui style thing
-            if msg.startswith('d for '): 
+            if msg.startswith('d for '):
                 try:
                     obs()
                     timee = msg[6:]
@@ -344,7 +344,7 @@ while True:
                         PressAndHoldKey(D,timee)
                 except:
                     print('error')
-            if msg.startswith('a for '): 
+            if msg.startswith('a for '):
                 try:
                     obs()
                     timee = msg[6:]
@@ -353,7 +353,7 @@ while True:
                         PressAndHoldKey(A,timee)
                 except:
                     print('error')
-            if msg.startswith('s for '): 
+            if msg.startswith('s for '):
                 try:
                     obs()
                     timee = msg[6:]
@@ -362,7 +362,7 @@ while True:
                         PressAndHoldKey(S,timee)
                 except:
                     print('error')
-            if msg.startswith('w for '): 
+            if msg.startswith('w for '):
                 try:
                     obs()
                     timee = msg[6:]
@@ -371,7 +371,7 @@ while True:
                         PressAndHoldKey(W,timee)
                 except:
                     print('error')
-            if msg.startswith('arrow up for '): 
+            if msg.startswith('arrow up for '):
                 try:
                     obs()
                     timee = msg[13:]
@@ -379,8 +379,8 @@ while True:
                     if timee<=10 and timee>=0:
                         PressAndHoldKey(UP_ARROW,timee)
                 except:
-                    print('er')   
-            if msg.startswith('arrow left for '): 
+                    print('er')
+            if msg.startswith('arrow left for '):
                 try:
                     obs()
                     timee = msg[15:]
@@ -389,7 +389,7 @@ while True:
                         PressAndHoldKey(LEFT_ARROW,timee)
                 except:
                     print('er')
-            if msg.startswith('arrow right for '): 
+            if msg.startswith('arrow right for '):
                 try:
                     obs()
                     timee = msg[16:]
@@ -398,9 +398,9 @@ while True:
                         PressAndHoldKey(RIGHT_ARROW,timee)
                 except:
                     print('er')
-            if msg.startswith('arrow down for '): 
+            if msg.startswith('arrow down for '):
                 try:
-                    obs()   
+                    obs()
                     timee = msg[15:]
                     timee = float(timee)
                     if timee<=10 and timee>=0:
@@ -436,13 +436,13 @@ while True:
                     cmpc.send_error(systemlog, 'Forced error!', msg, usr, TWITCH_USERNAME)
                 # TODO: remove duplicated modsay code
                 # Command to send message to modtalk webhook.
-                if msg.startswith('modsay '): 
+                if msg.startswith('modsay '):
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {'username': usr,
                                 'content': typeMsg,
                         }
-                        
+
                         result = requests.post(config['discord']['modtalk'], data=json.dumps(data),
                                                headers={'Content-Type': 'application/json', 'User-Agent': USERAGENT})
                     except:
@@ -451,7 +451,7 @@ while True:
             # Commands for authorized moderators in mod list only.
             if usr in MODS:
                 # Command to send message to modtalk webhook.
-                if msg.startswith('modsay '): 
+                if msg.startswith('modsay '):
                     try:
                         typeMsg = msg_preserve_caps[7:]
                         data = {'username': usr,
