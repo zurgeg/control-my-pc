@@ -424,7 +424,7 @@ while True:
                                'channel': TWITCH_USERNAME,
                     }
 
-                    cmpc.senddata(config['discord']['modtalk'], context)
+                    cmpc.send_data(config['discord']['modtalk'], context)
                 if msg == 'script- apirefresh':
                     devsr = requests.get(DEV_API)
                     modsr = requests.get(MOD_API)
