@@ -88,6 +88,7 @@ def send_data(url, context):
         f"Start Message: {context['options']['START_MSG']}",
         f"EXC_MSG: {context['options']['EXC_MSG']}",
         f"Log PPR: {context['options']['LOG_PPR']}",
+        f"Environment: {context['options']['DEPLOY']}",
     ])
     data = {
         "embeds": [
