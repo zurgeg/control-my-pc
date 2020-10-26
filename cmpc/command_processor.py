@@ -1,13 +1,20 @@
 import time
+import logging as log
 
 import requests
 import pyautogui
 from pynput.mouse import Button
-
 from cmpc.utils import move as move_mouse
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
-
+log.basicConfig(
+    level=log.INFO,
+    format="[%(levelname)s] %(message)s",
+    handlers=[
+        log.FileHandler("system.log"),
+        log.StreamHandler()
+    ]
+)
 class CommandProcessor(object):
 
     KEY_PRESS_COMMANDS = {
@@ -138,7 +145,7 @@ class CommandProcessor(object):
         self.obs_file_handle.seek(0, 0)
         self.obs_file_handle.write(message.get_log_string())
         time.sleep(0.5)
-        print(message.get_log_string())
+        log.info(message.get_log_string())
         requests.post(self.config['discord']['chatrelay'], json=message.get_log_webhook_payload(), headers={'User-Agent': self.config['api']['useragent']})
 
     def _process_key_press_commands(self, message) -> bool:
@@ -210,7 +217,7 @@ class CommandProcessor(object):
 
         # !modalert command
         if message.content in ['!modalert']:
-            print('[MODALERT] called.')
+            log.info('[MODALERT] called.')
             data = {
                 'embeds': [
                     {'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:'}
@@ -218,9 +225,9 @@ class CommandProcessor(object):
                 'username': message.username,
                 'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
             }
-            print('[MODALERT] Sending request...')
+            log.info('[MODALERT] Sending request...')
             requests.post(self.config['discord']['chatalerts'], json=data, headers={'User-Agent': self.config['api']['useragent']})
-            print('[MODALERT] Request sent')
+            log.info('[MODALERT] Request sent')
             return True
 
         # "go to" command
@@ -236,7 +243,7 @@ class CommandProcessor(object):
                 pyautogui.moveTo(xval, yval)
                 self.log_to_obs(message)
             except Exception:
-                print(f'Could not move mouse to location: {message.content}')
+                log.error(f'Could not move mouse to location: {message.content}')
             return True
 
         # No comamnds run, sad cat hours
@@ -250,7 +257,7 @@ class CommandProcessor(object):
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
                     pyautogui.typewrite(message_to_type)
                 except Exception:
-                    print(f'COULD NOT TYPE: {message.content}')
+                    log.error(f'COULD NOT TYPE: {message.content}')
                 return True
         return False
 

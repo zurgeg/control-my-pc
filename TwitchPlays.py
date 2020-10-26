@@ -1,15 +1,16 @@
-# Stock Python imports
+# Stock Python imports;
 import os  # file manager
-import json
+import json # json, duh,
+import logging as log # better print()
 
-# PyPI dependency imports.
+# PyPI dependency imports;
 import requests  # api and discord webhooks
 import toml  # configuration
-from pynput.mouse import Controller
+from pynput.mouse import Controller # Not reeally needed, but (i think) something still relies on it so /shrug
 
-# File imports.
-import cmpc  # Utility local Package
-import TwitchPlays_Connection
+# File imports;
+import cmpc  # Pretty much all of the custom shit we need.
+import TwitchPlays_Connection # Connect to twitch via IRC.
 
 
 # Log copyright notice.
@@ -19,13 +20,21 @@ COPYRIGHT_NOTICE = """
            REWRITE BRANCH
            https://cmpc.live
            © 2020 controlmypc
-           by CMPC Developers & Kae
+           by CMPC Developers
 ------------------------------------------
 """
 print(COPYRIGHT_NOTICE)
-
-
+# handle logging shit (copyright noticee will remain on print)
+log.basicConfig(
+    level=log.INFO,
+    format="[%(levelname)s] %(message)s",
+    handlers=[
+        log.FileHandler("system.log"),
+        log.StreamHandler()
+    ]
+)
 # Load Configuration
+log.debug("Stand by me.")
 config = toml.load('config.toml')
 TWITCH_USERNAME = config['twitch']['channel']
 TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
@@ -54,26 +63,29 @@ def load_user_permissions(dev_list, mod_list):
 
 
 # Get dev and mod lists from API.
-# print('[API] Requesting data!')
-apiconfig = requests.get(config['api']['apiconfig'])
-apiconfig = json.loads(apiconfig.text)
+log.info('[API] Requesting data!')
+#apiconfig = requests.get(config['api']['apiconfig'])
+#apiconfig = json.loads(apiconfig.text)
 
-load_user_permissions(
+"""load_user_permissions(
     dev_list=apiconfig['devlist'],
     mod_list=apiconfig['modlist'],
+)"""
+load_user_permissions(
+    dev_list=['maxlovetoby'],
+    mod_list=[''],
 )
-print('[API] Data here, and parsed!')
+log.info('[API] Data here, and parsed!')
 
 
 # Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
     os.remove('chat.log')
 else:
-    print('[LOG] does not exist')
-
+    pass
 
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
-    print('[TWITCH] No channel or oauth token was provided.')
+    log.fatal('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
     exit(2)
 
@@ -111,7 +123,7 @@ while True:
 
             # Log the chat if that's something we want to do
             if config['options']['LOG_ALL']:
-                print(f'CHAT LOG: {twitch_message.get_log_string()}')
+                log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
             if config['options']['LOG_PPR']:
                 with open('chat.log', 'a') as f:
                     f.write(f"{twitch_message.get_log_string()}\n")
@@ -145,7 +157,7 @@ while True:
                         dev_list=dev_sr.json(),
                         mod_list=mod_sr.json(),
                     )
-                    print('[API] refresheed')
+                    log.info('[API] refresheed')
                     cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
 
                 if twitch_message.content == 'script- forceerror':
@@ -161,7 +173,7 @@ while True:
                         }
                         result = requests.post(config['discord']['modtalk'], json=data, headers={'User-Agent': USERAGENT})
                     except Exception:
-                        print('Could not modsay this moderators message: ' + twitch_message.content)
+                        log.warn('Could not modsay this moderators message: ' + twitch_message.content)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
@@ -171,5 +183,5 @@ while True:
 
         except Exception as error:
             # Send error data to systemlog.
-            print(f'[ERROR]: {error}')
+            log.error(f'[ERROR]: {error}')
             cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
