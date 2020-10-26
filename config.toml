@@ -3,6 +3,7 @@
 	START_MSG = false  # Send a message to systemlog on starup?
 	EXC_MSG = true  # Send exception messages to systemlog?
 	LOG_PPR = true  # Log all chat to a file?
+	DEPLOY = "Debug" # Either "Production" or "Debug"
 
 [twitch]
 	channel = "controlmypc" # The channel to listen for commands on
