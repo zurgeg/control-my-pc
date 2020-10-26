@@ -2,7 +2,16 @@ import socket
 import sys
 import re
 import typing
-
+import time
+import logging as log
+log.basicConfig(
+    level=log.INFO,
+    format="[%(levelname)s] %(message)s",
+    handlers=[
+        log.FileHandler("system.log"),
+        log.StreamHandler()
+    ]
+)
 
 class Twitch(object):
 
@@ -35,7 +44,7 @@ class Twitch(object):
 
         self.user = user
         self.oauth = key
-        print("[TWITCH] Trying to connect")
+        log.info("[TWITCH] Trying to connect")
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(0.6)
@@ -45,21 +54,21 @@ class Twitch(object):
         try:
             self.socket.connect((connect_host, connect_port))
         except Exception as e:
-            print(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
+            log.warn(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
             time.sleep(5)
-            print("[TWITCH] Reconnecting after 5 seconds")
-            self.twitch_connect(self.user, self.oauth)
+            log.info("[TWITCH] Reconnecting after 5 seconds")
+            return self.twitch_connect(self.user, self.oauth)
 
-        print("[TWITCH] Connected, sending auth")
+        log.info("[TWITCH] Connected, sending auth")
         self.socket.send(b'USER %s\r\n' % user.encode())
         self.socket.send(b'PASS %s\r\n' % key.encode())
         self.socket.send(b'NICK %s\r\n' % user.encode())
 
         if not self._twitch_login_status(self.socket.recv(1024)):
-            print("[TWITCH] Auth denied!")
-            sys.exit()
+            log.error("[TWITCH] Auth denied!")
+            exit(3)
         else:
-            print("[TWITCH] Auth accepted and we are connected to twitch")
+            log.info("[TWITCH] Auth accepted and we are connected to twitch")
             self.socket.send(b'JOIN #%s\r\n' % user.encode())
             self.socket.recv(1024)
 
@@ -89,7 +98,7 @@ class Twitch(object):
             return list()
 
         if not data:
-            print("[TWITCH] Connection lost, trying to reconnect")
+            log.warn("[TWITCH] Connection lost, trying to reconnect")
             self.twitch_connect(self.user, self.oauth)
             return list()
 
