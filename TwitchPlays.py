@@ -24,7 +24,7 @@ COPYRIGHT_NOTICE = """
 ------------------------------------------
 """
 print(COPYRIGHT_NOTICE)
-# handle logging shit (copyright noticee will remain on print)
+# handle logging shit (copyright notice will remain on print)
 log.basicConfig(
     level=log.INFO,
     format="[%(levelname)s] %(message)s",
