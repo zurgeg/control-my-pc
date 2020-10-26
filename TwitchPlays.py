@@ -64,16 +64,12 @@ def load_user_permissions(dev_list, mod_list):
 
 # Get dev and mod lists from API.
 log.info('[API] Requesting data!')
-#apiconfig = requests.get(config['api']['apiconfig'])
-#apiconfig = json.loads(apiconfig.text)
+apiconfig = requests.get(config['api']['apiconfig'])
+apiconfig = json.loads(apiconfig.text)
 
-"""load_user_permissions(
+load_user_permissions(
     dev_list=apiconfig['devlist'],
     mod_list=apiconfig['modlist'],
-)"""
-load_user_permissions(
-    dev_list=['maxlovetoby'],
-    mod_list=[''],
 )
 log.info('[API] Data here, and parsed!')
 
