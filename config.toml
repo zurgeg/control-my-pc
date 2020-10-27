@@ -7,7 +7,7 @@
 
 [twitch]
 	channel = "controlmypc" # The channel to listen for commands on
-    oauth_token = "no." # pretty much password to twitch
+    oauth_token = "" # pretty much password to twitch
 
 [api]
 	mod = "https://api.cmpc.live/mods.txt" # moderator command access
