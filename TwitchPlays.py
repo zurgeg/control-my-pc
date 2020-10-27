@@ -36,10 +36,18 @@ log.basicConfig(
 # Load Configuration
 log.debug('Stand by me.')
 config = toml.load('config.toml')
-TWITCH_USERNAME = config['twitch']['channel']
-TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 USERAGENT = config['api']['useragent']
 mouse = Controller()
+# Twitch channel name and oauth token from config will be overridden 
+# by env vars if they exist. This makes testing more streamlined.
+if sys.getenv('TWITCH_CHANNEL'):
+    TWITCH_USERNAME = sys.getenv('TWITCH_CHANNEL')
+else:
+    TWITCH_USERNAME = config['twitch']['channel']
+if sys.getenv('TWITCH_OAUTH_TOKEN'):
+    TWITCH_OAUTH_TOKEN = sys.getenv('TWITCH_OAUTH_TOKEN')
+else:
+    TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 
 
 # Send starting up message with webhook if in config.
