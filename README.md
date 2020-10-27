@@ -1,3 +1,5 @@
+[More documentation in the central wiki.](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script)
+
 # Twitch-Plays-Control-My-PC
 
 An overhaul update to DougDoug TwitchPlays script.
@@ -16,7 +18,7 @@ An overhaul update to DougDoug TwitchPlays script.
   * `python -m pip install --upgrade pip`
   * `python -m pip install -r requirements.txt`
 
-  3) Edit `TwitchPlays_AccountInfo.py` with the username and oauth (you can find your oauth token [here](http://twitchapps.com/tmi/))
+  3) Edit `config.toml` with the username and oauth (you can find your oauth token [here](http://twitchapps.com/tmi/))
 
   4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
 

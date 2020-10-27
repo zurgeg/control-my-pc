@@ -1,4 +1,6 @@
-pyautogui
+psutil
+PyAutoGUI
 pydirectinput
-requests
 pynput
+requests
+toml
