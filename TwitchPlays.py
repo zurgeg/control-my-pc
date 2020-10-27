@@ -27,14 +27,14 @@ print(COPYRIGHT_NOTICE)
 # handle logging shit (copyright notice will remain on print)
 log.basicConfig(
     level=log.INFO,
-    format="[%(levelname)s] %(message)s",
+    format='[%(levelname)s] %(message)s',
     handlers=[
-        log.FileHandler("system.log"),
+        log.FileHandler('system.log'),
         log.StreamHandler()
     ]
 )
 # Load Configuration
-log.debug("Stand by me.")
+log.debug('Stand by me.')
 config = toml.load('config.toml')
 TWITCH_USERNAME = config['twitch']['channel']
 TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
@@ -122,7 +122,7 @@ while True:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
             if config['options']['LOG_PPR']:
                 with open('chat.log', 'a') as f:
-                    f.write(f"{twitch_message.get_log_string()}\n")
+                    f.write(f'{twitch_message.get_log_string()}\n')
 
             # Process this beef
             command_has_run = processor.process_commands(twitch_message)
