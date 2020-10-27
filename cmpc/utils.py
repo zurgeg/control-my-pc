@@ -7,9 +7,7 @@ import pyautogui
 import psutil
 
 # Check if we are on a mac or not
-if sys.platform == "darwin":
-    pass
-else:
+if not sys.platform == "darwin":
     import pydirectinput
 
 
