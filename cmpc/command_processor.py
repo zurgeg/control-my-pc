@@ -9,9 +9,9 @@ from cmpc.utils import move as move_mouse
 
 log.basicConfig(
     level=log.INFO,
-    format="[%(levelname)s] %(message)s",
+    format='[%(levelname)s] %(message)s',
     handlers=[
-        log.FileHandler("system.log"),
+        log.FileHandler('system.log'),
         log.StreamHandler()
     ]
 )
@@ -139,7 +139,7 @@ class CommandProcessor(object):
         self.obs_file_handle.truncate()
         if message is None:
             self.obs_file_handle.seek(0, 0)
-            self.obs_file_handle.write("nothing")
+            self.obs_file_handle.write('nothing')
             return
 
         self.obs_file_handle.seek(0, 0)
@@ -230,7 +230,7 @@ class CommandProcessor(object):
             log.info('[MODALERT] Request sent')
             return True
 
-        # "go to" command
+        # 'go to' command
         if message.content.startswith('go to '):
             try:
                 coord = self.remove_prefix(message.content, 'go to ')
@@ -246,6 +246,20 @@ class CommandProcessor(object):
                 log.error(f'Could not move mouse to location: {message.content}')
             return True
 
+        # gtype command
+        if message.content.startswith('gtype '):
+            if sys.platform == 'darwin':
+                log.error(f'COULD NOT GTYPE: {message.content}\n'\
+                          'DUE TO PLATFORM: darwin')
+                return True
+            try:
+                message_to_type = self.remove_prefix(message.content,
+                                                     'gtype ')
+                pyautogui.typewrite(message_to_type)
+            except Exception:
+                log.error(f'COULD NOT GTYPE: {message.content}')
+            return True
+
         # No comamnds run, sad cat hours
         return False
 
@@ -255,7 +269,7 @@ class CommandProcessor(object):
                 self.log_to_obs(message)
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
-                    pyautogui.typewrite(message_to_type)
+                    pydirectinput.typewrite(message_to_type)
                 except Exception:
                     log.error(f'COULD NOT TYPE: {message.content}')
                 return True
