@@ -17,7 +17,7 @@ import TwitchPlays_Connection # Connect to twitch via IRC.
 COPYRIGHT_NOTICE = """
 ------------------------------------------
            TWITCH PLAYS
-           REWRITE BRANCH
+           MASTER BRANCH
            https://cmpc.live
            © 2020 controlmypc
            by CMPC Developers
