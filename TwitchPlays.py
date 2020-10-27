@@ -1,6 +1,5 @@
 # Stock Python imports;
 import os  # file manager
-import sys # for environment variables
 import json # json, duh,
 import logging as log # better print()
 
@@ -41,12 +40,12 @@ USERAGENT = config['api']['useragent']
 mouse = Controller()
 # Twitch channel name and oauth token from config will be overridden 
 # by env vars if they exist. This makes testing more streamlined.
-if sys.getenv('TWITCH_CHANNEL'):
-    TWITCH_USERNAME = sys.getenv('TWITCH_CHANNEL')
+if os.getenv('TWITCH_CHANNEL'):
+    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
 else:
     TWITCH_USERNAME = config['twitch']['channel']
-if sys.getenv('TWITCH_OAUTH_TOKEN'):
-    TWITCH_OAUTH_TOKEN = sys.getenv('TWITCH_OAUTH_TOKEN')
+if os.getenv('TWITCH_OAUTH_TOKEN'):
+    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
 else:
     TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 
