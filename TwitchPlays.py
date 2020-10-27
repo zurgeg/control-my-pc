@@ -144,7 +144,7 @@ while True:
                 if twitch_message.content == 'script- testconn':
                     cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
 
-                if twitch_message.content == 'script- reqcon':
+                if twitch_message.content == 'script- reqdata':
                     context = {
                         'user': twitch_message.username,
                         'channel': TWITCH_USERNAME,
