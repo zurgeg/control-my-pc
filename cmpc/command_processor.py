@@ -1,9 +1,13 @@
+# PSL Packages
 import time
 import logging as log
 
+# PyPI dependency imports;
 import requests
 import pyautogui
 from pynput.mouse import Button
+
+# Local Packages
 from cmpc.utils import move as move_mouse
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
