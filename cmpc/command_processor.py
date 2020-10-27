@@ -8,7 +8,7 @@ import pyautogui
 from pynput.mouse import Button
 
 # Local Packages
-from cmpc.utils import move as move_mouse
+from cmpc.utils import get_platform, move as move_mouse
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
 log.basicConfig(
@@ -252,7 +252,7 @@ class CommandProcessor(object):
 
         # gtype command
         if message.content.startswith('gtype '):
-            if sys.platform == 'darwin':
+            if get_platform() == 'darwin':
                 log.error(f'COULD NOT GTYPE: {message.content}\n'\
                           'DUE TO PLATFORM: darwin')
                 return True
