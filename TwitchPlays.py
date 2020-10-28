@@ -1,14 +1,14 @@
-# Stock Python imports;
-import os  # file manager
+# PSL Packages;
+import os  # file manager and .env handler
 import json # json, duh,
 import logging as log # better print()
 
-# PyPI dependency imports;
+# PIP Packages;
 import requests  # api and discord webhooks
 import toml  # configuration
 from pynput.mouse import Controller # Not reeally needed, but (i think) something still relies on it so /shrug
 
-# File imports;
+# Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 import TwitchPlays_Connection # Connect to twitch via IRC.
 

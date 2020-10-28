@@ -2,7 +2,7 @@
 import time
 import logging as log
 
-# PyPI dependency imports;
+# PIP Packages;
 import requests
 import pyautogui
 from pynput.mouse import Button
