@@ -259,7 +259,7 @@ class CommandProcessor(object):
             try:
                 message_to_type = self.remove_prefix(message.content,
                                                      'gtype ')
-                pyautogui.typewrite(message_to_type)
+                pydirectinput.typewrite(message_to_type)
             except Exception:
                 log.error(f'COULD NOT GTYPE: {message.content}')
             return True
@@ -273,7 +273,7 @@ class CommandProcessor(object):
                 self.log_to_obs(message)
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
-                    pydirectinput.typewrite(message_to_type)
+                    pyautogui.typewrite(message_to_type)
                 except Exception:
                     log.error(f'COULD NOT TYPE: {message.content}')
                 return True
