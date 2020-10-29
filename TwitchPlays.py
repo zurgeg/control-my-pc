@@ -183,6 +183,15 @@ while True:
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!', twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
+                if twitch_message.original_content.startswith('rawsend- '):
+                    try:
+                        keytopress = twitch_message.original_content[9:]
+                        pyautogui.press(keytopress)
+                    except Exception as error:
+                        log.warn('Could not rawtype: ' + twitch_message.content)
+                        cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+
+
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
                 if twitch_message.content.startswith('modsay '):
