@@ -70,32 +70,16 @@ def load_user_permissions(dev_list, mod_list):
     USER_PERMISSIONS.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
 
-def api_failure(error):
-    log.error('[API] Failed to get data from api, error has been logged to discord.')
-    load_user_permissions(
-    dev_list=['maxlovetoby', 'controlmypc', 'joel_mcb', 'pocketzhungry', 'glitchmasta47', 'winnerspiros'],
-    mod_list=[''],
-    )
-    api_success = False
-    cmpc.send_error(config['discord']['systemlog'], error, '[NONE] API REQUEST FAILURE', 'CONSOLE', TWITCH_USERNAME)
-
 # Get dev and mod lists from API.
-#TODO: Clean up this code to make it nicer then this shit.
 log.info('[API] Requesting data!')
-try:
-    apiconfig = requests.get(config['api']['apiconfig'])
-except Exception as error:
-    api_failure(error)
-    api_success = False
-if api_success != False:
-    if apiconfig.status_code != 200:
-        api_failure(f'NON NORMAL API STATUS CODE OF {apiconfig.status_code}')
-        api_success = False
-else:
-    api_success = True
-    log.info('[API] Data here, and parsed!')
+apiconfig = requests.get(config['api']['apiconfig'])
+apiconfig = json.loads(apiconfig.text)
 
-
+load_user_permissions(
+    dev_list=apiconfig['devlist'],
+    mod_list=apiconfig['modlist'],
+)
+log.info('[API] Data here, and parsed!')
 
 
 # Remove temp chat log or log if it doesn't exist.
