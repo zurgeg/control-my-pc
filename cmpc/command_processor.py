@@ -1,21 +1,17 @@
-# PSL Packages
 import time
 import logging as log
 
-# PIP Packages;
 import requests
 import pyautogui
 from pynput.mouse import Button
-
-# Local Packages
-from cmpc.utils import get_platform, move as move_mouse
-# from cmpc.keyboard_keycodes import KeyboardKeycodes
+from cmpc.utils import move as move_mouse
+from cmpc.keyboard_keycodes import KeyboardKeycodes
 
 log.basicConfig(
     level=log.INFO,
-    format='[%(levelname)s] %(message)s',
+    format="[%(levelname)s] %(message)s",
     handlers=[
-        log.FileHandler('system.log'),
+        log.FileHandler("system.log"),
         log.StreamHandler()
     ]
 )
@@ -121,7 +117,7 @@ class CommandProcessor(object):
             self._process_mouse_drag_commands,
             self._process_misc_commands,
             self._process_type_commands,
-            # self._process_hold_key_commands,
+            self._process_hold_key_commands,
         ]
 
         command_has_run = False
@@ -143,7 +139,7 @@ class CommandProcessor(object):
         self.obs_file_handle.truncate()
         if message is None:
             self.obs_file_handle.seek(0, 0)
-            self.obs_file_handle.write('nothing')
+            self.obs_file_handle.write("nothing")
             return
 
         self.obs_file_handle.seek(0, 0)
@@ -180,15 +176,16 @@ class CommandProcessor(object):
         return False
 
     def _process_hotkey_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                self.log_to_obs(message) 
+                log.info('HOTKEY')
                 pyautogui.hotkey(*output)
                 return True
         return False
 
     def _process_mouse_hold_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 self.mouse.press(Button.left)
@@ -234,7 +231,7 @@ class CommandProcessor(object):
             log.info('[MODALERT] Request sent')
             return True
 
-        # 'go to' command
+        # "go to" command
         if message.content.startswith('go to '):
             try:
                 coord = self.remove_prefix(message.content, 'go to ')
@@ -248,20 +245,6 @@ class CommandProcessor(object):
                 self.log_to_obs(message)
             except Exception:
                 log.error(f'Could not move mouse to location: {message.content}')
-            return True
-
-        # gtype command
-        if message.content.startswith('gtype '):
-            if get_platform() == 'darwin':
-                log.error(f'COULD NOT GTYPE: {message.content}\n'\
-                          'DUE TO PLATFORM: darwin')
-                return True
-            try:
-                message_to_type = self.remove_prefix(message.content,
-                                                     'gtype ')
-                pydirectinput.typewrite(message_to_type)
-            except Exception:
-                log.error(f'COULD NOT GTYPE: {message.content}')
             return True
 
         # No comamnds run, sad cat hours
@@ -279,30 +262,35 @@ class CommandProcessor(object):
                 return True
         return False
 
-    # def _process_hold_key_commands(self, message) -> bool:
-    #     for valid_input in self.HOLD_KEY_COMMANDS:
-    #         if message.content.startswith(valid_input):
-    #             try:
-    #                 time_value = float(self.remove_prefix(message.content, valid_input))
+    def PressAndHoldKey(key_to_press, time_value):
+        pyautogui.keyDown(key_to_press)
+        time.sleep(time_value)
+        pyautogui.keyUp(key_to_press)
 
-    #                 # This command is a lil more complex bc we need to work out what key they actually want to press,
-    #                 # but still nothing impossible
-    #                 key_to_press = {
-    #                     'd': KeyboardKeycodes.D,
-    #                     'a': KeyboardKeycodes.A,
-    #                     's': KeyboardKeycodes.S,
-    #                     'w': KeyboardKeycodes.W,
-    #                     'arrow up': KeyboardKeycodes.UP_ARROW,
-    #                     'arrow left': KeyboardKeycodes.LEFT_ARROW,
-    #                     'arrow right': KeyboardKeycodes.RIGHT_ARROW,
-    #                     'arrow down': KeyboardKeycodes.DOWN_ARROW,
-    #                 }.get(valid_input[:-4])
-    #                 assert key_to_press is not None
+    def _process_hold_key_commands(self, message) -> bool:
+        for valid_input in self.HOLD_KEY_COMMANDS:
+            if message.content.startswith(valid_input):
+                try:
+                    time_value = float(self.remove_prefix(message.content, valid_input))
 
-    #                 if 0 >= time_value <= 10:
-    #                     self.log_to_obs(message)
-    #                     PressAndHoldKey(key_to_press, time_value)
-    #             except Exception:
-    #                 print(f'Error holding key: {message.content}')
-    #             return True
-    #     return False
+                    # This command is a lil more complex bc we need to work out what key they actually want to press,
+                    # but still nothing impossible
+                    key_to_press = {
+                        'd': KeyboardKeycodes.D,
+                        'a': KeyboardKeycodes.A,
+                        's': KeyboardKeycodes.S,
+                        'w': KeyboardKeycodes.W,
+                        'arrow up': KeyboardKeycodes.UP_ARROW,
+                        'arrow left': KeyboardKeycodes.LEFT_ARROW,
+                        'arrow right': KeyboardKeycodes.RIGHT_ARROW,
+                        'arrow down': KeyboardKeycodes.DOWN_ARROW,
+                    }.get(valid_input[:-4])
+                    assert key_to_press is not None
+
+                    if 0 >= time_value <= 10:
+                        self.log_to_obs(message)
+                        PressAndHoldKey(key_to_press, time_value)
+                except Exception as e:
+                	log.info(f'{e}')
+                return True
+        return False
