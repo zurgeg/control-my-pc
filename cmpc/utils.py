@@ -3,7 +3,6 @@ import json
 import sys
 
 # PIP Packages;
-import toml
 import requests
 import pyautogui
 import psutil
@@ -53,7 +52,7 @@ def direct_or_auto():
         return 'direct'
 
 
-def send_webhook(url:str, content:str):
+def send_webhook(url: str, content: str):
     """Sends a webhook to discord, takes (url, message)"""
     data = {"content": content}
     requests.post(url, data=data)
@@ -61,8 +60,22 @@ def send_webhook(url:str, content:str):
 
 def send_error(url, error, msg, usr, channel):
     """Sends a error to discord"""
-    datatest = {"embeds": [{"title": "Script - Exception Occured","description": f"***Last Sent Message -*** {msg}\n\n***Exception Info -*** {error}\n\n[***Stream Link***](https://twitch.tv/{channel})","color": 1107600,"footer": {"text": 'User: ' + usr + ' - Channel: ' + channel,"icon_url": "https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg"}}]}
-    requests.post(url, data=json.dumps(datatest), headers={"Content-Type": "application/json"})
+    data_test = {
+        "embeds": [
+            {
+                "title": "Script - Exception Occured",
+                "description": f"***Last Sent Message -*** {msg}\n\n"\
+                               f"***Exception Info -*** {error}\n\n"\
+                               "[***Stream Link***](https://twitch.tv/{channel})",
+                "color": 1107600,
+                "footer": {
+                    "text": 'User: ' + usr + ' - Channel: ' + channel,
+                    "icon_url": "https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg"
+                }
+            }
+        ]
+    }
+    requests.post(url, data=json.dumps(data_test), headers={"Content-Type": "application/json"})
 
 
 def move(*args):

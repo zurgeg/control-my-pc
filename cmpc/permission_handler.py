@@ -43,4 +43,3 @@ class Permissions(object):
             self.value = self.value | self.SCRIPT_PERMISSION
         else:
             self.value = self.value & (self.ALL_PERMISSIONS ^ self.SCRIPT_PERMISSION)
-

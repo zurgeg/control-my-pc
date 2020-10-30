@@ -1,16 +1,16 @@
 # PSL Packages;
 import os  # file manager and .env handler
-import json # json, duh,
-import logging as log # better print()
+import json  # json, duh,
+import logging as log  # better print()
 
 # PIP Packages;
 import requests  # api and discord webhooks
 import toml  # configuration
-from pynput.mouse import Controller # Not reeally needed, but (i think) something still relies on it so /shrug
+from pynput.mouse import Controller  # Not really needed, but (i think) something still relies on it so /shrug
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
-import TwitchPlays_Connection # Connect to twitch via IRC.
+import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
 # Log copyright notice.
@@ -142,7 +142,8 @@ while True:
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
+                    cmpc.send_webhook(config['discord']['modtalk'],
+                                      'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content == 'script- reqdata':
                     context = {
@@ -165,7 +166,8 @@ while True:
                     cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
 
                 if twitch_message.content == 'script- forceerror':
-                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!', twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
+                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
                 if twitch_message.original_content.startswith('rawsend- '):
                     try:
@@ -173,7 +175,8 @@ while True:
                         pyautogui.press(keytopress)
                     except Exception as error:
                         log.warn('Could not rawtype: ' + twitch_message.content)
-                        cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                        cmpc.send_error(config['discord']['systemlog'], error,
+                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
 
             # Commands for authorized moderators in mod list only.
@@ -184,7 +187,8 @@ while True:
                             'username': twitch_message.username,
                             'content': twitch_message.original_content[7:],
                         }
-                        result = requests.post(config['discord']['modtalk'], json=data, headers={'User-Agent': USERAGENT})
+                        result = requests.post(config['discord']['modtalk'],
+                                               json=data, headers={'User-Agent': USERAGENT})
                     except Exception:
                         log.warn('Could not modsay this moderators message: ' + twitch_message.content)
 
@@ -197,4 +201,5 @@ while True:
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'[ERROR]: {error}')
-            cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+            cmpc.send_error(config['discord']['systemlog'], error,
+                            twitch_message.content, twitch_message.username, TWITCH_USERNAME)

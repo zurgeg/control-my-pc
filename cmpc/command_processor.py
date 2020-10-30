@@ -19,8 +19,9 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
-class CommandProcessor(object):
 
+
+class CommandProcessor(object):
     KEY_PRESS_COMMANDS = {
         ('enter',): 'enter',
         ('tab',): 'tab',
@@ -150,7 +151,9 @@ class CommandProcessor(object):
         self.obs_file_handle.write(message.get_log_string())
         time.sleep(0.5)
         log.info(message.get_log_string())
-        requests.post(self.config['discord']['chatrelay'], json=message.get_log_webhook_payload(), headers={'User-Agent': self.config['api']['useragent']})
+        requests.post(self.config['discord']['chatrelay'],
+                      json=message.get_log_webhook_payload(),
+                      headers={'User-Agent': self.config['api']['useragent']})
 
     def _process_key_press_commands(self, message) -> bool:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
@@ -230,7 +233,9 @@ class CommandProcessor(object):
                 'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
             }
             log.info('[MODALERT] Sending request...')
-            requests.post(self.config['discord']['chatalerts'], json=data, headers={'User-Agent': self.config['api']['useragent']})
+            requests.post(self.config['discord']['chatalerts'],
+                          json=data,
+                          headers={'User-Agent': self.config['api']['useragent']})
             log.info('[MODALERT] Request sent')
             return True
 
@@ -265,7 +270,7 @@ class CommandProcessor(object):
                 log.error(f'COULD NOT GTYPE: {message.content}')
             return True
 
-        # No comamnds run, sad cat hours
+        # No commands run, sad cat hours
         return False
 
     def _process_type_commands(self, message) -> bool:

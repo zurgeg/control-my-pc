@@ -5,7 +5,7 @@ class TwitchMessage(object):
 
     __slots__ = ('payload', 'content', 'original_content', 'username',)
 
-    def __init__(self, payload:dict):
+    def __init__(self, payload: dict):
         self.payload = payload
         self.content = payload['message'].lower()
         self.original_content = payload['message']
