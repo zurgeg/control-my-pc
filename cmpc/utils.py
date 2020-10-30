@@ -1,7 +1,9 @@
+# PSL Packages;
 import json
-import toml
 import sys
 
+# PIP Packages;
+import toml
 import requests
 import pyautogui
 import psutil

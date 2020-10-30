@@ -1,14 +1,14 @@
-# Stock Python imports;
-import os  # file manager
+# PSL Packages;
+import os  # file manager and .env handler
 import json # json, duh,
 import logging as log # better print()
 
-# PyPI dependency imports;
+# PIP Packages;
 import requests  # api and discord webhooks
 import toml  # configuration
 from pynput.mouse import Controller # Not reeally needed, but (i think) something still relies on it so /shrug
 
-# File imports;
+# Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 import TwitchPlays_Connection # Connect to twitch via IRC.
 
@@ -17,7 +17,7 @@ import TwitchPlays_Connection # Connect to twitch via IRC.
 COPYRIGHT_NOTICE = """
 ------------------------------------------
            TWITCH PLAYS
-           MASTER BRANCH
+           STAGING BRANCH
            https://cmpc.live
            © 2020 controlmypc
            by CMPC Developers
@@ -36,10 +36,18 @@ log.basicConfig(
 # Load Configuration
 log.debug('Stand by me.')
 config = toml.load('config.toml')
-TWITCH_USERNAME = config['twitch']['channel']
-TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 USERAGENT = config['api']['useragent']
 mouse = Controller()
+# Twitch channel name and oauth token from config will be overridden 
+# by env vars if they exist. This makes testing more streamlined.
+if os.getenv('TWITCH_CHANNEL'):
+    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
+else:
+    TWITCH_USERNAME = config['twitch']['channel']
+if os.getenv('TWITCH_OAUTH_TOKEN'):
+    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
+else:
+    TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 
 
 # Send starting up message with webhook if in config.
@@ -136,7 +144,7 @@ while True:
                 if twitch_message.content == 'script- testconn':
                     cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
 
-                if twitch_message.content == 'script- reqcon':
+                if twitch_message.content == 'script- reqdata':
                     context = {
                         'user': twitch_message.username,
                         'channel': TWITCH_USERNAME,
@@ -158,6 +166,15 @@ while True:
 
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!', twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+
+                if twitch_message.original_content.startswith('rawsend- '):
+                    try:
+                        keytopress = twitch_message.original_content[9:]
+                        pyautogui.press(keytopress)
+                    except Exception as error:
+                        log.warn('Could not rawtype: ' + twitch_message.content)
+                        cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
