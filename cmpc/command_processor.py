@@ -257,6 +257,7 @@ class CommandProcessor(object):
                           'DUE TO PLATFORM: darwin')
                 return True
             try:
+                import pydirectinput
                 message_to_type = self.remove_prefix(message.content,
                                                      'gtype ')
                 pydirectinput.typewrite(message_to_type)
