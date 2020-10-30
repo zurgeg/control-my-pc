@@ -12,7 +12,7 @@ class TwitchMessage(object):
         self.username = payload['username'].lower().decode()
 
     def get_log_string(self) -> str:
-        return f"{self.original_content} ({self.username})"
+        return f'{self.original_content} ({self.username})'
 
     def get_log_webhook_payload(self) -> dict:
         lt = time.localtime()
