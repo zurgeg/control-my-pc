@@ -57,6 +57,8 @@ class CommandProcessor(object):
         ('light up', 'little up',): (0, -25,),
         ('super light up', 'super little up',): (0, -10,),
         ('down',): (0, 100,),
+        ('light down', 'little down',): (0, 25,),
+        ('super light down', 'super little down',): (0, 10,),
     }
 
     HOTKEY_COMMANDS = {
