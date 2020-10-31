@@ -124,7 +124,7 @@ class CommandProcessor(object):
             self._process_mouse_drag_commands,
             self._process_misc_commands,
             self._process_type_commands,
-            # self._process_hold_key_commands,
+            self._process_hold_key_commands,
         ]
 
         command_has_run = False
