@@ -88,7 +88,7 @@ def move(*args):
 
 
 def press(key):
-    """Presses a key (more functonality coming soon)"""
+    """Presses a key (more functionality coming soon)"""
     pyautogui.press(key)
 
 
