@@ -257,6 +257,10 @@ class CommandProcessor(object):
                 yval = int(yval)
                 pyautogui.moveTo(xval, yval)
                 self.log_to_obs(message)
+            except ValueError:
+                log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
+            except pyautogui.PyAutoGUIException:
+                log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
             except Exception:
                 log.error(f'Could not move mouse to location: {message.content}')
             return True
