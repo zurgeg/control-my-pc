@@ -25,6 +25,7 @@ COPYRIGHT_NOTICE = """
 """
 print(COPYRIGHT_NOTICE)
 # handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
 log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
@@ -56,6 +57,8 @@ if config['options']['START_MSG']:
 
 
 USER_PERMISSIONS = {}
+
+
 def load_user_permissions(dev_list, mod_list):
     global USER_PERMISSIONS
     USER_PERMISSIONS.clear()
@@ -123,6 +126,7 @@ while True:
         try:
 
             # Move the payload into an object so we can make better use of it
+            # noinspection PyTypeChecker
             twitch_message = cmpc.TwitchMessage(message)
 
             # Log the chat if that's something we want to do
@@ -174,10 +178,9 @@ while True:
                         keytopress = twitch_message.original_content[9:]
                         pyautogui.press(keytopress)
                     except Exception as error:
-                        log.warn('Could not rawtype: ' + twitch_message.content)
+                        log.warning('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
                                         twitch_message.content, twitch_message.username, TWITCH_USERNAME)
-
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
