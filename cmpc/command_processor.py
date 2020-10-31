@@ -285,30 +285,36 @@ class CommandProcessor(object):
                 return True
         return False
 
-    # def _process_hold_key_commands(self, message) -> bool:
-    #     for valid_input in self.HOLD_KEY_COMMANDS:
-    #         if message.content.startswith(valid_input):
-    #             try:
-    #                 time_value = float(self.remove_prefix(message.content, valid_input))
+    def PressAndHoldKey(self, key_to_press, time_value):
+        log.info('HONEY HE IS OFF THE DRUG!')
+        pyautogui.keyDown(key_to_press)
+        time.sleep(time_value)
+        pyautogui.keyUp(key_to_press)
 
-    #                 # This command is a lil more complex bc we need to work out what key they actually want to press,
-    #                 # but still nothing impossible
-    #                 key_to_press = {
-    #                     'd': KeyboardKeycodes.D,
-    #                     'a': KeyboardKeycodes.A,
-    #                     's': KeyboardKeycodes.S,
-    #                     'w': KeyboardKeycodes.W,
-    #                     'arrow up': KeyboardKeycodes.UP_ARROW,
-    #                     'arrow left': KeyboardKeycodes.LEFT_ARROW,
-    #                     'arrow right': KeyboardKeycodes.RIGHT_ARROW,
-    #                     'arrow down': KeyboardKeycodes.DOWN_ARROW,
-    #                 }.get(valid_input[:-4])
-    #                 assert key_to_press is not None
+    def _process_hold_key_commands(self, message) -> bool:
+        for valid_input in self.HOLD_KEY_COMMANDS:
+            if message.content.startswith(valid_input):
+                try:
+                    time_value = float(self.remove_prefix(message.content, valid_input))
+                    key_to_press = valid_input[:-5]
+                    log.info(f"time_value: {time_value}")
+                    log.info(f"key_to_press: {key_to_press}")
 
-    #                 if 0 >= time_value <= 10:
-    #                     self.log_to_obs(message)
-    #                     PressAndHoldKey(key_to_press, time_value)
-    #             except Exception:
-    #                 print(f'Error holding key: {message.content}')
-    #             return True
-    #     return False
+                    # This command is a lil more complex bc we need to work out what key they actually want to press,
+                    # but still nothing impossible
+                    log.info('i am the boss, and i give all the orders')
+                    if key_to_press is None:
+                        return False
+                        log.info('no key to press, im having sad cat hours ngl...')
+
+                    log.info('And when we split, we split my way.')
+                    if 0.0 < time_value <= 10.0:
+                        log.info('time was a sucess')
+                        self.log_to_obs(message)
+                        log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
+                        self.PressAndHoldKey(key_to_press, time_value)
+                except Exception as e:
+                    raise e
+                    print(f'Error holding key: {message.content}')
+                return True
+        return False
