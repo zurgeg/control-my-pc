@@ -59,14 +59,14 @@ USER_PERMISSIONS = {}
 def load_user_permissions(dev_list, mod_list):
     global USER_PERMISSIONS
     USER_PERMISSIONS.clear()
-    for user in dev_list:
-        perms = USER_PERMISSIONS.get(user, cmpc.Permissions())
+    for dev in dev_list:
+        perms = USER_PERMISSIONS.get(dev, cmpc.Permissions())
         perms.developer = True
-        USER_PERMISSIONS[user] = perms
-    for user in mod_list:
-        perms = USER_PERMISSIONS.get(user, cmpc.Permissions())
+        USER_PERMISSIONS[dev] = perms
+    for mod in mod_list:
+        perms = USER_PERMISSIONS.get(mod, cmpc.Permissions())
         perms.moderator = True
-        USER_PERMISSIONS[user] = perms
+        USER_PERMISSIONS[mod] = perms
     USER_PERMISSIONS.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
 
@@ -99,11 +99,11 @@ processor = cmpc.CommandProcessor(config, currentexec, mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-written_nothing = True
 
 
 # Main loop
 while True:
+    written_nothing = True
 
     # Get all messages from Twitch
     new_messages = t.twitch_recieve_messages()
@@ -111,9 +111,9 @@ while True:
     # If we didn't get any new messages, let's log that nothing is happening and
     # keep looping for new stuff
     if not new_messages:
-        if written_nothing is False:
+        if written_nothing:
             processor.log_to_obs(None)
-            written_nothing = True
+            written_nothing = False
         continue
 
     # We got some messages, nice! In that case, let's loop through each and try and process it
