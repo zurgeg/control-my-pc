@@ -190,7 +190,7 @@ while True:
                         result = requests.post(config['discord']['modtalk'],
                                                json=data, headers={'User-Agent': USERAGENT})
                     except Exception:
-                        log.warn('Could not modsay this moderators message: ' + twitch_message.content)
+                        log.warning('Could not modsay this moderators message: ' + twitch_message.content)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
