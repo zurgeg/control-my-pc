@@ -11,6 +11,7 @@ from pynput.mouse import Button
 from cmpc.utils import get_platform, move as move_mouse
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
+# noinspection PyArgumentList
 log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
@@ -287,7 +288,8 @@ class CommandProcessor(object):
                 return True
         return False
 
-    def _hold_key_pyautogui(self, key_to_press, time_value):
+    @staticmethod
+    def _hold_key_pyautogui(key_to_press, time_value):
         log.info('HONEY HE IS OFF THE DRUG!')
         pyautogui.keyDown(key_to_press)
         time.sleep(time_value)
@@ -305,8 +307,8 @@ class CommandProcessor(object):
                     # but still nothing impossible
                     log.info('i am the boss, and i give all the orders')
                     if output is None:
-                        return False
                         log.info('no key to press, im having sad cat hours ngl...')
+                        return False
 
                     log.info('And when we split, we split my way.')
                     if 0.0 < time_value <= 10.0:
@@ -315,7 +317,7 @@ class CommandProcessor(object):
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         self._hold_key_pyautogui(output, time_value)
                 except Exception as e:
-                    raise e
                     print(f'Error holding key: {message.content}')
+                    raise e
                 return True
         return False
