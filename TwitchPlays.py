@@ -1,16 +1,17 @@
 # PSL Packages;
 import os  # file manager and .env handler
-import json # json, duh,
-import logging as log # better print()
+import json  # json, duh,
+import logging as log  # better print()
 
 # PIP Packages;
+import pyautogui  # only used in rawsend- command
 import requests  # api and discord webhooks
 import toml  # configuration
-from pynput.mouse import Controller # Not reeally needed, but (i think) something still relies on it so /shrug
+from pynput.mouse import Controller  # Not really needed, but (i think) something still relies on it so /shrug
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
-import TwitchPlays_Connection # Connect to twitch via IRC.
+import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
 # Log copyright notice.
@@ -25,6 +26,7 @@ COPYRIGHT_NOTICE = """
 """
 print(COPYRIGHT_NOTICE)
 # handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
 log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
@@ -56,17 +58,19 @@ if config['options']['START_MSG']:
 
 
 USER_PERMISSIONS = {}
+
+
 def load_user_permissions(dev_list, mod_list):
     global USER_PERMISSIONS
     USER_PERMISSIONS.clear()
-    for user in dev_list:
-        perms = USER_PERMISSIONS.get(user, cmpc.Permissions())
+    for dev in dev_list:
+        perms = USER_PERMISSIONS.get(dev, cmpc.Permissions())
         perms.developer = True
-        USER_PERMISSIONS[user] = perms
-    for user in mod_list:
-        perms = USER_PERMISSIONS.get(user, cmpc.Permissions())
+        USER_PERMISSIONS[dev] = perms
+    for mod in mod_list:
+        perms = USER_PERMISSIONS.get(mod, cmpc.Permissions())
         perms.moderator = True
-        USER_PERMISSIONS[user] = perms
+        USER_PERMISSIONS[mod] = perms
     USER_PERMISSIONS.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
 
@@ -99,11 +103,11 @@ processor = cmpc.CommandProcessor(config, currentexec, mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-written_nothing = True
 
 
 # Main loop
 while True:
+    written_nothing = True
 
     # Get all messages from Twitch
     new_messages = t.twitch_recieve_messages()
@@ -111,9 +115,9 @@ while True:
     # If we didn't get any new messages, let's log that nothing is happening and
     # keep looping for new stuff
     if not new_messages:
-        if written_nothing is False:
+        if written_nothing:
             processor.log_to_obs(None)
-            written_nothing = True
+            written_nothing = False
         continue
 
     # We got some messages, nice! In that case, let's loop through each and try and process it
@@ -123,6 +127,7 @@ while True:
         try:
 
             # Move the payload into an object so we can make better use of it
+            # noinspection PyTypeChecker
             twitch_message = cmpc.TwitchMessage(message)
 
             # Log the chat if that's something we want to do
@@ -142,7 +147,8 @@ while True:
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(config['discord']['modtalk'], 'Connection made between twitch->script->webhook->discord')
+                    cmpc.send_webhook(config['discord']['modtalk'],
+                                      'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content == 'script- reqdata':
                     context = {
@@ -165,16 +171,17 @@ while True:
                     cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
 
                 if twitch_message.content == 'script- forceerror':
-                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!', twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
+                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
                 if twitch_message.original_content.startswith('rawsend- '):
                     try:
                         keytopress = twitch_message.original_content[9:]
                         pyautogui.press(keytopress)
                     except Exception as error:
-                        log.warn('Could not rawtype: ' + twitch_message.content)
-                        cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
-
+                        log.warning('Could not rawtype: ' + twitch_message.content)
+                        cmpc.send_error(config['discord']['systemlog'], error,
+                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
@@ -184,9 +191,10 @@ while True:
                             'username': twitch_message.username,
                             'content': twitch_message.original_content[7:],
                         }
-                        result = requests.post(config['discord']['modtalk'], json=data, headers={'User-Agent': USERAGENT})
+                        result = requests.post(config['discord']['modtalk'],
+                                               json=data, headers={'User-Agent': USERAGENT})
                     except Exception:
-                        log.warn('Could not modsay this moderators message: ' + twitch_message.content)
+                        log.warning('Could not modsay this moderators message: ' + twitch_message.content)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
@@ -197,4 +205,5 @@ while True:
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'[ERROR]: {error}')
-            cmpc.send_error(config['discord']['systemlog'], error, twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+            cmpc.send_error(config['discord']['systemlog'], error,
+                            twitch_message.content, twitch_message.username, TWITCH_USERNAME)

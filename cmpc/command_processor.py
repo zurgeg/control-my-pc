@@ -11,6 +11,7 @@ from pynput.mouse import Button
 from cmpc.utils import get_platform, move as move_mouse
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
+# noinspection PyArgumentList
 log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
@@ -19,27 +20,28 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
-class CommandProcessor(object):
 
+
+class CommandProcessor(object):
     KEY_PRESS_COMMANDS = {
         ('enter',): 'enter',
         ('tab',): 'tab',
         ('esc', 'escape',): 'esc',
         ('windows key', 'win',): 'win',
         ('backspace', 'back space', 'delete',): 'backspace',
-        ('space', 'spacebar',): 'space',
-        # ('page up', 'pageup',): 'pageup',
-        # ('page down', 'pagedown',): 'pagedown',
-        # ('arrow down',): 'down',
-        # ('arrow up',): 'up',
-        # ('arrow left',): 'left',
-        # ('arrow right',): 'right',
+        ('space', 'spacebar', 'space bar'): 'space',
+        ('page up', 'pageup',): 'pageup',
+        ('page down', 'pagedown',): 'pagedown',
+        ('arrow down',): 'down',
+        ('arrow up',): 'up',
+        ('arrow left',): 'left',
+        ('arrow right',): 'right',
         ('refresh', 'F5'): 'f5',
         ('where', 'where?'): 'ctrl',
     }
 
     CLICK_COMMANDS = {
-        ('click', 'left click',): 'left',
+        ('click', 'leftclick', 'left click',): 'left',
         ('doubleclick', 'double click',): 'doubleclick',
         ('rightclick', 'right click',): 'right',
         ('middleclick', 'middle click',): 'middle',
@@ -56,30 +58,32 @@ class CommandProcessor(object):
         ('light up', 'little up',): (0, -25,),
         ('super light up', 'super little up',): (0, -10,),
         ('down',): (0, 100,),
+        ('light down', 'little down',): (0, 25,),
+        ('super light down', 'super little down',): (0, 10,),
     }
 
     HOTKEY_COMMANDS = {
         ('control t', 'ctrl t', 'new tab',): ('ctrl', 'n',),
         ('control s', 'ctrl s', 'save',): ('ctrl', 's',),
-        ('control z', 'undo',): ('ctrl', 'z',),
-        ('control c', 'copy',): ('ctrl', 'c',),
-        ('control v', 'paste',): ('ctrl', 'v',),
-        ('control w', 'close tab', 'close the tab',): ('ctrl', 'w',),
-        ('control a', 'select all', 'ctrl a',): ('ctrl', 'a',),
-        ('control k', 'tayne', 'ctrl k',): ('ctrl', 'k',),
-        ('quit', 'alt f4',): ('altleft', 'f4',),
+        ('control z', 'ctrl z', 'undo',): ('ctrl', 'z',),
+        ('control c', 'ctrl s', 'copy',): ('ctrl', 'c',),
+        ('control v', 'ctrl v', 'paste',): ('ctrl', 'v',),
+        ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
+        ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
+        ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
+        ('alt f4', 'quit',): ('altleft', 'f4',),
         ('alt tab', 'alt-tab',): ('altleft', 'tab',),
         ('screenshot', 'screen shot',): ('win', 'prtsc',),
     }
 
     MOUSE_HOLD_COMMANDS = {
         ('hold mouse', 'hold the mouse',): 3,
-        ('hold mouse long',): 9,
+        ('hold mouse long', 'hold the mouse long',): 9,
     }
 
     MOUSE_SCROLL_COMMANDS = {
         ('scroll down',): -60,
-        ('scoll up',): 60,
+        ('scroll up',): 60,
     }
 
     MOUSE_DRAG_COMMANDS = {
@@ -94,16 +98,16 @@ class CommandProcessor(object):
         'press ',
     )  # note trailing space - this is to process args better
 
-    HOLD_KEY_COMMANDS = (
-        'd for ',
-        'a for ',
-        's for ',
-        'w for ',
-        'arrow up for ',
-        'arrow left for ',
-        'arrow right for ',
-        'arrow down for ',
-    )  # note trailing space - this is to process args better
+    HOLD_KEY_COMMANDS = {
+        'd for ': 'd',
+        'a for ': 'a',
+        's for ': 's',
+        'w for ': 'w',
+        'arrow up for ': 'up',
+        'arrow left for ': 'left',
+        'arrow right for ': 'right',
+        'arrow down for ': 'down',
+    }  # note trailing space - this is to process args better
 
     def __init__(self, config, obs_file_handle, mouse):
         self.config = config
@@ -121,7 +125,7 @@ class CommandProcessor(object):
             self._process_mouse_drag_commands,
             self._process_misc_commands,
             self._process_type_commands,
-            # self._process_hold_key_commands,
+            self._process_hold_key_commands,
         ]
 
         command_has_run = False
@@ -150,7 +154,9 @@ class CommandProcessor(object):
         self.obs_file_handle.write(message.get_log_string())
         time.sleep(0.5)
         log.info(message.get_log_string())
-        requests.post(self.config['discord']['chatrelay'], json=message.get_log_webhook_payload(), headers={'User-Agent': self.config['api']['useragent']})
+        requests.post(self.config['discord']['chatrelay'],
+                      json=message.get_log_webhook_payload(),
+                      headers={'User-Agent': self.config['api']['useragent']})
 
     def _process_key_press_commands(self, message) -> bool:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
@@ -180,7 +186,7 @@ class CommandProcessor(object):
         return False
 
     def _process_hotkey_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.hotkey(*output)
@@ -188,7 +194,7 @@ class CommandProcessor(object):
         return False
 
     def _process_mouse_hold_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 self.mouse.press(Button.left)
@@ -207,7 +213,7 @@ class CommandProcessor(object):
         return False
 
     def _process_mouse_drag_commands(self, message) -> bool:
-        for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
+        for valid_inputs, output in self.MOUSE_DRAG_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.drag(*output, button='left')
@@ -220,17 +226,22 @@ class CommandProcessor(object):
         """
 
         # !modalert command
-        if message.content in ['!modalert']:
+        if message.content.startswith('!modalert'):
             log.info('[MODALERT] called.')
             data = {
                 'embeds': [
-                    {'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:'}
+                    {
+                        'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:',
+                        'description': f'Extra info: *{message.content[10:] or "none given"}*'
+                    }
                 ],
                 'username': message.username,
                 'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
             }
             log.info('[MODALERT] Sending request...')
-            requests.post(self.config['discord']['chatalerts'], json=data, headers={'User-Agent': self.config['api']['useragent']})
+            requests.post(self.config['discord']['chatalerts'],
+                          json=data,
+                          headers={'User-Agent': self.config['api']['useragent']})
             log.info('[MODALERT] Request sent')
             return True
 
@@ -265,7 +276,7 @@ class CommandProcessor(object):
                 log.error(f'COULD NOT GTYPE: {message.content}')
             return True
 
-        # No comamnds run, sad cat hours
+        # No commands run, sad cat hours
         return False
 
     def _process_type_commands(self, message) -> bool:
@@ -280,30 +291,36 @@ class CommandProcessor(object):
                 return True
         return False
 
-    # def _process_hold_key_commands(self, message) -> bool:
-    #     for valid_input in self.HOLD_KEY_COMMANDS:
-    #         if message.content.startswith(valid_input):
-    #             try:
-    #                 time_value = float(self.remove_prefix(message.content, valid_input))
+    @staticmethod
+    def _hold_key_pyautogui(key_to_press, time_value):
+        log.info('HONEY HE IS OFF THE DRUG!')
+        pyautogui.keyDown(key_to_press)
+        time.sleep(time_value)
+        pyautogui.keyUp(key_to_press)
 
-    #                 # This command is a lil more complex bc we need to work out what key they actually want to press,
-    #                 # but still nothing impossible
-    #                 key_to_press = {
-    #                     'd': KeyboardKeycodes.D,
-    #                     'a': KeyboardKeycodes.A,
-    #                     's': KeyboardKeycodes.S,
-    #                     'w': KeyboardKeycodes.W,
-    #                     'arrow up': KeyboardKeycodes.UP_ARROW,
-    #                     'arrow left': KeyboardKeycodes.LEFT_ARROW,
-    #                     'arrow right': KeyboardKeycodes.RIGHT_ARROW,
-    #                     'arrow down': KeyboardKeycodes.DOWN_ARROW,
-    #                 }.get(valid_input[:-4])
-    #                 assert key_to_press is not None
+    def _process_hold_key_commands(self, message) -> bool:
+        for valid_input, output in self.HOLD_KEY_COMMANDS.items():
+            if message.content.startswith(valid_input):
+                try:
+                    time_value = float(self.remove_prefix(message.content, valid_input))
+                    log.info(f"time_value: {time_value}")
+                    log.info(f"key_to_press: {output}")
 
-    #                 if 0 >= time_value <= 10:
-    #                     self.log_to_obs(message)
-    #                     PressAndHoldKey(key_to_press, time_value)
-    #             except Exception:
-    #                 print(f'Error holding key: {message.content}')
-    #             return True
-    #     return False
+                    # This command is a lil more complex bc we need to work out what key they actually want to press,
+                    # but still nothing impossible
+                    log.info('i am the boss, and i give all the orders')
+                    if output is None:
+                        log.info('no key to press, im having sad cat hours ngl...')
+                        return False
+
+                    log.info('And when we split, we split my way.')
+                    if 0.0 < time_value <= 10.0:
+                        log.info('time was a success')
+                        self.log_to_obs(message)
+                        log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
+                        self._hold_key_pyautogui(output, time_value)
+                except Exception as e:
+                    print(f'Error holding key: {message.content}')
+                    raise e
+                return True
+        return False

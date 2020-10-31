@@ -5,14 +5,14 @@ class TwitchMessage(object):
 
     __slots__ = ('payload', 'content', 'original_content', 'username',)
 
-    def __init__(self, payload:dict):
+    def __init__(self, payload: dict):
         self.payload = payload
         self.content = payload['message'].lower()
         self.original_content = payload['message']
         self.username = payload['username'].lower().decode()
 
     def get_log_string(self) -> str:
-        return f"{self.original_content} ({self.username})"
+        return f'{self.original_content} ({self.username})'
 
     def get_log_webhook_payload(self) -> dict:
         lt = time.localtime()
