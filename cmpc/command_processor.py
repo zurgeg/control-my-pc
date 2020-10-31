@@ -29,7 +29,7 @@ class CommandProcessor(object):
         ('esc', 'escape',): 'esc',
         ('windows key', 'win',): 'win',
         ('backspace', 'back space', 'delete',): 'backspace',
-        ('space', 'spacebar',): 'space',
+        ('space', 'spacebar', 'space bar'): 'space',
         ('page up', 'pageup',): 'pageup',
         ('page down', 'pagedown',): 'pagedown',
         ('arrow down',): 'down',
@@ -41,7 +41,7 @@ class CommandProcessor(object):
     }
 
     CLICK_COMMANDS = {
-        ('click', 'left click',): 'left',
+        ('click', 'leftclick', 'left click',): 'left',
         ('doubleclick', 'double click',): 'doubleclick',
         ('rightclick', 'right click',): 'right',
         ('middleclick', 'middle click',): 'middle',
@@ -65,20 +65,20 @@ class CommandProcessor(object):
     HOTKEY_COMMANDS = {
         ('control t', 'ctrl t', 'new tab',): ('ctrl', 'n',),
         ('control s', 'ctrl s', 'save',): ('ctrl', 's',),
-        ('control z', 'undo',): ('ctrl', 'z',),
-        ('control c', 'copy',): ('ctrl', 'c',),
-        ('control v', 'paste',): ('ctrl', 'v',),
-        ('control w', 'close tab', 'close the tab',): ('ctrl', 'w',),
-        ('control a', 'select all', 'ctrl a',): ('ctrl', 'a',),
-        ('control k', 'tayne', 'ctrl k',): ('ctrl', 'k',),
-        ('quit', 'alt f4',): ('altleft', 'f4',),
+        ('control z', 'ctrl z', 'undo',): ('ctrl', 'z',),
+        ('control c', 'ctrl s', 'copy',): ('ctrl', 'c',),
+        ('control v', 'ctrl v', 'paste',): ('ctrl', 'v',),
+        ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
+        ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
+        ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
+        ('alt f4', 'quit',): ('altleft', 'f4',),
         ('alt tab', 'alt-tab',): ('altleft', 'tab',),
         ('screenshot', 'screen shot',): ('win', 'prtsc',),
     }
 
     MOUSE_HOLD_COMMANDS = {
         ('hold mouse', 'hold the mouse',): 3,
-        ('hold mouse long',): 9,
+        ('hold mouse long', 'hold the mouse long',): 9,
     }
 
     MOUSE_SCROLL_COMMANDS = {
