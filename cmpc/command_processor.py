@@ -97,16 +97,16 @@ class CommandProcessor(object):
         'press ',
     )  # note trailing space - this is to process args better
 
-    HOLD_KEY_COMMANDS = (
-        'd for ',
-        'a for ',
-        's for ',
-        'w for ',
-        'arrow up for ',
-        'arrow left for ',
-        'arrow right for ',
-        'arrow down for ',
-    )  # note trailing space - this is to process args better
+    HOLD_KEY_COMMANDS = {
+        'd for ': 'd',
+        'a for ': 'a',
+        's for ': 's',
+        'w for ': 'w',
+        'arrow up for ': 'up',
+        'arrow left for ': 'left',
+        'arrow right for ': 'right',
+        'arrow down for ': 'down',
+    }  # note trailing space - this is to process args better
 
     def __init__(self, config, obs_file_handle, mouse):
         self.config = config
@@ -294,27 +294,26 @@ class CommandProcessor(object):
         pyautogui.keyUp(key_to_press)
 
     def _process_hold_key_commands(self, message) -> bool:
-        for valid_input in self.HOLD_KEY_COMMANDS:
+        for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
                 try:
                     time_value = float(self.remove_prefix(message.content, valid_input))
-                    key_to_press = valid_input[:-5]
                     log.info(f"time_value: {time_value}")
-                    log.info(f"key_to_press: {key_to_press}")
+                    log.info(f"key_to_press: {output}")
 
                     # This command is a lil more complex bc we need to work out what key they actually want to press,
                     # but still nothing impossible
                     log.info('i am the boss, and i give all the orders')
-                    if key_to_press is None:
+                    if output is None:
                         return False
                         log.info('no key to press, im having sad cat hours ngl...')
 
                     log.info('And when we split, we split my way.')
                     if 0.0 < time_value <= 10.0:
-                        log.info('time was a sucess')
+                        log.info('time was a success')
                         self.log_to_obs(message)
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
-                        self.PressAndHoldKey(key_to_press, time_value)
+                        self.PressAndHoldKey(output, time_value)
                 except Exception as e:
                     raise e
                     print(f'Error holding key: {message.content}')
