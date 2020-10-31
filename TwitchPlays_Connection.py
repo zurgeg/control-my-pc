@@ -1,11 +1,11 @@
 # All packages are part of the PSL
 import socket
-import sys
 import re
 import typing
 import time
 import logging as log
 
+# noinspection PyArgumentList
 log.basicConfig(
     level=log.INFO,
     format="[%(levelname)s] %(message)s",
@@ -23,7 +23,7 @@ class Twitch(object):
         self.oauth = None
         self.socket = None
 
-    def _twitch_login_status(self, data:bytes) -> bool:
+    def _twitch_login_status(self, data: bytes) -> bool:
         """Check the login data to see if login was successful
 
         Args:
