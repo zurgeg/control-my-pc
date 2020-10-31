@@ -4,6 +4,7 @@ import json  # json, duh,
 import logging as log  # better print()
 
 # PIP Packages;
+import pyautogui  # only used in rawsend- command
 import requests  # api and discord webhooks
 import toml  # configuration
 from pynput.mouse import Controller  # Not really needed, but (i think) something still relies on it so /shrug
