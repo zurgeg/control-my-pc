@@ -183,7 +183,7 @@ class CommandProcessor(object):
         return False
 
     def _process_hotkey_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.hotkey(*output)
@@ -191,7 +191,7 @@ class CommandProcessor(object):
         return False
 
     def _process_mouse_hold_commands(self, message) -> bool:
-        for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
+        for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 self.mouse.press(Button.left)
