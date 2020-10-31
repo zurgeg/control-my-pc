@@ -212,7 +212,7 @@ class CommandProcessor(object):
         return False
 
     def _process_mouse_drag_commands(self, message) -> bool:
-        for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
+        for valid_inputs, output in self.MOUSE_DRAG_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.drag(*output, button='left')
