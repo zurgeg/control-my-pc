@@ -226,11 +226,14 @@ class CommandProcessor(object):
         """
 
         # !modalert command
-        if message.content in ['!modalert']:
+        if message.content.startswith('!modalert'):
             log.info('[MODALERT] called.')
             data = {
                 'embeds': [
-                    {'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:'}
+                    {
+                        'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:',
+                        'description': f'Extra info: *{message.content[10:] or "none given"}*'
+                    }
                 ],
                 'username': message.username,
                 'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
