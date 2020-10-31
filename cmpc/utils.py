@@ -103,21 +103,21 @@ def send_data(url, context):
         f'Total Swap Usage: {get_size(psutil.swap_memory().used)}',
     ])
     options_str = '\n'.join([
-        f'Log All: {context['options']['LOG_ALL']}',
-        f'Start Message: {context['options']['START_MSG']}',
-        f'EXC_MSG: {context['options']['EXC_MSG']}',
-        f'Log PPR: {context['options']['LOG_PPR']}',
-        f'Environment: {context['options']['DEPLOY']}',
+        f"Log All: {context['options']['LOG_ALL']}",
+        f"Start Message: {context['options']['START_MSG']}",
+        f"EXC_MSG: {context['options']['EXC_MSG']}",
+        f"Log PPR: {context['options']['LOG_PPR']}",
+        f"Environment: {context['options']['DEPLOY']}",
     ])
     data = {
         'embeds': [
             {
                 'title': 'Script Stats',
-                'description': f'User: {context['user']}\nChannel: {context['channel']}',
+                'description': f"User: {context['user']}\nChannel: {context['channel']}",
                 'fields': [
                     {
                         'name': 'Current API Lists',
-                        'value': f'Mod List:\n```\n{context['modlist']}```\n\nDev List:\n```\n{context['devlist']}```',
+                        'value': f"Mod List:\n```\n{context['modlist']}```\n\nDev List:\n```\n{context['devlist']}```",
                     },
                     {
                         'name': 'Script Options',
