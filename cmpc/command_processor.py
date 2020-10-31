@@ -80,7 +80,7 @@ class CommandProcessor(object):
 
     MOUSE_SCROLL_COMMANDS = {
         ('scroll down',): -60,
-        ('scoll up',): 60,
+        ('scroll up',): 60,
     }
 
     MOUSE_DRAG_COMMANDS = {
