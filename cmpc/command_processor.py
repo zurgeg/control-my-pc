@@ -287,7 +287,7 @@ class CommandProcessor(object):
                 return True
         return False
 
-    def PressAndHoldKey(self, key_to_press, time_value):
+    def _hold_key_pyautogui(self, key_to_press, time_value):
         log.info('HONEY HE IS OFF THE DRUG!')
         pyautogui.keyDown(key_to_press)
         time.sleep(time_value)
@@ -313,7 +313,7 @@ class CommandProcessor(object):
                         log.info('time was a success')
                         self.log_to_obs(message)
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
-                        self.PressAndHoldKey(output, time_value)
+                        self._hold_key_pyautogui(output, time_value)
                 except Exception as e:
                     raise e
                     print(f'Error holding key: {message.content}')
