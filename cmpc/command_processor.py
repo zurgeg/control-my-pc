@@ -231,7 +231,9 @@ class CommandProcessor(object):
             data = {
                 'embeds': [
                     {
-                        'title': ':rotating_light: **The user above needs a moderator on the stream.** :rotating_light:',
+                        'title': ':rotating_light: '
+                                 '**The user above needs a moderator on the stream.** '
+                                 ':rotating_light:',
                         'description': f'Extra info: *{message.content[10:] or "none given"}*'
                     }
                 ],

@@ -110,7 +110,7 @@ while True:
     written_nothing = True
 
     # Get all messages from Twitch
-    new_messages = t.twitch_recieve_messages()
+    new_messages = t.twitch_receive_messages()
 
     # If we didn't get any new messages, let's log that nothing is happening and
     # keep looping for new stuff

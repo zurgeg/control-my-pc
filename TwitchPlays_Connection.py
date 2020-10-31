@@ -5,6 +5,7 @@ import re
 import typing
 import time
 import logging as log
+
 log.basicConfig(
     level=log.INFO,
     format="[%(levelname)s] %(message)s",
@@ -13,6 +14,7 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
+
 
 class Twitch(object):
 
@@ -35,7 +37,7 @@ class Twitch(object):
             return True
         return False
 
-    def twitch_connect(self, user:str, key:str) -> None:
+    def twitch_connect(self, user: str, key: str) -> None:
         """Makes a socket connection to Twitch.tv
 
         Args:
@@ -55,7 +57,7 @@ class Twitch(object):
         try:
             self.socket.connect((connect_host, connect_port))
         except Exception as e:
-            log.warn(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
+            log.warning(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
             time.sleep(5)
             log.info("[TWITCH] Reconnecting after 5 seconds")
             return self.twitch_connect(self.user, self.oauth)
@@ -73,17 +75,18 @@ class Twitch(object):
             self.socket.send(b'JOIN #%s\r\n' % user.encode())
             self.socket.recv(1024)
 
-    def _check_has_message(self, data:bytes):
-        return re.match(rb'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
+    def _check_has_message(self, data: bytes):
+        return re.match(rb'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local)'
+                        rb' PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
 
-    def _parse_message(self, data:bytes):
+    def _parse_message(self, data: bytes):
         return {
             'channel': re.findall(rb'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
             'username': re.findall(rb'^:([a-zA-Z0-9_]+)\!', data)[0],
             'message': re.findall(rb'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf_8')
         }
 
-    def twitch_recieve_messages(self, amount:int=1024) -> typing.List[bytes]:
+    def twitch_receive_messages(self, amount: int=1024) -> typing.List[bytes]:
         """Receives data from the websocket and returns the lines
 
         Args:
@@ -94,12 +97,12 @@ class Twitch(object):
         """
 
         try:
-            data = self.socket.recv(1024)
+            data = self.socket.recv(amount)
         except Exception:
             return list()
 
         if not data:
-            log.warn("[TWITCH] Connection lost, trying to reconnect")
+            log.warning("[TWITCH] Connection lost, trying to reconnect")
             self.twitch_connect(self.user, self.oauth)
             return list()
 
