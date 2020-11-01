@@ -1,4 +1,11 @@
+# What is the point of all this? Why not just use simple attributes? -J
 class Permissions:
+    """Holds the permissions of a user.
+
+    Instance variables:
+    moderator
+    developer
+    script"""
 
     MOD_PERMISSION = 0b001
     DEV_PERMISSION = 0b010
@@ -14,10 +21,23 @@ class Permissions:
 
     @property
     def moderator(self):
+        """Getter for the moderator attribute.
+
+        Finds the boolean of the bitwise AND between the instance's value and MOD_PERMISSION
+        Therefore returns True if the instance's permissions value has a 1 in the MOD_PERMISSION position.
+        """
         return bool(self.value & self.MOD_PERMISSION)
 
     @moderator.setter
     def moderator(self, value):
+        """Setter for the moderator attribute.
+
+        Args:
+            value -- boolean indicating whether the instance has moderator permissions.
+        If giving the instance moderator permissions, use a bitwise OR to set a 1 in the MOD_PERMISSION position.
+        Otherwise, use a bitwise AND with the bitwise XOR of ALL_PERMISSIONS and MOD_PERMISSION
+        to set a 0 in the MOD_PERMISSION position.
+        """
         if value:
             self.value = self.value | self.MOD_PERMISSION
         else:
