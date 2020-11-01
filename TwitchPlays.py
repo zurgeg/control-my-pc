@@ -161,7 +161,8 @@ while True:
                 if twitch_message.content == 'script- apirefresh':
                     dev_sr = requests.get(config['api']['dev'])
                     mod_sr = requests.get(config['api']['mod'])
-                    load_user_permissions(
+                    # Note - all caps variables should really be constants.
+                    USER_PERMISSIONS = load_user_permissions(
                         dev_list=dev_sr.json(),
                         mod_list=mod_sr.json(),
                     )
