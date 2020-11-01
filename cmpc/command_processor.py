@@ -51,11 +51,35 @@ class CommandProcessor:
         ('where', 'where?'): 'ctrl',
     }
 
+    HOTKEY_COMMANDS = {
+        ('control t', 'ctrl t', 'new tab',): ('ctrl', 'n',),
+        ('control s', 'ctrl s', 'save',): ('ctrl', 's',),
+        ('control z', 'ctrl z', 'undo',): ('ctrl', 'z',),
+        ('control c', 'ctrl s', 'copy',): ('ctrl', 'c',),
+        ('control v', 'ctrl v', 'paste',): ('ctrl', 'v',),
+        ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
+        ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
+        ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
+        ('alt f4', 'quit',): ('altleft', 'f4',),
+        ('alt tab', 'alt-tab',): ('altleft', 'tab',),
+        ('screenshot', 'screen shot',): ('win', 'prtsc',),
+    }
+
     CLICK_COMMANDS = {
         ('click', 'leftclick', 'left click',): 'left',
         ('doubleclick', 'double click',): 'doubleclick',
         ('rightclick', 'right click',): 'right',
         ('middleclick', 'middle click',): 'middle',
+    }
+
+    MOUSE_HOLD_COMMANDS = {
+        ('hold mouse', 'hold the mouse',): 3,
+        ('hold mouse long', 'hold the mouse long',): 9,
+    }
+
+    MOUSE_SCROLL_COMMANDS = {
+        ('scroll down',): -60,
+        ('scroll up',): 60,
     }
 
     MOUSE_MOVE_COMMANDS = {
@@ -71,30 +95,6 @@ class CommandProcessor:
         ('down',): (0, 100,),
         ('light down', 'little down',): (0, 25,),
         ('super light down', 'super little down',): (0, 10,),
-    }
-
-    HOTKEY_COMMANDS = {
-        ('control t', 'ctrl t', 'new tab',): ('ctrl', 'n',),
-        ('control s', 'ctrl s', 'save',): ('ctrl', 's',),
-        ('control z', 'ctrl z', 'undo',): ('ctrl', 'z',),
-        ('control c', 'ctrl s', 'copy',): ('ctrl', 'c',),
-        ('control v', 'ctrl v', 'paste',): ('ctrl', 'v',),
-        ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
-        ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
-        ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
-        ('alt f4', 'quit',): ('altleft', 'f4',),
-        ('alt tab', 'alt-tab',): ('altleft', 'tab',),
-        ('screenshot', 'screen shot',): ('win', 'prtsc',),
-    }
-
-    MOUSE_HOLD_COMMANDS = {
-        ('hold mouse', 'hold the mouse',): 3,
-        ('hold mouse long', 'hold the mouse long',): 9,
-    }
-
-    MOUSE_SCROLL_COMMANDS = {
-        ('scroll down',): -60,
-        ('scroll up',): 60,
     }
 
     MOUSE_DRAG_COMMANDS = {
@@ -177,6 +177,14 @@ class CommandProcessor:
                       json=message.get_log_webhook_payload(),
                       headers={'User-Agent': self.config['api']['useragent']})
 
+    @staticmethod
+    def _hold_key_pyautogui(key_to_press, time_value):
+        """Hold the key for the duration specified."""
+        log.info('HONEY HE IS OFF THE DRUG!')
+        pyautogui.keyDown(key_to_press)
+        time.sleep(time_value)
+        pyautogui.keyUp(key_to_press)
+
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
 
@@ -188,6 +196,20 @@ class CommandProcessor:
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.press(output)
+                return True
+        return False
+
+    def _process_hotkey_commands(self, message) -> bool:
+        """Check message for hotkey commands and run any applicable command.
+
+        Presses the two keys together and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_inputs, output in self.HOTKEY_COMMANDS.items():
+            if message.content in valid_inputs:
+                self.log_to_obs(message)
+                pyautogui.hotkey(*output)
                 return True
         return False
 
@@ -206,34 +228,6 @@ class CommandProcessor:
                 if output == 'doubleclick':
                     click_count = 2
                 pyautogui.click(button=output, clicks=click_count)
-                return True
-        return False
-
-    def _process_mouse_move_commands(self, message) -> bool:
-        """Check message for mouse move commands and run any applicable command.
-
-        Moves the mouse by the command's co-ords and also calls log_to_obs.
-        Takes a cmpc.TwitchMessage instance.
-        Returns True if a command has been run and False otherwise.
-        """
-        for valid_inputs, output in self.MOUSE_MOVE_COMMANDS.items():
-            if message.content in valid_inputs:
-                self.log_to_obs(message)
-                move_mouse(*output)
-                return True
-        return False
-
-    def _process_hotkey_commands(self, message) -> bool:
-        """Check message for hotkey commands and run any applicable command.
-
-        Presses the two keys together and also calls log_to_obs.
-        Takes a cmpc.TwitchMessage instance.
-        Returns True if a command has been run and False otherwise.
-        """
-        for valid_inputs, output in self.HOTKEY_COMMANDS.items():
-            if message.content in valid_inputs:
-                self.log_to_obs(message)
-                pyautogui.hotkey(*output)
                 return True
         return False
 
@@ -270,6 +264,20 @@ class CommandProcessor:
                 return True
         return False
 
+    def _process_mouse_move_commands(self, message) -> bool:
+        """Check message for mouse move commands and run any applicable command.
+
+        Moves the mouse by the command's co-ords and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_inputs, output in self.MOUSE_MOVE_COMMANDS.items():
+            if message.content in valid_inputs:
+                self.log_to_obs(message)
+                move_mouse(*output)
+                return True
+        return False
+
     def _process_mouse_drag_commands(self, message) -> bool:
         """Check message for mouse drag commands and run any applicable command.
 
@@ -282,6 +290,59 @@ class CommandProcessor:
             if message.content in valid_inputs:
                 self.log_to_obs(message)
                 pyautogui.drag(*output, button='left')
+                return True
+        return False
+
+    def _process_type_commands(self, message) -> bool:
+        """Check message for typing commands and run any applicable command.
+
+        Types the message and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_input in self.TYPE_COMMANDS:
+            if message.content.startswith(valid_input):
+                self.log_to_obs(message)
+                try:
+                    message_to_type = self.remove_prefix(message.original_content, valid_input)
+                    pyautogui.typewrite(message_to_type)
+                except Exception:
+                    log.error(f'COULD NOT TYPE: {message.content}')
+                return True
+        return False
+
+    def _process_hold_key_commands(self, message) -> bool:
+        """Check message for key press commands and run any applicable command.
+
+        Holds the key for the duration specified in the message.
+        Duration must be between 0 and 10 seconds or the keypress will not execute.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_input, output in self.HOLD_KEY_COMMANDS.items():
+            if message.content.startswith(valid_input):
+                try:
+                    time_value = float(self.remove_prefix(message.content, valid_input))
+                    log.info(f"time_value: {time_value}")
+                    log.info(f"key_to_press: {output}")
+
+                    # This command is a lil more complex bc we need to work out what key they actually want to press,
+                    # but still nothing impossible
+                    log.info('i am the boss, and i give all the orders')
+                    if output is None:
+                        log.info('no key to press, im having sad cat hours ngl...')
+                        return False
+
+                    log.info('And when we split, we split my way.')
+                    if 0.0 < time_value <= 10.0:
+                        log.info('time was a success')
+                        self.log_to_obs(message)
+                        log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
+                        self._hold_key_pyautogui(output, time_value)
+                except Exception as e:
+                    print(f'Error holding key: {message.content}')
+                    raise e
                 return True
         return False
 
@@ -351,65 +412,4 @@ class CommandProcessor:
             return True
 
         # No commands run, sad cat hours
-        return False
-
-    def _process_type_commands(self, message) -> bool:
-        """Check message for typing commands and run any applicable command.
-
-        Types the message and also calls log_to_obs.
-        Takes a cmpc.TwitchMessage instance.
-        Returns True if a command has been run and False otherwise.
-        """
-        for valid_input in self.TYPE_COMMANDS:
-            if message.content.startswith(valid_input):
-                self.log_to_obs(message)
-                try:
-                    message_to_type = self.remove_prefix(message.original_content, valid_input)
-                    pyautogui.typewrite(message_to_type)
-                except Exception:
-                    log.error(f'COULD NOT TYPE: {message.content}')
-                return True
-        return False
-
-    @staticmethod
-    def _hold_key_pyautogui(key_to_press, time_value):
-        """Hold the key for the duration specified."""
-        log.info('HONEY HE IS OFF THE DRUG!')
-        pyautogui.keyDown(key_to_press)
-        time.sleep(time_value)
-        pyautogui.keyUp(key_to_press)
-
-    def _process_hold_key_commands(self, message) -> bool:
-        """Check message for key press commands and run any applicable command.
-
-        Holds the key for the duration specified in the message.
-        Duration must be between 0 and 10 seconds or the keypress will not execute.
-        Also calls log_to_obs.
-        Takes a cmpc.TwitchMessage instance.
-        Returns True if a command has been run and False otherwise.
-        """
-        for valid_input, output in self.HOLD_KEY_COMMANDS.items():
-            if message.content.startswith(valid_input):
-                try:
-                    time_value = float(self.remove_prefix(message.content, valid_input))
-                    log.info(f"time_value: {time_value}")
-                    log.info(f"key_to_press: {output}")
-
-                    # This command is a lil more complex bc we need to work out what key they actually want to press,
-                    # but still nothing impossible
-                    log.info('i am the boss, and i give all the orders')
-                    if output is None:
-                        log.info('no key to press, im having sad cat hours ngl...')
-                        return False
-
-                    log.info('And when we split, we split my way.')
-                    if 0.0 < time_value <= 10.0:
-                        log.info('time was a success')
-                        self.log_to_obs(message)
-                        log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
-                        self._hold_key_pyautogui(output, time_value)
-                except Exception as e:
-                    print(f'Error holding key: {message.content}')
-                    raise e
-                return True
         return False
