@@ -58,6 +58,7 @@ if config['options']['START_MSG']:
 
 
 def load_user_permissions(dev_list, mod_list):
+    """"Generate a dict of user permissions based on lists of devs and mods."""
     user_permissions = {}
     for dev in dev_list:
         perms = user_permissions.get(dev, cmpc.Permissions())

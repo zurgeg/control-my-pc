@@ -23,7 +23,8 @@ class Twitch(object):
         self.oauth = None
         self.socket = None
 
-    def _twitch_login_status(self, data: bytes) -> bool:
+    @staticmethod
+    def _twitch_login_status(data: bytes) -> bool:
         """Check the login data to see if login was successful
 
         Args:
@@ -75,18 +76,20 @@ class Twitch(object):
             self.socket.send(b'JOIN #%s\r\n' % user.encode())
             self.socket.recv(1024)
 
-    def _check_has_message(self, data: bytes):
+    @staticmethod
+    def _check_has_message(data: bytes):
         return re.match(rb'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local)'
                         rb' PRIVMSG #[a-zA-Z0-9_]+ :.+$', data)
 
-    def _parse_message(self, data: bytes):
+    @staticmethod
+    def _parse_message(data: bytes):
         return {
             'channel': re.findall(rb'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
             'username': re.findall(rb'^:([a-zA-Z0-9_]+)\!', data)[0],
             'message': re.findall(rb'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf_8')
         }
 
-    def twitch_receive_messages(self, amount: int=1024) -> typing.List[bytes]:
+    def twitch_receive_messages(self, amount: int = 1024) -> typing.List[bytes]:
         """Receives data from the websocket and returns the lines
 
         Args:
