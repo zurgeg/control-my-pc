@@ -98,10 +98,10 @@ class CommandProcessor:
     }
 
     MOUSE_DRAG_COMMANDS = {
-        ('drag mouse up',): (0, -50, 0.25,),
-        ('drag mouse down',): (0, 50, 0.25,),
-        ('drag mouse right',): (50, 0, 0.25,),
-        ('drag mouse left',): (-50, 0, 0.25,),
+        ('drag up', 'drag mouse up',): (0, -50, 0.25,),
+        ('drag down', 'drag mouse down',): (0, 50, 0.25,),
+        ('drag right', 'drag mouse right',): (50, 0, 0.25,),
+        ('drag left', 'drag mouse left',): (-50, 0, 0.25,),
     }
 
     TYPE_COMMANDS = (
