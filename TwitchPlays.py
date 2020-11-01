@@ -160,14 +160,14 @@ while True:
                     cmpc.send_data(config['discord']['modtalk'], context)
 
                 if twitch_message.content == 'script- apirefresh':
-                    dev_sr = requests.get(config['api']['dev'])
-                    mod_sr = requests.get(config['api']['mod'])
+                    apiconfig = requests.get(config['api']['apiconfig'])
+                    apiconfig = json.loads(apiconfig.text)
                     # Note - all caps variables should really be constants.
                     USER_PERMISSIONS = load_user_permissions(
-                        dev_list=dev_sr.json(),
-                        mod_list=mod_sr.json(),
+                        dev_list=apiconfig['devlist'],
+                        mod_list=apiconfig['modlist'],
                     )
-                    log.info('[API] refresheed')
+                    log.info('[API] refreshed')
                     cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
 
                 if twitch_message.content == 'script- forceerror':
