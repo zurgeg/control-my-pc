@@ -7,6 +7,7 @@ class Permissions:
     ALL_PERMISSIONS = 0b111111111111  # This doesn't need to be accurate it just needs to be bigger than everything else
 
     def __init__(self, **kwargs):
+        """Initialise the class attributes, including keyword arguments."""
         self.value = 0
         for k, v in kwargs.items():
             setattr(self, k, v)
