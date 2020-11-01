@@ -57,21 +57,19 @@ if config['options']['START_MSG']:
     cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
 
 
-USER_PERMISSIONS = {}
-
-
 def load_user_permissions(dev_list, mod_list):
-    global USER_PERMISSIONS
-    USER_PERMISSIONS.clear()
+    user_permissions = {}
     for dev in dev_list:
-        perms = USER_PERMISSIONS.get(dev, cmpc.Permissions())
+        perms = user_permissions.get(dev, cmpc.Permissions())
         perms.developer = True
-        USER_PERMISSIONS[dev] = perms
+        user_permissions[dev] = perms
     for mod in mod_list:
-        perms = USER_PERMISSIONS.get(mod, cmpc.Permissions())
+        perms = user_permissions.get(mod, cmpc.Permissions())
         perms.moderator = True
-        USER_PERMISSIONS[mod] = perms
-    USER_PERMISSIONS.setdefault('cmpcscript', cmpc.Permissions()).script = True
+        user_permissions[mod] = perms
+    user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+
+    return user_permissions
 
 
 # Get dev and mod lists from API.
@@ -79,7 +77,7 @@ log.info('[API] Requesting data!')
 apiconfig = requests.get(config['api']['apiconfig'])
 apiconfig = json.loads(apiconfig.text)
 
-load_user_permissions(
+USER_PERMISSIONS = load_user_permissions(
     dev_list=apiconfig['devlist'],
     mod_list=apiconfig['modlist'],
 )
