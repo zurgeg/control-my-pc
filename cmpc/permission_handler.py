@@ -1,4 +1,4 @@
-class Permissions(object):
+class Permissions:
 
     MOD_PERMISSION = 0b001
     DEV_PERMISSION = 0b010

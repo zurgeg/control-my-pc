@@ -22,7 +22,7 @@ log.basicConfig(
 )
 
 
-class CommandProcessor(object):
+class CommandProcessor:
     KEY_PRESS_COMMANDS = {
         ('enter',): 'enter',
         ('tab',): 'tab',
@@ -110,6 +110,7 @@ class CommandProcessor(object):
     }  # note trailing space - this is to process args better
 
     def __init__(self, config, obs_file_handle, mouse):
+        """"Initialise the method attributes"""
         self.config = config
         self.obs_file_handle = obs_file_handle
         self.mouse = mouse

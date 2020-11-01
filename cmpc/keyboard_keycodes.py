@@ -1,4 +1,4 @@
-class KeyboardKeycodes(object):
+class KeyboardKeycodes:
     Q = 0x10
     W = 0x11
     E = 0x12

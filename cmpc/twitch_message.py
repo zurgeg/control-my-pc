@@ -1,7 +1,7 @@
 import time
 
 
-class TwitchMessage(object):
+class TwitchMessage:
 
     __slots__ = ('payload', 'content', 'original_content', 'username',)
 

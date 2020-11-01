@@ -16,7 +16,7 @@ log.basicConfig(
 )
 
 
-class Twitch(object):
+class Twitch:
 
     def __init__(self):
         self.user = None
