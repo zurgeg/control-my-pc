@@ -17,6 +17,16 @@ log.basicConfig(
 
 
 class Twitch:
+    """For authenticating and getting messages from a twitch.tv chat.
+
+    Public methods:
+    twitch_connect
+    twitch_receive_messages
+    Instance variables:
+    user -- the username of the twitch account
+    oauth -- the oauth key for the twitch account
+    socket -- the websocket used to connect to the IRC channel
+    """
 
     def __init__(self):
         self.user = None

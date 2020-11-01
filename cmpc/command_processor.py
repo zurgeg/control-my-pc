@@ -23,6 +23,17 @@ log.basicConfig(
 
 
 class CommandProcessor:
+    """For processing Twitch Plays commands.
+
+    Does not handle permissions, all commands are unrestricted.
+    Public methods:
+    process_commands
+    Instance variables:
+    config -- a dict of config values
+    obs_file_handle -- object of the files containing the currently executing command
+    mouse -- a pynput.mouse.Controller instance
+    """
+
     KEY_PRESS_COMMANDS = {
         ('enter',): 'enter',
         ('tab',): 'tab',
@@ -110,12 +121,20 @@ class CommandProcessor:
     }  # note trailing space - this is to process args better
 
     def __init__(self, config, obs_file_handle, mouse):
-        """"Initialise the method attributes"""
+        """"Initialise the class attributes"""
         self.config = config
         self.obs_file_handle = obs_file_handle
         self.mouse = mouse
 
     def process_commands(self, message) -> bool:
+        """Check a Twitch message for command invocations and run any applicable command.
+
+        Will run the first applicable command before returning.
+        Args:
+            message -- a cmpc.TwitchMessage object
+        Returns:
+            command_has_run
+        """
         commands = [
             self._process_key_press_commands,
             self._process_click_commands,
@@ -138,12 +157,11 @@ class CommandProcessor:
 
     @staticmethod
     def remove_prefix(message, prefix) -> str:
+        """Return the message with the prefix removed."""
         return message[len(prefix):]
 
     def log_to_obs(self, message):
-        """
-        Log a message to the file shown on-screen for the stream
-        """
+        """Log a message to the file shown on-screen for the stream."""
 
         self.obs_file_handle.truncate()
         if message is None:
@@ -160,6 +178,12 @@ class CommandProcessor:
                       headers={'User-Agent': self.config['api']['useragent']})
 
     def _process_key_press_commands(self, message) -> bool:
+        """Check message for key press commands and run any applicable command.
+
+        Presses the button and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -168,6 +192,13 @@ class CommandProcessor:
         return False
 
     def _process_click_commands(self, message) -> bool:
+        """Check message for mouse click press commands and run any applicable command.
+
+        Clicks the mouse button once, or twice if the command is named doubleclick.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.CLICK_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -179,6 +210,12 @@ class CommandProcessor:
         return False
 
     def _process_mouse_move_commands(self, message) -> bool:
+        """Check message for mouse move commands and run any applicable command.
+
+        Moves the mouse by the command's co-ords and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.MOUSE_MOVE_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -187,6 +224,12 @@ class CommandProcessor:
         return False
 
     def _process_hotkey_commands(self, message) -> bool:
+        """Check message for hotkey commands and run any applicable command.
+
+        Presses the two keys together and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -195,6 +238,13 @@ class CommandProcessor:
         return False
 
     def _process_mouse_hold_commands(self, message) -> bool:
+        """Check message for mouse hold commands and run any applicable command.
+
+        Presses the left mouse button for the duration of time associated with the command.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -205,15 +255,29 @@ class CommandProcessor:
         return False
 
     def _process_mouse_scroll_commands(self, message) -> bool:
+        """Check message for mouse scroll commands and run any applicable command.
+
+        Scrolls the mouse wheel five times by the amount associated with the command.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
-                for _ in range(5):
+                for i in range(5):
                     pyautogui.scroll(output)
                 return True
         return False
 
     def _process_mouse_drag_commands(self, message) -> bool:
+        """Check message for mouse drag commands and run any applicable command.
+
+        Moves the mouse by the commands co-ords while holding the left mouse button.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_inputs, output in self.MOUSE_DRAG_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
@@ -222,8 +286,11 @@ class CommandProcessor:
         return False
 
     def _process_misc_commands(self, message) -> bool:
-        """
-        Here's where we put the stuff that's either too complicated to dict, or just a one-off irregular
+        """Process commands that are either too complicated to dict, or just one-off irregulars.
+
+        Runs the first applicable command and returns.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
         """
 
         # !modalert command
@@ -287,6 +354,12 @@ class CommandProcessor:
         return False
 
     def _process_type_commands(self, message) -> bool:
+        """Check message for typing commands and run any applicable command.
+
+        Types the message and also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
@@ -300,12 +373,21 @@ class CommandProcessor:
 
     @staticmethod
     def _hold_key_pyautogui(key_to_press, time_value):
+        """Hold the key for the duration specified."""
         log.info('HONEY HE IS OFF THE DRUG!')
         pyautogui.keyDown(key_to_press)
         time.sleep(time_value)
         pyautogui.keyUp(key_to_press)
 
     def _process_hold_key_commands(self, message) -> bool:
+        """Check message for key press commands and run any applicable command.
+
+        Holds the key for the duration specified in the message.
+        Duration must be between 0 and 10 seconds or the keypress will not execute.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
         for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
                 try:
