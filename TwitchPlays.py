@@ -182,8 +182,11 @@ while True:
                         log.warning('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
                                         twitch_message.content, twitch_message.username, TWITCH_USERNAME)
-                if twitch_message.original_content.startswith('chatbot- ')
+
+                if twitch_message.original_content.startswith('chatbot- '):
+                    log.info('hello!')
                     try:
+                        log.info("chatbot called!")
                         # this needs to become a function in cmpc/utils.py
                         signal = twitch_message.original_content[9:]
                         payload = {
@@ -192,7 +195,7 @@ while True:
                         headers = {
                             'User-Agent': f'{USERAGENT}', 
                             'Accept': 'application/json', 
-                            'Authorization': f'Bearer {config['api']['panelapikey']'},
+                            'Authorization': f'Bearer {config['api']['panelapikey']}',
                         }
                         requests.post(chatbotapi, json=payload, headers=headers)
                     except Exception as e:
