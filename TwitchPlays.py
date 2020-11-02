@@ -230,8 +230,9 @@ while True:
                     time.sleep(duration)
                 elif twitch_message.content in ['el muchacho']:
                     pyautogui.hotkey('win', 'r')
-                    pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
-                                        '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                     pyautogui.press('enter')
                 elif twitch_message.content.startswith('!defcon '):
                     severity = processor.remove_prefix(twitch_message.content, '!defcon ')
@@ -246,9 +247,11 @@ while True:
                         time.sleep(86400)
                     elif severity == 'blue':
                         pyautogui.hotkey('win', 'r')
-                        pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
-                                            '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                        # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
+                        #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                        pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                         pyautogui.press('enter')
+                        time.sleep(30)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
