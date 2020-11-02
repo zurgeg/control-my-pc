@@ -322,6 +322,5 @@ class CommandProcessor(object):
                         self._hold_key_pyautogui(output, time_value)
                 except Exception as e:
                     print(f'Error holding key: {message.content}')
-                    raise e
                 return True
         return False
