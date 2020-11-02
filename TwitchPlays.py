@@ -194,10 +194,12 @@ while True:
                         }
                         headers = {
                             'User-Agent': f'{USERAGENT}', 
-                            'Accept': 'application/json', 
-                            'Authorization': f'Bearer {config['api']['panelapikey']}',
+                            'Accept': 'application/json',
+                            # DO NOT REMOVE THE QUOTES HERE.
+                            'Authorization': f'Bearer {config["api"]["panelapikey"]}',
                         }
-                        requests.post(chatbotapi, json=payload, headers=headers)
+                        x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
+                        cmpc.send_webhook(config['discord']['systemlog'], f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
                     except Exception as e:
                         log.error(f'{e} - error in chatbot control') 
 
