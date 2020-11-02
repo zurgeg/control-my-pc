@@ -13,7 +13,7 @@
 	mod = "https://api.cmpc.live/mods.txt" # moderator command access
 	dev = "https://api.cmpc.live/devs.txt" # developer command access
 	apiconfig = "https://api.cmpc.live/apiconfig.json"
-	useragent = "CMPC script, https://cmpc.live" # "who are we" - this also sends in the discord webhooks
+	useragent = "CMPCscript (+https://cmpc.live/)" # "who are we" - this also sends in the discord webhooks
 
 [discord]
 	chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"
