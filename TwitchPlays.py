@@ -1,6 +1,7 @@
 # PSL Packages;
 import os  # file manager and .env handler
 import json  # json, duh,
+import time  # for script- suspend command
 import logging as log  # better print()
 
 # PIP Packages;
@@ -202,7 +203,6 @@ while True:
                     except Exception as e:
                         log.error(f'{e} - error in chatbot control') 
 
-
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
                 if twitch_message.content.startswith('modsay '):
@@ -215,6 +215,40 @@ while True:
                                                json=data, headers={'User-Agent': USERAGENT})
                     except Exception:
                         log.warning('Could not modsay this moderators message: ' + twitch_message.content)
+
+                elif twitch_message.content in ['hideall']:
+                    pyautogui.hotkey('win', 'm')
+                elif twitch_message.content in ['mute']:
+                    pyautogui.press('volumemute')
+                elif twitch_message.content.startswith('script- suspend '):
+                    duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
+                    try:
+                        duration = float(duration)
+                    except ValueError:
+                        log.error(f'Could not suspend for duration: {message.content}\nDue to non-numeric arg')
+
+                    time.sleep(duration)
+                elif twitch_message.content in ['el muchacho']:
+                    pyautogui.hotkey('win', 'r')
+                    pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                                        '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    pyautogui.press('enter')
+                elif twitch_message.content.startswith('!defcon '):
+                    severity = processor.remove_prefix(twitch_message.content, '!defcon ')
+
+                    if severity == '1':
+                        pyautogui.hotkey('win', 'r')
+                        pyautogui.typewrite('shutdown -s -f -e 5 -c "!defcon 1 -- emergency shutdown"')
+                        pyautogui.press('enter')
+                    elif severity == '3':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
+                        time.sleep(86400)
+                    elif severity == 'blue':
+                        pyautogui.hotkey('win', 'r')
+                        pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
+                                            '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                        pyautogui.press('enter')
 
             # Commands for cmpcscript only.
             if user_permissions.script:
