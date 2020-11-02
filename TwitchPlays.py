@@ -192,7 +192,7 @@ while True:
                         headers = {
                             'User-Agent': f'{USERAGENT}', 
                             'Accept': 'application/json', 
-                            'Authorization': f'Bearer {config['api']['panelapikey']},
+                            'Authorization': f'Bearer {config['api']['panelapikey']'},
                         }
                         requests.post(chatbotapi, json=payload, headers=headers)
                     except Exception as e:
