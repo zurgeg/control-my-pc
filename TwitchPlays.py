@@ -239,7 +239,7 @@ while True:
 
                     if severity == '1':
                         pyautogui.hotkey('win', 'r')
-                        pyautogui.typewrite('shutdown /s /f /e 5 /c "!defcon 1 -- emergency shutdown"')
+                        pyautogui.typewrite('shutdown -s -f -c "!defcon 1 -- emergency shutdown" -d u:5:19')
                         pyautogui.press('enter')
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
