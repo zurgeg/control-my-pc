@@ -182,6 +182,22 @@ while True:
                         log.warning('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
                                         twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                if twitch_message.original_content.startswith('chatbot- ')
+                    try:
+                        # this needs to become a function in cmpc/utils.py
+                        signal = twitch_message.original_content[9:]
+                        payload = {
+                            "signal": signal
+                        }
+                        headers = {
+                            'User-Agent': f'{USERAGENT}', 
+                            'Accept': 'application/json', 
+                            'Authorization': f'Bearer {config['api']['panelapikey']},
+                        }
+                        requests.post(chatbotapi, json=payload, headers=headers)
+                    except Exception as e:
+                        log.error(f'{e} - error in chatbot control') 
+
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
