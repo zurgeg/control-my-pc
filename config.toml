@@ -15,6 +15,7 @@
 	apiconfig = "https://api.cmpc.live/apiconfig.json"
 	panelapikey = "" # Panel API key for chatbot control
 	useragent = "CMPC script, https://cmpc.live" # "who are we" - this also sends in the discord webhooks
+    panelapiendpoint = "https://panel.dukthosting.net/api/client/servers/9119ce36-8f28-4824-8b10-99a34d05e696/power"
 
 [discord]
 	chatalerts = "https://discordapp.com/api/webhooks/741306005589327952/RMDc8zdyYG1BNuLjL2EDUIYVNwCJoJgwld8G8czXEwnp9kv_oGLMmv77RG5AoubrgfW8"

@@ -50,6 +50,10 @@ if os.getenv('TWITCH_OAUTH_TOKEN'):
     TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
 else:
     TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
+if os.getenv('DUKTHOSTING_API_KEY'):
+    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
+else:
+    PANEL_API_KEY = config['api']['panelapikey']
 
 
 # Send starting up message with webhook if in config.
@@ -195,7 +199,7 @@ while True:
                             'User-Agent': f'{USERAGENT}', 
                             'Accept': 'application/json',
                             # DO NOT REMOVE THE QUOTES HERE.
-                            'Authorization': f'Bearer {config["api"]["panelapikey"]}',
+                            'Authorization': f'Bearer {PANEL_API_KEY}',
                         }
                         x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
                         cmpc.send_webhook(config['discord']['systemlog'], f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
