@@ -186,6 +186,7 @@ while True:
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
                         #TODO: this needs to become a function in cmpc/utils.py
+                        # IF YOU NEED A API KEY, CONTACT MAX.
                         signal = twitch_message.original_content[9:]
                         payload = {
                             "signal": signal
