@@ -238,9 +238,12 @@ while True:
                     severity = processor.remove_prefix(twitch_message.content, '!defcon ')
 
                     if severity == '1':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
                         pyautogui.hotkey('win', 'r')
-                        pyautogui.typewrite('shutdown -s -f -c "!defcon 1 -- emergency shutdown" -d u:5:19')
+                        pyautogui.typewrite('shutdown -s -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         pyautogui.press('enter')
+                        time.sleep(999999)
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
