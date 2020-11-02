@@ -184,10 +184,8 @@ while True:
                                         twitch_message.content, twitch_message.username, TWITCH_USERNAME)
 
                 if twitch_message.original_content.startswith('chatbot- '):
-                    log.info('hello!')
                     try:
-                        log.info("chatbot called!")
-                        # this needs to become a function in cmpc/utils.py
+                        #TODO: this needs to become a function in cmpc/utils.py
                         signal = twitch_message.original_content[9:]
                         payload = {
                             "signal": signal
