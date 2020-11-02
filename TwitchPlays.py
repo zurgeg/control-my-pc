@@ -224,6 +224,6 @@ while True:
 
         except Exception as error:
             # Send error data to systemlog.
-            log.error(f'[ERROR]: {error}')
+            log.error(f'{error}')
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME)
