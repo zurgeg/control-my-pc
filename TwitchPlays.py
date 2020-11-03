@@ -3,6 +3,7 @@ import os  # file manager and .env handler
 import json  # json, duh,
 import time  # for script- suspend command
 import copy  # for copying objects - used for custom obs logs
+import traceback  # for better error logging
 import logging as log  # better print()
 
 # PIP Packages;
@@ -248,7 +249,7 @@ while True:
                     try:
                         duration = float(duration)
                     except ValueError:
-                        log.error(f'Could not suspend for duration: {message.content}\nDue to non-numeric arg')
+                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
                     else:
                         if duration == 1.0:
                             log_message = '[Suspend script for 1 second]'
@@ -264,7 +265,7 @@ while True:
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
                         pyautogui.hotkey('win', 'r')
-                        pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
+                        pyautogui.typewrite('shutdown -s -t 60 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         pyautogui.press('enter')
                         custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message)
                         time.sleep(999999)
@@ -293,5 +294,6 @@ while True:
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'{error}')
+            log.error(traceback.print_exc())
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME)
