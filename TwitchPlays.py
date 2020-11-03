@@ -250,7 +250,10 @@ while True:
                     except ValueError:
                         log.error(f'Could not suspend for duration: {message.content}\nDue to non-numeric arg')
                     else:
-                        log_message = f'[Suspend script for {int(duration)} seconds]'
+                        if duration == 1.0:
+                            log_message = '[Suspend script for 1 second]'
+                        else:
+                            log_message = f'[Suspend script for {int(duration)} seconds]'
                         custom_log_to_obs(log_message, twitch_message)
                         time.sleep(duration)
 
