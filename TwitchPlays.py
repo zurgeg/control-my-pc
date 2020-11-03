@@ -193,7 +193,8 @@ while True:
 
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
-                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                                    config['options']['DEPLOY'])
 
                 if twitch_message.original_content.startswith('rawsend- '):
                     try:
@@ -202,7 +203,8 @@ while True:
                     except Exception as error:
                         log.warning('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
-                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                                        config['options']['DEPLOY'])
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
@@ -301,4 +303,5 @@ while True:
             log.error(f'{error}')
             log.error(traceback.print_exc())
             cmpc.send_error(config['discord']['systemlog'], error,
-                            twitch_message.content, twitch_message.username, TWITCH_USERNAME)
+                            twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                            config['options']['DEPLOY'])

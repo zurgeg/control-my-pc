@@ -58,7 +58,7 @@ def send_webhook(url: str, content: str):
     requests.post(url, data=data)
 
 
-def send_error(url, error, msg, usr, channel):
+def send_error(url, error, msg, usr, channel, environment):
     """Sends a error to discord"""
     data_test = {
         'embeds': [
@@ -66,7 +66,8 @@ def send_error(url, error, msg, usr, channel):
                 'title': 'Script - Exception Occurred',
                 'description': f'***Last Sent Message -*** {msg}\n\n'
                                f'***Exception Info -*** {error}\n\n'
-                               '[***Stream Link***](https://twitch.tv/{channel})',
+                               f'[***Stream Link***](https://twitch.tv/{channel}\n\n)'
+                               f'**Environment -** {environment}',
                 'color': 1107600,
                 'footer': {
                     'text': 'User: ' + usr + ' - Channel: ' + channel,
