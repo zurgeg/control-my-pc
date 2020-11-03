@@ -66,7 +66,7 @@ def send_error(url, error, msg, usr, channel, environment):
                 'title': 'Script - Exception Occurred',
                 'description': f'***Last Sent Message -*** {msg}\n\n'
                                f'***Exception Info -*** {error}\n\n'
-                               f'[***Stream Link***](https://twitch.tv/{channel}\n\n)'
+                               f'[***Stream Link***](https://twitch.tv/{channel})\n\n'
                                f'**Environment -** {environment}',
                 'color': 1107600,
                 'footer': {
