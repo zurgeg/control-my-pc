@@ -38,7 +38,7 @@ log.basicConfig(
 # Load Configuration
 log.debug('Stand by me.')
 config = toml.load('config.toml')
-USERAGENT = config['api']['useragent']
+USER_AGENT = config['api']['useragent']
 mouse = Controller()
 # Twitch channel name and oauth token from config will be overridden 
 # by env vars if they exist. This makes testing more streamlined.
@@ -180,8 +180,8 @@ while True:
 
                 if twitch_message.original_content.startswith('rawsend- '):
                     try:
-                        keytopress = twitch_message.original_content[9:]
-                        pyautogui.press(keytopress)
+                        key_to_press = twitch_message.original_content[9:]
+                        pyautogui.press(key_to_press)
                     except Exception as error:
                         log.warning('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
@@ -190,13 +190,13 @@ while True:
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
                         # TODO: this needs to become a function in cmpc/utils.py
-                        # IF YOU NEED A API KEY, CONTACT MAX.
+                        # IF YOU NEED AN API KEY, CONTACT MAX.
                         signal = twitch_message.original_content[9:]
                         payload = {
                             "signal": signal
                         }
                         headers = {
-                            'User-Agent': f'{USERAGENT}', 
+                            'User-Agent': f'{USER_AGENT}',
                             'Accept': 'application/json',
                             # DO NOT REMOVE THE QUOTES HERE.
                             'Authorization': f'Bearer {PANEL_API_KEY}',
@@ -216,7 +216,7 @@ while True:
                             'content': twitch_message.original_content[7:],
                         }
                         result = requests.post(config['discord']['modtalk'],
-                                               json=data, headers={'User-Agent': USERAGENT})
+                                               json=data, headers={'User-Agent': USER_AGENT})
                     except Exception:
                         log.warning('Could not modsay this moderators message: ' + twitch_message.content)
 
