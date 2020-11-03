@@ -2,6 +2,7 @@
 import os  # file manager and .env handler
 import json  # json, duh,
 import time  # for script- suspend command
+import copy  # for copying objects - used for custom obs logs
 import logging as log  # better print()
 
 # PIP Packages;
@@ -103,6 +104,21 @@ processor = cmpc.CommandProcessor(config, currentexec, mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+
+
+# This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
+def custom_log_to_obs(log_string, message_object, command_processor=processor):
+    """Write a custom message to the obs log file.
+
+    Args:
+        log_string -- the string to log to the file
+        message_object -- the original cmpc.TwitchMessage message which invoked the command
+        command_processor -- the cmpc.CommandProcessor to use to log to obs
+    Does not return
+    """
+    message_edited = copy.copy(message_object)
+    message_edited.original_content = log_string
+    command_processor.log_to_obs(message_edited)
 
 
 # Main loop
@@ -226,8 +242,10 @@ while True:
                         duration = float(duration)
                     except ValueError:
                         log.error(f'Could not suspend for duration: {message.content}\nDue to non-numeric arg')
-
-                    time.sleep(duration)
+                    else:
+                        log_message = f'Suspend script for {duration} seconds'
+                        custom_log_to_obs(log_message, twitch_message)
+                        time.sleep(duration)
                 elif twitch_message.content in ['el muchacho']:
                     pyautogui.hotkey('win', 'r')
                     # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
