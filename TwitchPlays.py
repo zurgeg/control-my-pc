@@ -189,7 +189,7 @@ while True:
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
-                        #TODO: this needs to become a function in cmpc/utils.py
+                        # TODO: this needs to become a function in cmpc/utils.py
                         # IF YOU NEED A API KEY, CONTACT MAX.
                         signal = twitch_message.original_content[9:]
                         payload = {
@@ -202,10 +202,10 @@ while True:
                             'Authorization': f'Bearer {PANEL_API_KEY}',
                         }
                         x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
-                        cmpc.send_webhook(config['discord']['systemlog'], f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
+                        cmpc.send_webhook(config['discord']['systemlog'],
+                                          f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
                     except Exception as e:
                         log.error(f'{e} - error in chatbot control') 
-
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
