@@ -29,8 +29,8 @@ def get_platform():
 
 
 def get_size(value, suffix='B'):
-    """
-    Scale bytes to its proper format
+    """Scale bytes to its proper format.
+
     e.g:
         1253656 => '1.20MB'
         1253656678 => '1.17GB'
