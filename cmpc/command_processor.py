@@ -399,7 +399,7 @@ class CommandProcessor:
         # gtype command
         if message.content.startswith('gtype '):
             if get_platform() == 'darwin':
-                log.error(f'COULD NOT GTYPE: {message.content}\n'\
+                log.error(f'COULD NOT GTYPE: {message.content}\n'
                           'DUE TO PLATFORM: darwin')
                 return True
             try:
