@@ -232,11 +232,19 @@ while True:
                     except Exception:
                         log.warning('Could not modsay this moderators message: ' + twitch_message.content)
 
-                elif twitch_message.content in ['hideall']:
+                if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')
-                elif twitch_message.content in ['mute']:
+                if twitch_message.content in ['mute']:
                     pyautogui.press('volumemute')
-                elif twitch_message.content.startswith('script- suspend '):
+
+                if twitch_message.content in ['el muchacho']:
+                    pyautogui.hotkey('win', 'r')
+                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                    pyautogui.press('enter')
+
+                if twitch_message.content.startswith('script- suspend '):
                     duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
                     try:
                         duration = float(duration)
@@ -246,13 +254,8 @@ while True:
                         log_message = f'[Suspend script for {duration} seconds]'
                         custom_log_to_obs(log_message, twitch_message)
                         time.sleep(duration)
-                elif twitch_message.content in ['el muchacho']:
-                    pyautogui.hotkey('win', 'r')
-                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
-                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
-                    pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                    pyautogui.press('enter')
-                elif twitch_message.content.startswith('!defcon '):
+
+                if twitch_message.content.startswith('!defcon '):
                     severity = processor.remove_prefix(twitch_message.content, '!defcon ')
 
                     if severity == '1':
@@ -275,7 +278,8 @@ while True:
                         #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
                         pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                         pyautogui.press('enter')
-                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message)
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes, '
+                                          'suspend script for 30 seconds]', twitch_message)
                         time.sleep(30)
 
             # Commands for cmpcscript only.
