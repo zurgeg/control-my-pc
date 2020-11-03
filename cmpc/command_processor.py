@@ -162,15 +162,25 @@ class CommandProcessor:
 
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
-
-        self.obs_file_handle.truncate()
-        if message is None:
-            self.obs_file_handle.seek(0, 0)
-            self.obs_file_handle.write('nothing')
+        with open('executing.txt', 'r') as self.obs_file_handle:
+            current = self.obs_file_handle.read()
+        if message is None and current == 'nothing':
             return
+        with open('executing.txt', 'w') as self.obs_file_handle:
+            # self.obs_file_handle.truncate()
+            if message is None:
+                if current != 'nothing':
+                    # self.obs_file_handle.seek(0, 0)
+                    self.obs_file_handle.write('nothing')
+                    # self.obs_file_handle.flush()
+                    print('wrote nothing')
+                return
 
-        self.obs_file_handle.seek(0, 0)
-        self.obs_file_handle.write(message.get_log_string())
+            # self.obs_file_handle.seek(0, 0)
+            self.obs_file_handle.write(message.get_log_string())
+            # self.obs_file_handle.flush()
+        with open('executing.txt', 'r') as self.obs_file_handle:
+            print(self.obs_file_handle.read())
         time.sleep(0.5)
         log.info(message.get_log_string())
         requests.post(self.config['discord']['chatrelay'],
