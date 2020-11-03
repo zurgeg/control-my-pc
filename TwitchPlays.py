@@ -1,6 +1,9 @@
 # PSL Packages;
 import os  # file manager and .env handler
 import json  # json, duh,
+import time  # for script- suspend command
+import copy  # for copying objects - used for custom obs logs
+import traceback  # for better error logging
 import logging as log  # better print()
 
 # PIP Packages;
@@ -101,11 +104,25 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     exit(2)
 
 
-currentexec = open('executing.txt', 'w')
-processor = cmpc.CommandProcessor(config, currentexec, mouse)
+processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+
+
+# This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
+def custom_log_to_obs(log_string, message_object, command_processor=processor):
+    """Write a custom message to the obs log file.
+
+    Args:
+        log_string -- the string to log to the file
+        message_object -- the original cmpc.TwitchMessage message which invoked the command
+        command_processor -- the cmpc.CommandProcessor to use to log to obs
+    Does not return
+    """
+    message_edited = copy.copy(message_object)
+    message_edited.original_content = log_string
+    command_processor.log_to_obs(message_edited)
 
 
 # Main loop
@@ -220,6 +237,59 @@ while True:
                     except Exception:
                         log.warning('Could not modsay this moderators message: ' + twitch_message.content)
 
+                if twitch_message.content in ['hideall']:
+                    pyautogui.hotkey('win', 'm')
+                if twitch_message.content in ['mute']:
+                    pyautogui.press('volumemute')
+
+                if twitch_message.content in ['el muchacho']:
+                    pyautogui.hotkey('win', 'r')
+                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                    pyautogui.press('enter')
+
+                if twitch_message.content.startswith('script- suspend '):
+                    duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
+                    try:
+                        duration = float(duration)
+                    except ValueError:
+                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
+                    else:
+                        if duration == 1.0:
+                            log_message = '[Suspend script for 1 second]'
+                        else:
+                            log_message = f'[Suspend script for {int(duration)} seconds]'
+                        custom_log_to_obs(log_message, twitch_message)
+                        time.sleep(duration)
+
+                if twitch_message.content.startswith('!defcon '):
+                    severity = processor.remove_prefix(twitch_message.content, '!defcon ')
+
+                    if severity == '1':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
+                        pyautogui.hotkey('win', 'r')
+                        pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
+                        pyautogui.press('enter')
+                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message)
+                        time.sleep(999999)
+                    # TODO: Add !defcon 2 -- close all running programs
+                    elif severity == '3':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
+                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message)
+                        time.sleep(86400)
+                    elif severity == 'blue':
+                        pyautogui.hotkey('win', 'r')
+                        # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
+                        #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                        pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                        pyautogui.press('enter')
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes, '
+                                          'suspend script for 30 seconds]', twitch_message)
+                        time.sleep(30)
+
             # Commands for cmpcscript only.
             if user_permissions.script:
                 print(f'CMPC SCRIPT: {twitch_message.content}')
@@ -229,5 +299,6 @@ while True:
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'{error}')
+            log.error(traceback.print_exc())
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME)
