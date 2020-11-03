@@ -99,8 +99,7 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     exit(2)
 
 
-currentexec = open('executing.txt', 'w')
-processor = cmpc.CommandProcessor(config, currentexec, mouse)
+processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)

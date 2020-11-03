@@ -120,10 +120,10 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_handle, mouse):
+    def __init__(self, config, obs_file_name, mouse):
         """"Initialise the class attributes"""
         self.config = config
-        self.obs_file_handle = obs_file_handle
+        self.obs_file_name = obs_file_name
         self.mouse = mouse
 
     def process_commands(self, message) -> bool:
@@ -162,30 +162,22 @@ class CommandProcessor:
 
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
-        with open('executing.txt', 'r') as self.obs_file_handle:
-            current = self.obs_file_handle.read()
-        if message is None and current == 'nothing':
-            return
-        with open('executing.txt', 'w') as self.obs_file_handle:
-            # self.obs_file_handle.truncate()
-            if message is None:
-                if current != 'nothing':
-                    # self.obs_file_handle.seek(0, 0)
-                    self.obs_file_handle.write('nothing')
-                    # self.obs_file_handle.flush()
-                    print('wrote nothing')
+        if message is None:
+            with open(self.obs_file_name, 'r') as obs_file_handle:
+                current_obs_file_contents = obs_file_handle.read()
+            if current_obs_file_contents == 'nothing':
                 return
-
-            # self.obs_file_handle.seek(0, 0)
-            self.obs_file_handle.write(message.get_log_string())
-            # self.obs_file_handle.flush()
-        with open('executing.txt', 'r') as self.obs_file_handle:
-            print(self.obs_file_handle.read())
-        time.sleep(0.5)
-        log.info(message.get_log_string())
-        requests.post(self.config['discord']['chatrelay'],
-                      json=message.get_log_webhook_payload(),
-                      headers={'User-Agent': self.config['api']['useragent']})
+            else:
+                with open(self.obs_file_name, 'w') as obs_file_handle:
+                    obs_file_handle.write('nothing')
+        else:
+            with open(self.obs_file_name, 'w') as obs_file_handle:
+                obs_file_handle.write(message.get_log_string())
+            time.sleep(0.5)
+            log.info(message.get_log_string())
+            requests.post(self.config['discord']['chatrelay'],
+                          json=message.get_log_webhook_payload(),
+                          headers={'User-Agent': self.config['api']['useragent']})
 
     @staticmethod
     def _hold_key_pyautogui(key_to_press, time_value):
