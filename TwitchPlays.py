@@ -243,7 +243,7 @@ while True:
                     except ValueError:
                         log.error(f'Could not suspend for duration: {message.content}\nDue to non-numeric arg')
                     else:
-                        log_message = f'Suspend script for {duration} seconds'
+                        log_message = f'[Suspend script for {duration} seconds]'
                         custom_log_to_obs(log_message, twitch_message)
                         time.sleep(duration)
                 elif twitch_message.content in ['el muchacho']:
@@ -261,10 +261,13 @@ while True:
                         pyautogui.hotkey('win', 'r')
                         pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         pyautogui.press('enter')
+                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message)
                         time.sleep(999999)
+                    # TODO: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
+                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message)
                         time.sleep(86400)
                     elif severity == 'blue':
                         pyautogui.hotkey('win', 'r')
@@ -272,6 +275,7 @@ while True:
                         #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
                         pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                         pyautogui.press('enter')
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message)
                         time.sleep(30)
 
             # Commands for cmpcscript only.
