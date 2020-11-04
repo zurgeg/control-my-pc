@@ -10,7 +10,7 @@ import logging as log  # better print()
 import pyautogui  # only used in rawsend- command
 import requests  # api and discord webhooks
 import toml  # configuration
-import git  # for automatic branch detection in the copyright message
+#import git  # for automatic branch detection in the copyright message
 from pynput.mouse import Controller  # Not really needed, but (I think) something still relies on it so /shrug
 
 # Local Packages;
@@ -19,14 +19,14 @@ import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
 # Log copyright notice.
-try:
+"""try:
     branch_name = git.Repo().active_branch.name
 except git.exc.GitError:
-    branch_name = 'master'
+    branch_name = 'master'"""
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
-           {branch_name.upper()} BRANCH
+           STAGING BRANCH
            https://cmpc.live
            © 2020 controlmypc
            by CMPC Developers
@@ -107,6 +107,9 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     log.fatal('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
     exit(2)
+
+if not PANEL_API_KEY:
+    log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
 
 
 processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
@@ -213,7 +216,10 @@ while True:
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
-                        # TODO: this needs to become a function in cmpc/utils.py
+                        if not PANEL_API_KEY:
+                            log.warning('[CHATBOT] Command ran and no API key, skipping command and sending warning to discord.')
+                            cmpc.send_webhook(config['discord']['systemlog'], 'No chatbot api key was provided, skipping command.')
+                            break
                         # IF YOU NEED AN API KEY, CONTACT MAX.
                         signal = twitch_message.original_content[9:]
                         payload = {
