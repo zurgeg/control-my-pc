@@ -2,6 +2,8 @@ class KeyboardKeycodes:
     """Container for hexadecimal DirectX key codes used by pynput.
 
     https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)
+    
+    Note that these are mostly deprecated and only still here for legacy reasons
     """
     Q = 0x10
     W = 0x11
