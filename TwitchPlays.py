@@ -111,11 +111,11 @@ if not PANEL_API_KEY:
     log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
 
 # Misc final setup
+mouse = Controller()
 processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-mouse = Controller()
 
 # This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
 def custom_log_to_obs(log_string, message_object, command_processor=processor):
@@ -315,3 +315,8 @@ while True:
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                             config['options']['DEPLOY'])
+            if config['options']['DEPLOY'] == "Debug":
+                log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
+                raise error
+            else:
+                pass

@@ -160,6 +160,18 @@ class CommandProcessor:
         """Return the message with the prefix removed."""
         return message[len(prefix):]
 
+    @staticmethod
+    def error_handle(error):
+        """Through a error to here, and it will be dealt with"""
+        cmpc.send_error(config['discord']['systemlog'], error,
+                            twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                            config['options']['DEPLOY'])
+        if config['options']['DEPLOY'] == "Debug":
+            log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
+            raise error
+        else:
+            pass
+
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
         if message is None:
