@@ -352,7 +352,7 @@ class CommandProcessor:
                     log.info('And when we split, we split my way.')
                     if 0.0 < time_value <= 10.0:
                         log.info('time was a success')
-                        self.log_to_obs(mdessage)
+                        self.log_to_obs(message)
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         self._hold_key_pyautogui(output, time_value)
                 except Exception as error:
