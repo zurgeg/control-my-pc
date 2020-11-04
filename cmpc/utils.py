@@ -55,6 +55,8 @@ def direct_or_auto():
 def send_webhook(url: str, content: str):
     """Sends a webhook to discord, takes (url, message)"""
     data = {'content': content}
+    if url == "":
+        return
     requests.post(url, data=data)
 
 

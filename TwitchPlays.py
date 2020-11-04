@@ -10,7 +10,7 @@ import logging as log  # better print()
 import pyautogui  # only used in rawsend- command
 import requests  # api and discord webhooks
 import toml  # configuration
-#import git  # for automatic branch detection in the copyright message
+import git  # for automatic branch detection in the copyright message, `pip install gitpython`
 from pynput.mouse import Controller  # Not really needed, but (I think) something still relies on it so /shrug
 
 # Local Packages;
@@ -19,14 +19,14 @@ import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
 # Log copyright notice.
-"""try:
+try:
     branch_name = git.Repo().active_branch.name
 except git.exc.GitError:
-    branch_name = 'master'"""
+    branch_name = 'master'
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
-           STAGING BRANCH
+           {branch_name.upper()} BRANCH
            https://cmpc.live
            © 2020 controlmypc
            by CMPC Developers
