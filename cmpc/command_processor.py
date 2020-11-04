@@ -9,6 +9,7 @@ from pynput.mouse import Button
 
 # Local Packages
 from cmpc.utils import get_platform, move as move_mouse
+import cmpc # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
 # noinspection PyArgumentList
@@ -160,14 +161,13 @@ class CommandProcessor:
         """Return the message with the prefix removed."""
         return message[len(prefix):]
 
-    @staticmethod
-    def error_handle(error):
+    def error_handle(self, error):
         """Through a error to here, and it will be dealt with"""
         log.error(f'ERROR CONTAINED: {error}')
-        cmpc.send_error(config['discord']['systemlog'], error,
+        cmpc.send_error(self.config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME,
-                            config['options']['DEPLOY'])
-        if config['options']['DEPLOY'] == "Debug":
+                            self.config['options']['DEPLOY'])
+        if self.config['options']['DEPLOY'] == "Debug":
             log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
             raise error
         else:
@@ -352,7 +352,7 @@ class CommandProcessor:
                     log.info('And when we split, we split my way.')
                     if 0.0 < time_value <= 10.0:
                         log.info('time was a success')
-                        self.log_to_obs(message)
+                        self.log_to_obs(mdessage)
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         self._hold_key_pyautogui(output, time_value)
                 except Exception as error:
