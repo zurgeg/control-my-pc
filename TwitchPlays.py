@@ -47,7 +47,6 @@ log.basicConfig(
 log.debug('Stand by me.')
 config = toml.load('config.toml')
 USER_AGENT = config['api']['useragent']
-mouse = Controller()
 # Twitch channel name and oauth token from config will be overridden 
 # by env vars if they exist. This makes testing more streamlined.
 if os.getenv('TWITCH_CHANNEL'):
@@ -111,12 +110,12 @@ if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
 if not PANEL_API_KEY:
     log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
 
-
+# Misc final setup
 processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-
+mouse = Controller()
 
 # This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
 def custom_log_to_obs(log_string, message_object, command_processor=processor):
