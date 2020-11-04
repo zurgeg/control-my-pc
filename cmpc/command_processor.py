@@ -163,6 +163,7 @@ class CommandProcessor:
     @staticmethod
     def error_handle(error):
         """Through a error to here, and it will be dealt with"""
+        log.error(f'ERROR CONTAINED: {error}')
         cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                             config['options']['DEPLOY'])
@@ -320,8 +321,8 @@ class CommandProcessor:
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
                     pyautogui.typewrite(message_to_type)
-                except Exception:
-                    log.error(f'COULD NOT TYPE: {message.content}')
+                except Exception as error:
+                    self.error_handle(error)
                 return True
         return False
 
@@ -354,9 +355,8 @@ class CommandProcessor:
                         self.log_to_obs(message)
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         self._hold_key_pyautogui(output, time_value)
-                except Exception as e:
-                    print(f'Error holding key: {message.content}')
-                    raise e
+                except Exception as error:
+                    self.error_handle(error)
                 return True
         return False
 
@@ -406,24 +406,27 @@ class CommandProcessor:
                 log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
             except pyautogui.PyAutoGUIException:
                 log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
-            except Exception:
-                log.error(f'Could not move mouse to location: {message.content}')
+            except Exception as error:
+                self.error_handle(error)
             return True
 
         # gtype command
         if message.content.startswith('gtype '):
-            if get_platform() == 'darwin':
-                log.error(f'COULD NOT GTYPE: {message.content}\n'
-                          'DUE TO PLATFORM: darwin')
-                return True
             try:
-                import pydirectinput
-                message_to_type = self.remove_prefix(message.content,
-                                                     'gtype ')
-                pydirectinput.typewrite(message_to_type)
-            except Exception:
-                log.error(f'COULD NOT GTYPE: {message.content}')
-            return True
+                if get_platform() == 'darwin':
+                    log.error(f'COULD NOT GTYPE: {message.content}\n'
+                              'DUE TO PLATFORM: darwin')
+                    return True
+                try:
+                    import pydirectinput
+                    message_to_type = self.remove_prefix(message.content,
+                                                         'gtype ')
+                    pydirectinput.typewrite(message_to_type)
+                except Exception:
+                    log.error(f'COULD NOT GTYPE: {message.content}')
+                return True
+            except Exception as error:
+                self.error_handle(error),
 
         # No commands run, sad cat hours
         return False
