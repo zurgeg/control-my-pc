@@ -338,8 +338,3 @@ while True:
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                             config['options']['DEPLOY'])
-            if config['options']['DEPLOY'] == "Debug":
-                log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
-                raise error
-            else:
-                pass
