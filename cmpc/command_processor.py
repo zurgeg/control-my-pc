@@ -163,18 +163,17 @@ class CommandProcessor:
         return message[len(prefix):]
 
     def error_handle(self, error, message):
-        """Through a error to here, and it will be dealt with"""
-        pass
-        """
-        log.error(f'ERROR CONTAINED: {error}')
-        cmpc.send_error(self.config['discord']['systemlog'], error,
-                            message, 'UNKNOWN', self.twitch_username,
-                            self.config['options']['DEPLOY'])
-        if self.config['options']['DEPLOY'] == "Debug":
-            log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
-            raise error
-        else:
-            pass"""
+        """Throw a error to here, and it will be dealt with"""
+        # pass
+        # log.error(f'ERROR CONTAINED: {error}')
+        # cmpc.send_error(self.config['discord']['systemlog'], error,
+        #                     message, 'UNKNOWN', self.twitch_username,
+        #                     self.config['options']['DEPLOY'])
+        # if self.config['options']['DEPLOY'] == "Debug":
+        #     log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
+        #     raise error
+        # else:
+        #     pass
 
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
