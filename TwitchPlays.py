@@ -1,10 +1,9 @@
 # PSL Packages;
 import os  # file manager and .env handler
-import sys  # for exiting with best practices
+import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
 import copy  # for copying objects - used for custom obs logs
-import traceback  # for better error logging
 import logging as log  # better print()
 
 # PIP Packages;
@@ -335,8 +334,7 @@ while True:
 
         except Exception as error:
             # Send error data to systemlog.
-            log.error(f'{error}')
-            log.error(traceback.print_exc())
+            log.error(f'{error}', sys.exc_info())
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                             config['options']['DEPLOY'])
