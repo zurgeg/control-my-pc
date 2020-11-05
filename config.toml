@@ -13,8 +13,8 @@
 	mod = "https://api.cmpc.live/mods.txt" # moderator command access
 	dev = "https://api.cmpc.live/devs.txt" # developer command access
 	apiconfig = "https://api.cmpc.live/apiconfig.json"
+	useragent = "CMPCscript (+https://cmpc.live/)" # "who are we" - this also sends in the discord webhooks
 	panelapikey = "" # Panel API key for chatbot control
-	useragent = "CMPC script, https://cmpc.live" # "who are we" - this also sends in the discord webhooks
     panelapiendpoint = "https://panel.dukthosting.net/api/client/servers/9119ce36-8f28-4824-8b10-99a34d05e696/power"
 
 [discord]

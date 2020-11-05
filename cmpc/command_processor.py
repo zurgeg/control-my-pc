@@ -245,6 +245,7 @@ class CommandProcessor:
                 click_count = 1
                 if output == 'doubleclick':
                     click_count = 2
+                    output = 'left'
                 pyautogui.click(button=output, clicks=click_count)
                 return True
         return False
