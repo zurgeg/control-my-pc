@@ -126,6 +126,7 @@ class CommandProcessor:
         self.config = config
         self.obs_file_name = obs_file_name
         self.mouse = mouse
+        #self.twitch_username = TWITCH_USERNAME
 
     def process_commands(self, message) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
@@ -161,17 +162,19 @@ class CommandProcessor:
         """Return the message with the prefix removed."""
         return message[len(prefix):]
 
-    def error_handle(self, error):
+    def error_handle(self, error, message):
         """Through a error to here, and it will be dealt with"""
+        pass
+        """
         log.error(f'ERROR CONTAINED: {error}')
         cmpc.send_error(self.config['discord']['systemlog'], error,
-                            twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                            message, 'UNKNOWN', self.twitch_username,
                             self.config['options']['DEPLOY'])
         if self.config['options']['DEPLOY'] == "Debug":
             log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
             raise error
         else:
-            pass
+            pass"""
 
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
@@ -320,9 +323,9 @@ class CommandProcessor:
                 self.log_to_obs(message)
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
-                    pyautogui.typewrite(message_to_type)
+                    pyautogui.typewrite(messakge_to_type)
                 except Exception as error:
-                    self.error_handle(error)
+                    self.error_handle(error, message)
                 return True
         return False
 
@@ -356,7 +359,7 @@ class CommandProcessor:
                         log.info("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         self._hold_key_pyautogui(output, time_value)
                 except Exception as error:
-                    self.error_handle(error)
+                    self.error_handle(error, message)
                 return True
         return False
 
@@ -407,7 +410,7 @@ class CommandProcessor:
             except pyautogui.PyAutoGUIException:
                 log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
             except Exception as error:
-                self.error_handle(error)
+                self.error_handle(error, message)
             return True
 
         # gtype command
@@ -426,7 +429,7 @@ class CommandProcessor:
                     log.error(f'COULD NOT GTYPE: {message.content}')
                 return True
             except Exception as error:
-                self.error_handle(error),
+                self.error_handle(error, message)
 
         # No commands run, sad cat hours
         return False
