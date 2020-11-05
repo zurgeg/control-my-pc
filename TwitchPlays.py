@@ -208,7 +208,7 @@ while True:
                         key_to_press = twitch_message.original_content[9:]
                         pyautogui.press(key_to_press)
                     except Exception as error:
-                        log.warning('Could not rawtype: ' + twitch_message.content)
+                        log.error('Could not rawtype: ' + twitch_message.content)
                         cmpc.send_error(config['discord']['systemlog'], error,
                                         twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                                         config['options']['DEPLOY'])
@@ -216,7 +216,7 @@ while True:
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
                         if not PANEL_API_KEY:
-                            log.warning('[CHATBOT] Command ran and no API key, skipping command and sending warning to discord.')
+                            log.error('[CHATBOT] Command ran and no API key, skipping command and sending warning to discord.')
                             cmpc.send_webhook(config['discord']['systemlog'], 'No chatbot api key was provided, skipping command.')
                             break
                         # IF YOU NEED AN API KEY, CONTACT MAX.
@@ -247,7 +247,7 @@ while True:
                         result = requests.post(config['discord']['modtalk'],
                                                json=data, headers={'User-Agent': USER_AGENT})
                     except Exception:
-                        log.warning('Could not modsay this moderators message: ' + twitch_message.content)
+                        log.error('Could not modsay this moderators message: ' + twitch_message.content)
 
                 if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')

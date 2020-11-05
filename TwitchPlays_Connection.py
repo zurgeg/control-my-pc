@@ -68,7 +68,7 @@ class Twitch:
         try:
             self.socket.connect((connect_host, connect_port))
         except Exception as e:
-            log.warning(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
+            log.error(f"[TWITCH] Failed to connect, Sleeping for 5 seconds for reason: {e}")
             time.sleep(5)
             log.info("[TWITCH] Reconnecting after 5 seconds")
             return self.twitch_connect(self.user, self.oauth)
@@ -79,7 +79,7 @@ class Twitch:
         self.socket.send(b'NICK %s\r\n' % user.encode())
 
         if not self._twitch_login_status(self.socket.recv(1024)):
-            log.error("[TWITCH] Auth denied!")
+            log.critical("[TWITCH] Auth denied!")
             exit(3)
         else:
             log.info("[TWITCH] Auth accepted and we are connected to twitch")
