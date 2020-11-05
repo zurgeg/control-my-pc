@@ -1,6 +1,6 @@
 [options]
 	LOG_ALL = true  # Log all chat to console?
-	START_MSG = false  # Send a message to systemlog on starup?
+	START_MSG = false  # Send a message to systemlog on startup?
 	EXC_MSG = true  # Send exception messages to systemlog?
 	LOG_PPR = true  # Log all chat to a file?
 	DEPLOY = "Debug" # Either "Production" or "Debug"
@@ -13,8 +13,8 @@
 	mod = "https://api.cmpc.live/mods.txt" # moderator command access
 	dev = "https://api.cmpc.live/devs.txt" # developer command access
 	apiconfig = "https://api.cmpc.live/apiconfig.json"
+	useragent = "CMPCscript (+https://cmpc.live/)" # "who are we" - this also sends in the discord webhooks
 	panelapikey = "" # Panel API key for chatbot control
-	useragent = "CMPC script, https://cmpc.live" # "who are we" - this also sends in the discord webhooks
     panelapiendpoint = "https://panel.dukthosting.net/api/client/servers/9119ce36-8f28-4824-8b10-99a34d05e696/power"
 
 [discord]

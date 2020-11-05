@@ -43,7 +43,7 @@ class CommandProcessor:
     }
 
     HOTKEY_COMMANDS = {
-        ('control t', 'ctrl t', 'new tab',): ('ctrl', 'n',),
+        ('control t', 'ctrl t', 'new tab',): ('ctrl', 't',),
         ('control s', 'ctrl s', 'save',): ('ctrl', 's',),
         ('control z', 'ctrl z', 'undo',): ('ctrl', 'z',),
         ('control c', 'ctrl s', 'copy',): ('ctrl', 'c',),
@@ -234,6 +234,7 @@ class CommandProcessor:
                 click_count = 1
                 if output == 'doubleclick':
                     click_count = 2
+                    output = 'left'
                 pyautogui.click(button=output, clicks=click_count)
                 return True
         return False
