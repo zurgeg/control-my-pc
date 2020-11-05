@@ -3,6 +3,7 @@ import socket
 import re
 import typing
 import time
+import sys
 import logging as log
 
 
@@ -70,7 +71,7 @@ class Twitch:
 
         if not self._twitch_login_status(self.socket.recv(1024)):
             log.critical("[TWITCH] Auth denied!")
-            exit(3)
+            sys.exit(3)
         else:
             log.info("[TWITCH] Auth accepted and we are connected to twitch")
             self.socket.send(b'JOIN #%s\r\n' % user.encode())

@@ -1,5 +1,6 @@
 # PSL Packages;
 import os  # file manager and .env handler
+import sys  # for exiting with best practices
 import json  # json, duh,
 import time  # for script- suspend command
 import copy  # for copying objects - used for custom obs logs
@@ -126,7 +127,7 @@ else:
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     log.fatal('[TWITCH] No channel or oauth token was provided.')
     cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
-    exit(2)
+    sys.exit(2)
 
 if not PANEL_API_KEY:
     log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
@@ -137,6 +138,7 @@ processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 t = TwitchPlays_Connection.Twitch()
 t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+
 
 # This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
 def custom_log_to_obs(log_string, message_object, command_processor=processor):
@@ -237,8 +239,10 @@ while True:
                 if twitch_message.original_content.startswith('chatbot- '):
                     try:
                         if not PANEL_API_KEY:
-                            log.error('[CHATBOT] Command ran and no API key, skipping command and sending warning to discord.')
-                            cmpc.send_webhook(config['discord']['systemlog'], 'No chatbot api key was provided, skipping command.')
+                            log.error('[CHATBOT] Command ran and no API key, '
+                                      'skipping command and sending warning to discord.')
+                            cmpc.send_webhook(config['discord']['systemlog'],
+                                              'No chatbot api key was provided, skipping command.')
                             break
                         # IF YOU NEED AN API KEY, CONTACT MAX.
                         signal = twitch_message.original_content[9:]
@@ -327,7 +331,7 @@ while True:
             if user_permissions.script:
                 print(f'CMPC SCRIPT: {twitch_message.content}')
                 if twitch_message.original_content == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
-                    exit(1)
+                    sys.exit(1)
 
         except Exception as error:
             # Send error data to systemlog.

@@ -153,7 +153,7 @@ class CommandProcessor:
         return message[len(prefix):]
 
     def error_handle(self, error, message):
-        """Throw a error to here, and it will be dealt with"""
+        """Throw an error to here, and it will be dealt with"""
         # pass
         # log.error(f'ERROR CONTAINED: {error}')
         # cmpc.send_error(self.config['discord']['systemlog'], error,
