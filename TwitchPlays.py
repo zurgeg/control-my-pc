@@ -39,7 +39,7 @@ log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
     handlers=[
-        log.FileHandler('system.log'),
+        log.FileHandler('system.log', encoding='utf-8'),
         log.StreamHandler()
     ]
 )
@@ -182,7 +182,7 @@ while True:
             if config['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
             if config['options']['LOG_PPR']:
-                with open('chat.log', 'a') as f:
+                with open('chat.log', 'a', encoding='utf-8') as f:
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Process this beef

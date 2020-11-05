@@ -3,24 +3,14 @@ import time
 import logging as log
 
 # PIP Packages;
-import requests # !modalert and chatrelay
+import requests  # !modalert and chatrelay
 import pyautogui
 from pynput.mouse import Button
 
 # Local Packages
 from cmpc.utils import get_platform, move as move_mouse
-import cmpc # custom stuff we need
+import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
-
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler('system.log'),
-        log.StreamHandler()
-    ]
-)
 
 
 class CommandProcessor:

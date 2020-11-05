@@ -5,16 +5,6 @@ import typing
 import time
 import logging as log
 
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format="[%(levelname)s] %(message)s",
-    handlers=[
-        log.FileHandler("system.log"),
-        log.StreamHandler()
-    ]
-)
-
 
 class Twitch:
     """For authenticating and getting messages from a twitch.tv chat.
