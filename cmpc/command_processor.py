@@ -323,7 +323,7 @@ class CommandProcessor:
                 self.log_to_obs(message)
                 try:
                     message_to_type = self.remove_prefix(message.original_content, valid_input)
-                    pyautogui.typewrite(messakge_to_type)
+                    pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
                 return True
