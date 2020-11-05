@@ -10,6 +10,7 @@ import psutil
 # Check if we are on a mac or not
 if not sys.platform == 'darwin':
     import pydirectinput
+    pydirectinput.FAILSAFE = False
 
 
 __all__ = (

@@ -18,6 +18,8 @@ import cmpc  # Pretty much all of the custom shit we need.
 import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
+pyautogui.FAILSAFE = False
+
 # Log copyright notice.
 try:
     branch_name = git.Repo().active_branch.name
@@ -236,29 +238,30 @@ while True:
                                         config['options']['DEPLOY'])
 
                 if twitch_message.original_content.startswith('chatbot- '):
+                    if not PANEL_API_KEY:
+                        log.error('[CHATBOT] Command ran and no API key, '
+                                  'skipping command and sending warning to discord.')
+                        cmpc.send_webhook(config['discord']['systemlog'],
+                                          'No chatbot api key was provided, skipping command.')
+                        break
+                    # IF YOU NEED AN API KEY, CONTACT MAX.
+                    signal = processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
+                    payload = {
+                        "signal": signal
+                    }
+                    headers = {
+                        'User-Agent': f'{USER_AGENT}',
+                        'Accept': 'application/json',
+                        # DO NOT REMOVE THE QUOTES HERE.
+                        'Authorization': f'Bearer {PANEL_API_KEY}',
+                    }
                     try:
-                        if not PANEL_API_KEY:
-                            log.error('[CHATBOT] Command ran and no API key, '
-                                      'skipping command and sending warning to discord.')
-                            cmpc.send_webhook(config['discord']['systemlog'],
-                                              'No chatbot api key was provided, skipping command.')
-                            break
-                        # IF YOU NEED AN API KEY, CONTACT MAX.
-                        signal = twitch_message.original_content[9:]
-                        payload = {
-                            "signal": signal
-                        }
-                        headers = {
-                            'User-Agent': f'{USER_AGENT}',
-                            'Accept': 'application/json',
-                            # DO NOT REMOVE THE QUOTES HERE.
-                            'Authorization': f'Bearer {PANEL_API_KEY}',
-                        }
                         x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
                         cmpc.send_webhook(config['discord']['systemlog'],
                                           f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
-                    except Exception as e:
-                        log.error(f'{e} - error in chatbot control') 
+                    except requests.RequestException:
+                        log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
+                                  sys.exc_info())
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
