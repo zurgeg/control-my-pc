@@ -263,15 +263,16 @@ while True:
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
                 if twitch_message.content.startswith('modsay '):
+                    data = {
+                        'username': twitch_message.username,
+                        'content': processor.remove_prefix(twitch_message.original_content, 'modsay '),
+                    }
                     try:
-                        data = {
-                            'username': twitch_message.username,
-                            'content': twitch_message.original_content[7:],
-                        }
                         result = requests.post(config['discord']['modtalk'],
                                                json=data, headers={'User-Agent': USER_AGENT})
-                    except Exception:
-                        log.error('Could not modsay this moderators message: ' + twitch_message.content)
+                    except requests.RequestException:
+                        log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
+                                  sys.exc_info())
 
                 if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')
