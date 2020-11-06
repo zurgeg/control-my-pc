@@ -126,8 +126,6 @@ log.info('[API] Data here, and parsed!')
 # Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
     os.remove('chat.log')
-else:
-    pass
 
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     log.fatal('[TWITCH] No channel or oauth token was provided.')
