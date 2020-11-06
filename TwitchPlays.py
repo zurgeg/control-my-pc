@@ -178,13 +178,15 @@ while True:
     # We got some messages, nice! In that case, let's loop through each and try and process it
     for message in new_messages:
 
+        # Move the payload into an object so we can make better use of it
+        # noinspection PyTypeChecker
+        twitch_message = cmpc.TwitchMessage(message)
+
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
+        # NO, BAD
+        # read an error handling guide
+        # TODO - remove
         try:
-
-            # Move the payload into an object so we can make better use of it
-            # noinspection PyTypeChecker
-            twitch_message = cmpc.TwitchMessage(message)
-
             # Log the chat if that's something we want to do
             if config['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
