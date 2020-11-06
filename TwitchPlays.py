@@ -227,16 +227,6 @@ while True:
                                     twitch_message.content, twitch_message.username, TWITCH_USERNAME,
                                     config['options']['DEPLOY'])
 
-                if twitch_message.original_content.startswith('rawsend- '):
-                    try:
-                        key_to_press = twitch_message.original_content[9:]
-                        pyautogui.press(key_to_press)
-                    except Exception as error:
-                        log.error('Could not rawtype: ' + twitch_message.content)
-                        cmpc.send_error(config['discord']['systemlog'], error,
-                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME,
-                                        config['options']['DEPLOY'])
-
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
                         log.error('[CHATBOT] Command ran and no API key, '
