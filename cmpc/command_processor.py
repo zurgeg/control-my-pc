@@ -411,6 +411,7 @@ class CommandProcessor:
                               'DUE TO PLATFORM: darwin')
                     return True
                 try:
+                    self.log_to_obs(message)
                     import pydirectinput
                     message_to_type = self.remove_prefix(message.content,
                                                          'gtype ')
