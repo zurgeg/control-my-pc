@@ -80,20 +80,20 @@ def load_user_permissions(dev_list, mod_list):
     Args:
         dev_list, mod_list -- self explanatory
     Returns:
-        user_permissions -- the aforementioned dict
+        wip_user_permissions -- the aforementioned dict
     """
-    user_permissions = {}
+    wip_user_permissions = {}
     for dev in dev_list:
-        perms = user_permissions.get(dev, cmpc.Permissions())
+        perms = wip_user_permissions.get(dev, cmpc.Permissions())
         perms.developer = True
-        user_permissions[dev] = perms
+        wip_user_permissions[dev] = perms
     for mod in mod_list:
-        perms = user_permissions.get(mod, cmpc.Permissions())
+        perms = wip_user_permissions.get(mod, cmpc.Permissions())
         perms.moderator = True
-        user_permissions[mod] = perms
-    user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+        wip_user_permissions[mod] = perms
+    wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
-    return user_permissions
+    return wip_user_permissions
 
 
 def mode_testing(environment, env_vars_used, branch):
