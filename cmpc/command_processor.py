@@ -9,7 +9,7 @@ from pynput.mouse import Button
 
 # Local Packages
 from cmpc.utils import get_platform, move as move_mouse
-import cmpc  # custom stuff we need
+# import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
 
@@ -116,7 +116,7 @@ class CommandProcessor:
         self.config = config
         self.obs_file_name = obs_file_name
         self.mouse = mouse
-        #self.twitch_username = TWITCH_USERNAME
+        # self.twitch_username = TWITCH_USERNAME
 
     def process_commands(self, message) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
@@ -142,6 +142,7 @@ class CommandProcessor:
 
         command_has_run = False
         for comm in commands:
+            # noinspection PyArgumentList
             if comm(message):
                 command_has_run = True
                 break
