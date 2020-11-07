@@ -134,6 +134,11 @@ else:
         mod_list=[],
     )
     log.info('[API] Loaded dev list from static file instead')
+    log.warning('[API] Mod list will be unavailable')
+    cmpc.send_webhook(config['discord']['systemlog'],
+                      'Failed to load data from API\n'
+                      'Loaded dev list from static file instead\n'
+                      'Mod list will be unavailable')
 
 
 # Remove temp chat log or log if it doesn't exist.
