@@ -76,7 +76,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
-                'description': embed_description
+                'description': embed_description,
                 'color': 1107600,
                 'footer': {
                     'text': f'User: {t_msg.username} - Channel: {channel}',
