@@ -23,8 +23,10 @@ pyautogui.FAILSAFE = False
 # Log copyright notice.
 try:
     branch_name = git.Repo().active_branch.name
+    branch_name_certain = True
 except git.exc.GitError:
     branch_name = 'master'
+    branch_name_certain = False
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
@@ -229,7 +231,7 @@ while True:
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
-                                    config['options']['DEPLOY'])
+                                    config['options']['DEPLOY'], branch_name, branch_name_certain)
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
@@ -335,4 +337,4 @@ while True:
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message, TWITCH_USERNAME,
-                            config['options']['DEPLOY'])
+                            config['options']['DEPLOY'], branch_name, branch_name_certain)
