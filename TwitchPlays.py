@@ -228,7 +228,7 @@ while True:
 
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
-                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                                    twitch_message, TWITCH_USERNAME,
                                     config['options']['DEPLOY'])
 
                 if twitch_message.original_content.startswith('chatbot- '):
@@ -334,5 +334,5 @@ while True:
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(config['discord']['systemlog'], error,
-                            twitch_message.content, twitch_message.username, TWITCH_USERNAME,
+                            twitch_message, TWITCH_USERNAME,
                             config['options']['DEPLOY'])
