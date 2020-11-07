@@ -138,7 +138,10 @@ else:
     cmpc.send_webhook(config['discord']['systemlog'],
                       'Failed to load data from API\n'
                       'Loaded dev list from static file instead\n'
-                      'Mod list will be unavailable')
+                      'Mod list will be unavailable\n\n'
+                      f'[***Stream Link***](https://twitch.tv/{TWITCH_USERNAME})\n\n'
+                      f"**Environment -** {config['options']['DEPLOY']}"
+                      )
 
 
 # Remove temp chat log or log if it doesn't exist.
