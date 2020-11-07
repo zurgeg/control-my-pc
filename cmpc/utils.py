@@ -73,7 +73,7 @@ def send_error(url, error, t_msg, channel, environment):
                                f'**Environment -** {environment}',
                 'color': 1107600,
                 'footer': {
-                    'text': 'User: ' + t_msg.username + ' - Channel: ' + channel,
+                    'text': f'User: {t_msg.username} - Channel: {channel}',
                     'icon_url': 'https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg'
                 }
             }
