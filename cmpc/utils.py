@@ -69,10 +69,10 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
                         f'**Environment -** {environment}'
     if branch != 'master':
         if branch_assumed:
-            branch = f'{branch} (unknown)'
+            branch = branch + ' (unknown)'
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
 
-    data_test = {
+    data = {
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
@@ -85,7 +85,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
             }
         ]
     }
-    requests.post(url, data=json.dumps(data_test), headers={'Content-Type': 'application/json'})
+    requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
 def move(*args):
