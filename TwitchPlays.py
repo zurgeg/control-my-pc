@@ -139,7 +139,7 @@ else:
                       'Failed to load data from API\n'
                       'Loaded dev list from static file instead\n'
                       'Mod list will be unavailable\n\n'
-                      f'[***Stream Link***](https://twitch.tv/{TWITCH_USERNAME})\n\n'
+                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n\n'
                       f"**Environment -** {config['options']['DEPLOY']}"
                       )
 
