@@ -411,14 +411,11 @@ class CommandProcessor:
                     log.error(f'COULD NOT GTYPE: {message.content}\n'
                               'DUE TO PLATFORM: darwin')
                     return True
-                try:
-                    self.log_to_obs(message)
-                    import pydirectinput
-                    message_to_type = self.remove_prefix(message.content,
-                                                         'gtype ')
-                    pydirectinput.typewrite(message_to_type)
-                except Exception:
-                    log.error(f'COULD NOT GTYPE: {message.content}')
+
+                self.log_to_obs(message)
+                import pydirectinput
+                message_to_type = self.remove_prefix(message.content, 'gtype ')
+                pydirectinput.typewrite(message_to_type)
                 return True
             except Exception as error:
                 self.error_handle(error, message)
