@@ -116,13 +116,24 @@ def mode_testing(environment, env_vars_used, branch):
 # Get dev and mod lists from API.
 log.info('[API] Requesting data!')
 apiconfig = requests.get(config['api']['apiconfig'])
-apiconfig = json.loads(apiconfig.text)
+if apiconfig.status_code == 200:
+    apiconfig = json.loads(apiconfig.text)
 
-USER_PERMISSIONS = load_user_permissions(
-    dev_list=apiconfig['devlist'],
-    mod_list=apiconfig['modlist'],
-)
-log.info('[API] Data here, and parsed!')
+    USER_PERMISSIONS = load_user_permissions(
+        dev_list=apiconfig['devlist'],
+        mod_list=apiconfig['modlist'],
+    )
+    log.info('[API] Data here, and parsed!')
+else:
+    log.warning('[API] Failed to load data from API')
+    with open('staticdevlist.json', 'r') as static_dev_list_file:
+        static_dev_list = json.load(static_dev_list_file)
+
+    USER_PERMISSIONS = load_user_permissions(
+        dev_list=static_dev_list,
+        mod_list=[],
+    )
+    log.info('[API] Loaded dev list from static file instead')
 
 
 # Remove temp chat log or log if it doesn't exist.
