@@ -23,8 +23,10 @@ pyautogui.FAILSAFE = False
 # Log copyright notice.
 try:
     branch_name = git.Repo().active_branch.name
+    branch_name_assumed = False
 except git.exc.GitError:
     branch_name = 'master'
+    branch_name_assumed = True
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
@@ -67,7 +69,11 @@ else:
 
 # Send starting up message with webhook if in config.
 if config['options']['START_MSG']:
-    cmpc.send_webhook(config['discord']['systemlog'], 'Script Online')
+    cmpc.send_webhook(config['discord']['systemlog'],
+                      'Script - **Online**\n\n'
+                      f'[***Stream Link***](https://twitch.tv/{TWITCH_USERNAME})\n\n'
+                      f"**Environment -** {config['options']['DEPLOY']}",
+                      )
 
 
 def load_user_permissions(dev_list, mod_list):
@@ -76,20 +82,20 @@ def load_user_permissions(dev_list, mod_list):
     Args:
         dev_list, mod_list -- self explanatory
     Returns:
-        user_permissions -- the aforementioned dict
+        wip_user_permissions -- the aforementioned dict
     """
-    user_permissions = {}
+    wip_user_permissions = {}
     for dev in dev_list:
-        perms = user_permissions.get(dev, cmpc.Permissions())
+        perms = wip_user_permissions.get(dev, cmpc.Permissions())
         perms.developer = True
-        user_permissions[dev] = perms
+        wip_user_permissions[dev] = perms
     for mod in mod_list:
-        perms = user_permissions.get(mod, cmpc.Permissions())
+        perms = wip_user_permissions.get(mod, cmpc.Permissions())
         perms.moderator = True
-        user_permissions[mod] = perms
-    user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+        wip_user_permissions[mod] = perms
+    wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
-    return user_permissions
+    return wip_user_permissions
 
 
 def mode_testing(environment, env_vars_used, branch):
@@ -110,20 +116,37 @@ def mode_testing(environment, env_vars_used, branch):
 # Get dev and mod lists from API.
 log.info('[API] Requesting data!')
 apiconfig = requests.get(config['api']['apiconfig'])
-apiconfig = json.loads(apiconfig.text)
+if apiconfig.status_code == 200:
+    apiconfig = json.loads(apiconfig.text)
 
-USER_PERMISSIONS = load_user_permissions(
-    dev_list=apiconfig['devlist'],
-    mod_list=apiconfig['modlist'],
-)
-log.info('[API] Data here, and parsed!')
+    USER_PERMISSIONS = load_user_permissions(
+        dev_list=apiconfig['devlist'],
+        mod_list=apiconfig['modlist'],
+    )
+    log.info('[API] Data here, and parsed!')
+else:
+    log.warning('[API] Failed to load data from API')
+    with open('staticdevlist.json', 'r') as static_dev_list_file:
+        static_dev_list = json.load(static_dev_list_file)
+
+    USER_PERMISSIONS = load_user_permissions(
+        dev_list=static_dev_list,
+        mod_list=[],
+    )
+    log.info('[API] Loaded dev list from static file instead')
+    log.warning('[API] Mod list will be unavailable')
+    cmpc.send_webhook(config['discord']['systemlog'],
+                      'Failed to load data from API\n'
+                      'Loaded dev list from static file instead\n'
+                      'Mod list will be unavailable\n\n'
+                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n\n'
+                      f"**Environment -** {config['options']['DEPLOY']}"
+                      )
 
 
 # Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
     os.remove('chat.log')
-else:
-    pass
 
 if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
     log.fatal('[TWITCH] No channel or oauth token was provided.')
@@ -174,13 +197,15 @@ while True:
     # We got some messages, nice! In that case, let's loop through each and try and process it
     for message in new_messages:
 
+        # Move the payload into an object so we can make better use of it
+        # noinspection PyTypeChecker
+        twitch_message = cmpc.TwitchMessage(message)
+
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
+        # NO, BAD
+        # read an error handling guide
+        # TODO - remove
         try:
-
-            # Move the payload into an object so we can make better use of it
-            # noinspection PyTypeChecker
-            twitch_message = cmpc.TwitchMessage(message)
-
             # Log the chat if that's something we want to do
             if config['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
@@ -224,18 +249,8 @@ while True:
 
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
-                                    twitch_message.content, twitch_message.username, TWITCH_USERNAME,
-                                    config['options']['DEPLOY'])
-
-                if twitch_message.original_content.startswith('rawsend- '):
-                    try:
-                        key_to_press = twitch_message.original_content[9:]
-                        pyautogui.press(key_to_press)
-                    except Exception as error:
-                        log.error('Could not rawtype: ' + twitch_message.content)
-                        cmpc.send_error(config['discord']['systemlog'], error,
-                                        twitch_message.content, twitch_message.username, TWITCH_USERNAME,
-                                        config['options']['DEPLOY'])
+                                    twitch_message, TWITCH_USERNAME,
+                                    config['options']['DEPLOY'], branch_name, branch_name_assumed)
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
@@ -340,5 +355,5 @@ while True:
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(config['discord']['systemlog'], error,
-                            twitch_message.content, twitch_message.username, TWITCH_USERNAME,
-                            config['options']['DEPLOY'])
+                            twitch_message, TWITCH_USERNAME,
+                            config['options']['DEPLOY'], branch_name, branch_name_assumed)

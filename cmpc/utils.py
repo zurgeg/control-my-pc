@@ -61,25 +61,31 @@ def send_webhook(url: str, content: str):
     requests.post(url, data=data)
 
 
-def send_error(url, error, msg, usr, channel, environment):
+def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
     """Sends a error to discord"""
-    data_test = {
+    embed_description = f'***Last Sent Message -*** {t_msg.content}\n\n'\
+                        f'***Exception Info -*** {error}\n\n'\
+                        f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
+                        f'**Environment -** {environment}'
+    if branch != 'master':
+        if branch_assumed:
+            branch = branch + ' (unknown)'
+        embed_description = embed_description + f'\n\n**Branch -** {branch}'
+
+    data = {
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
-                'description': f'***Last Sent Message -*** {msg}\n\n'
-                               f'***Exception Info -*** {error}\n\n'
-                               f'[***Stream Link***](https://twitch.tv/{channel})\n\n'
-                               f'**Environment -** {environment}',
+                'description': embed_description,
                 'color': 1107600,
                 'footer': {
-                    'text': 'User: ' + usr + ' - Channel: ' + channel,
+                    'text': f'User: {t_msg.username} - Channel: {channel}',
                     'icon_url': 'https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg'
                 }
             }
         ]
     }
-    requests.post(url, data=json.dumps(data_test), headers={'Content-Type': 'application/json'})
+    requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
 def move(*args):
