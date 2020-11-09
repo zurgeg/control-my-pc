@@ -1,5 +1,5 @@
 # PSL Packages;
-import os  # file manager and .env handler
+import os  # file manager and .env handler, also runs cmd commands
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
@@ -326,9 +326,10 @@ while True:
                     if severity == '1':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        pyautogui.hotkey('win', 'r')
-                        pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        pyautogui.press('enter')
+                        # pyautogui.hotkey('win', 'r')
+                        # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
+                        # pyautogui.press('enter')
+                        os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message)
                         time.sleep(999999)
                     # TODO: Add !defcon 2 -- close all running programs
