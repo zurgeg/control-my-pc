@@ -41,4 +41,5 @@ Massive rewrite with improved code and new features.
 - **Date descending**
 - v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
 - v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
+- v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
 - *Need retroactive entries, changelog created 2020-11-09*
