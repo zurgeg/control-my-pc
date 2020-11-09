@@ -71,7 +71,7 @@ else:
 if config['options']['START_MSG']:
     cmpc.send_webhook(config['discord']['systemlog'],
                       'Script - **Online**\n\n'
-                      f'[***Stream Link***](https://twitch.tv/{TWITCH_USERNAME})\n\n'
+                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n\n'
                       f"**Environment -** {config['options']['DEPLOY']}",
                       )
 
