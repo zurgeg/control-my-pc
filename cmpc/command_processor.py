@@ -169,15 +169,15 @@ class CommandProcessor:
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
         if message is None:
-            with open(self.obs_file_name, 'r') as obs_file_handle:
+            with open(self.obs_file_name, 'r', encoding='utf-8') as obs_file_handle:
                 current_obs_file_contents = obs_file_handle.read()
             if current_obs_file_contents == 'nothing':
                 return
             else:
-                with open(self.obs_file_name, 'w') as obs_file_handle:
+                with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                     obs_file_handle.write('nothing')
         else:
-            with open(self.obs_file_name, 'w') as obs_file_handle:
+            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                 obs_file_handle.write(message.get_log_string())
             time.sleep(0.5)
             log.info(message.get_log_string())
