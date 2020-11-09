@@ -70,8 +70,8 @@ else:
 # Send starting up message with webhook if in config.
 if config['options']['START_MSG']:
     cmpc.send_webhook(config['discord']['systemlog'],
-                      'Script - **Online**\n\n'
-                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n\n'
+                      'Script - **Online**\n'
+                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                       f"**Environment -** {config['options']['DEPLOY']}",
                       )
 
@@ -139,7 +139,7 @@ else:
                       'Failed to load data from API\n'
                       'Loaded dev list from static file instead\n'
                       'Mod list will be unavailable\n\n'
-                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n\n'
+                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                       f"**Environment -** {config['options']['DEPLOY']}"
                       )
 
