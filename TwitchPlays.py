@@ -4,6 +4,7 @@ import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
 import copy  # for copying objects - used for custom obs logs
+import webbrowser  # el muchacho
 import logging as log  # better print()
 
 # PIP Packages;
@@ -298,11 +299,12 @@ while True:
                     pyautogui.press('volumemute')
 
                 if twitch_message.content in ['el muchacho']:
-                    pyautogui.hotkey('win', 'r')
+                    # pyautogui.hotkey('win', 'r')
                     # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
                     #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
-                    pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                    pyautogui.press('enter')
+                    # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                    # pyautogui.press('enter')
+                    webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
                 if twitch_message.content.startswith('script- suspend '):
                     duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
@@ -336,11 +338,12 @@ while True:
                         custom_log_to_obs('[defcon 3, suspend script]', twitch_message)
                         time.sleep(86400)
                     elif severity == 'blue':
-                        pyautogui.hotkey('win', 'r')
+                        # pyautogui.hotkey('win', 'r')
                         # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
                         #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
-                        pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                        pyautogui.press('enter')
+                        # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                        # pyautogui.press('enter')
+                        webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
                         custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes, '
                                           'suspend script for 30 seconds]', twitch_message)
                         time.sleep(30)
