@@ -390,7 +390,7 @@ class CommandProcessor:
         if message.content.startswith('go to '):
             try:
                 coord = self.remove_prefix(message.content, 'go to ')
-                if coord == 'center':
+                if coord in ['center', 'centre']:
                     xval, yval = tuple(res / 2 for res in pyautogui.size())
                 else:
                     xval, yval = coord.split(' ', 1)
