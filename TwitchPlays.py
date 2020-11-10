@@ -352,8 +352,7 @@ while True:
                         # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                         # pyautogui.press('enter')
                         webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes, '
-                                          'suspend script for 30 seconds]', twitch_message)
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message)
                         time.sleep(30)
 
             # Commands for cmpcscript only.
