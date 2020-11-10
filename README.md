@@ -42,4 +42,11 @@ Massive rewrite with improved code and new features.
 - v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
 - v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
 - v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
-- *Need retroactive entries, changelog created 2020-11-09*
+- *Changelog created 2020-11-09*
+- *Following entries are retroactive*
+- v3.1.1 2020-10-31 Stable rewrite
+- v3.0.0 2020-10-27 Rewrite
+- v2.0.0 2020-07-25 Season 2
+- v1.0.0 2020-07-17 Add new commands and obs logging
+- v0.1.1 2020-06-11 Preserve capitalisation on type command
+- v0.1.0 2020-06-10 First version on GitHub
