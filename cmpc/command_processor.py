@@ -1,10 +1,12 @@
 # PSL Packages
 import time
+import sys
 import logging as log
 
 # PIP Packages;
 import requests  # !modalert and chatrelay
 import pyautogui
+import pyperclip  # for ptype command
 from pynput.mouse import Button
 
 # Local Packages
@@ -169,15 +171,15 @@ class CommandProcessor:
     def log_to_obs(self, message):
         """Log a message to the file shown on-screen for the stream."""
         if message is None:
-            with open(self.obs_file_name, 'r') as obs_file_handle:
+            with open(self.obs_file_name, 'r', encoding='utf-8') as obs_file_handle:
                 current_obs_file_contents = obs_file_handle.read()
             if current_obs_file_contents == 'nothing':
                 return
             else:
-                with open(self.obs_file_name, 'w') as obs_file_handle:
+                with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                     obs_file_handle.write('nothing')
         else:
-            with open(self.obs_file_name, 'w') as obs_file_handle:
+            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                 obs_file_handle.write(message.get_log_string())
             time.sleep(0.5)
             log.info(message.get_log_string())
@@ -394,8 +396,8 @@ class CommandProcessor:
                     xval, yval = coord.split(' ', 1)
                 xval = int(xval)
                 yval = int(yval)
-                pyautogui.moveTo(xval, yval)
                 self.log_to_obs(message)
+                pyautogui.moveTo(xval, yval)
             except ValueError:
                 log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
             except pyautogui.PyAutoGUIException:
@@ -405,6 +407,7 @@ class CommandProcessor:
             return True
 
         # gtype command
+        # you don't say?
         if message.content.startswith('gtype '):
             try:
                 if get_platform() == 'darwin':
@@ -419,6 +422,18 @@ class CommandProcessor:
                 return True
             except Exception as error:
                 self.error_handle(error, message)
+
+        # uses copy-paste instead of typing emulation
+        if message.content.startswith('ptype '):
+            self.log_to_obs(message)
+            message_to_type = self.remove_prefix(message.content, 'ptype ')
+
+            try:
+                pyperclip.copy(message_to_type)
+            except pyperclip.PyperclipException:
+                log.error(f'Could not ptype: {message.content}', sys.exc_info())
+            else:
+                pyautogui.hotkey('ctrl', 'v')
 
         # No commands run, sad cat hours
         return False
