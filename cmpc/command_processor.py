@@ -1,10 +1,12 @@
 # PSL Packages
 import time
+import sys
 import logging as log
 
 # PIP Packages;
 import requests  # !modalert and chatrelay
 import pyautogui
+import pyperclip  # for ptype command
 from pynput.mouse import Button
 
 # Local Packages
@@ -405,6 +407,7 @@ class CommandProcessor:
             return True
 
         # gtype command
+        # you don't say?
         if message.content.startswith('gtype '):
             try:
                 if get_platform() == 'darwin':
@@ -419,6 +422,17 @@ class CommandProcessor:
                 return True
             except Exception as error:
                 self.error_handle(error, message)
+
+        # uses copy-paste instead of typing emulation
+        if message.content.startswith('ptype '):
+            self.log_to_obs(message)
+            message_to_type = self.remove_prefix(message.content, 'ptype ')
+
+            try:
+                pyperclip.copy(message_to_type)
+                pyperclip.paste()
+            except pyperclip.PyperclipException:
+                log.error(f'Could not ptype: {message.content}', sys.exc_info())
 
         # No commands run, sad cat hours
         return False
