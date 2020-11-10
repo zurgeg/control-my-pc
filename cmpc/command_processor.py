@@ -430,9 +430,10 @@ class CommandProcessor:
 
             try:
                 pyperclip.copy(message_to_type)
-                pyperclip.paste()
             except pyperclip.PyperclipException:
                 log.error(f'Could not ptype: {message.content}', sys.exc_info())
+            else:
+                pyautogui.hotkey('ctrl', 'v')
 
         # No commands run, sad cat hours
         return False
