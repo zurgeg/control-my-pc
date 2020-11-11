@@ -19,6 +19,10 @@ import cmpc  # Pretty much all of the custom shit we need.
 # TODO: remove
 # import TwitchPlays_Connection  # Connect to twitch via IRC.
 
+# test
+import tracemalloc
+tracemalloc.start()
+
 
 pyautogui.FAILSAFE = False
 
@@ -378,5 +382,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN).start()
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+    twitch_client.on_message = handle_new_messages
+    twitch_client.start()
     twitch_client.handle_forever()
