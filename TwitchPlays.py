@@ -377,6 +377,6 @@ def handle_new_messages(timestamp, tags, channel, user, message):
                         config['options']['DEPLOY'], branch_name, branch_name_assumed)
 
 
-if __name__ = __main__:
-    twitch_client = TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN).start()
+if __name__ == '__main__':
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN).start()
     twitch_client.handle_forever()
