@@ -226,7 +226,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
         command_has_run = processor.process_commands(twitch_message)
         if command_has_run:
             written_nothing = False
-            continue
+            return
         user_permissions = USER_PERMISSIONS.get(twitch_message.username, cmpc.Permissions())
 
         # Commands for authorised developers in dev list only.
@@ -267,7 +267,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
                               'skipping command and sending warning to discord.')
                     cmpc.send_webhook(config['discord']['systemlog'],
                                       'No chatbot api key was provided, skipping command.')
-                    break
+                    return
                 # IF YOU NEED AN API KEY, CONTACT MAX.
                 signal = processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
                 payload = {
@@ -320,7 +320,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
                     duration = float(duration)
                 except ValueError:
                     log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
-                    continue
+                    return
                 else:
                     try:
                         if duration == 1.0:
