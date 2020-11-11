@@ -382,7 +382,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME,
+                                          processor.remove_prefix(TWITCH_OAUTH_TOKEN, 'oauth:')).start()
     twitch_client.on_message = handle_new_messages
-    twitch_client.start()
     twitch_client.handle_forever()
