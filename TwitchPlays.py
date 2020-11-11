@@ -202,6 +202,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
 
     # Move the payload into an object so we can make better use of it
     # noinspection PyTypeChecker
+    # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
     message_dict = {
         'message': message,
         'username': user,
