@@ -23,6 +23,28 @@ import cmpc  # Pretty much all of the custom shit we need.
 pyautogui.FAILSAFE = False
 
 
+def load_user_permissions(dev_list, mod_list):
+    """Generate a dict of user permissions based on lists of devs and mods.
+
+    Args:
+        dev_list, mod_list -- self explanatory
+    Returns:
+        wip_user_permissions -- the aforementioned dict
+    """
+    wip_user_permissions = {}
+    for dev in dev_list:
+        perms = wip_user_permissions.get(dev, cmpc.Permissions())
+        perms.developer = True
+        wip_user_permissions[dev] = perms
+    for mod in mod_list:
+        perms = wip_user_permissions.get(mod, cmpc.Permissions())
+        perms.moderator = True
+        wip_user_permissions[mod] = perms
+    wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+
+    return wip_user_permissions
+
+
 def get_git_repo_info():
     try:
         branch_name = git.Repo().active_branch.name
@@ -33,7 +55,38 @@ def get_git_repo_info():
     return branch_name, branch_name_assumed
 
 
+def mode_testing(environment, env_vars_used, branch):
+    """Check if the script is in testing mode based on a number of factors.
+
+    Args:
+        environment -- DEPLOY constant from the config file, should be 'Production' or 'Debug'
+        env_vars_used -- bool indicating if config has been pulled from environment variables
+        branch -- the name of the git branch of the repo containing the script, if it exists
+    Returns True if script should be in testing mode and False otherwise.
+    """
+    if environment == 'Debug' or env_vars_used or branch != 'master':
+        return True
+    else:
+        return False
+
+
 branch_name, branch_name_assumed = get_git_repo_info()
+
+
+# This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
+def custom_log_to_obs(log_string, message_object, command_processor):
+    """Write a custom message to the obs log file.
+
+    Args:
+        log_string -- the string to log to the file
+        message_object -- the original cmpc.TwitchMessage message which invoked the command
+        command_processor -- the cmpc.CommandProcessor to use to log to obs
+    Does not return
+    """
+    message_edited = copy.copy(message_object)
+    message_edited.original_content = log_string
+    command_processor.log_to_obs(message_edited)
+
 
 # Log copyright notice.
 COPYRIGHT_NOTICE = f"""
@@ -83,44 +136,6 @@ if config['options']['START_MSG']:
                       f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                       f"**Environment -** {config['options']['DEPLOY']}",
                       )
-
-
-def load_user_permissions(dev_list, mod_list):
-    """Generate a dict of user permissions based on lists of devs and mods.
-
-    Args:
-        dev_list, mod_list -- self explanatory
-    Returns:
-        wip_user_permissions -- the aforementioned dict
-    """
-    wip_user_permissions = {}
-    for dev in dev_list:
-        perms = wip_user_permissions.get(dev, cmpc.Permissions())
-        perms.developer = True
-        wip_user_permissions[dev] = perms
-    for mod in mod_list:
-        perms = wip_user_permissions.get(mod, cmpc.Permissions())
-        perms.moderator = True
-        wip_user_permissions[mod] = perms
-    wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
-
-    return wip_user_permissions
-
-
-def mode_testing(environment, env_vars_used, branch):
-    """Check if the script is in testing mode based on a number of factors.
-
-    Args:
-        environment -- DEPLOY constant from the config file, should be 'Production' or 'Debug'
-        env_vars_used -- bool indicating if config has been pulled from environment variables
-        branch -- the name of the git branch of the repo containing the script, if it exists
-    Returns True if script should be in testing mode and False otherwise.
-    """
-    if environment == 'Debug' or env_vars_used or branch != 'master':
-        return True
-    else:
-        return False
-
 
 # Get dev and mod lists from API.
 log.info('[API] Requesting data!')
@@ -172,21 +187,6 @@ processor.log_to_obs(None)
 # TODO: remove
 # t = TwitchPlays_Connection.Twitch()
 # t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-
-
-# This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
-def custom_log_to_obs(log_string, message_object, command_processor=processor):
-    """Write a custom message to the obs log file.
-
-    Args:
-        log_string -- the string to log to the file
-        message_object -- the original cmpc.TwitchMessage message which invoked the command
-        command_processor -- the cmpc.CommandProcessor to use to log to obs
-    Does not return
-    """
-    message_edited = copy.copy(message_object)
-    message_edited.original_content = log_string
-    command_processor.log_to_obs(message_edited)
 
 
 async def handle_new_messages(message):
@@ -334,7 +334,7 @@ async def handle_new_messages(message):
                             log_message = '[Suspend script for 1 second]'
                         else:
                             log_message = f'[Suspend script for {int(duration)} seconds]'
-                        custom_log_to_obs(log_message, twitch_message)
+                        custom_log_to_obs(log_message, twitch_message, processor)
                         time.sleep(duration)
                     except ValueError:
                         log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
@@ -352,13 +352,13 @@ async def handle_new_messages(message):
                     # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                     # pyautogui.press('enter')
                     os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                    custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message)
+                    custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, processor)
                     time.sleep(999999)
                 # TODO: Add !defcon 2 -- close all running programs
                 elif severity == '3':
                     pyautogui.hotkey('win', 'm')
                     pyautogui.press('volumemute')
-                    custom_log_to_obs('[defcon 3, suspend script]', twitch_message)
+                    custom_log_to_obs('[defcon 3, suspend script]', twitch_message, processor)
                     time.sleep(86400)
                 elif severity == 'blue':
                     # pyautogui.hotkey('win', 'r')
@@ -367,7 +367,7 @@ async def handle_new_messages(message):
                     # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                     # pyautogui.press('enter')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                    custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message)
+                    custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, processor)
                     time.sleep(30)
 
         # Commands for cmpcscript only.
