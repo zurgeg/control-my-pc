@@ -11,7 +11,6 @@ import logging as log  # better print()
 import pyautogui  # only used in rawsend- command
 import requests  # api and discord webhooks
 import toml  # configuration
-import git  # for automatic branch detection in the copyright message, `pip install gitpython`
 from pynput.mouse import Controller  # Not really needed, but (I think) something still relies on it so /shrug
 
 # Local Packages;
@@ -43,34 +42,6 @@ def load_user_permissions(dev_list, mod_list):
     return wip_user_permissions
 
 
-def get_git_repo_info():
-    try:
-        branch_name = git.Repo().active_branch.name
-        branch_name_assumed = False
-    except git.exc.GitError:
-        branch_name = 'master'
-        branch_name_assumed = True
-    return branch_name, branch_name_assumed
-
-
-def mode_testing(environment, env_vars_used, branch):
-    """Check if the script is in testing mode based on a number of factors.
-
-    Args:
-        environment -- DEPLOY constant from the config file, should be 'Production' or 'Debug'
-        env_vars_used -- bool indicating if config has been pulled from environment variables
-        branch -- the name of the git branch of the repo containing the script, if it exists
-    Returns True if script should be in testing mode and False otherwise.
-    """
-    if environment == 'Debug' or env_vars_used or branch != 'master':
-        return True
-    else:
-        return False
-
-
-branch_name, branch_name_assumed = get_git_repo_info()
-
-
 # This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
 def custom_log_to_obs(log_string, message_object, command_processor):
     """Write a custom message to the obs log file.
@@ -85,6 +56,8 @@ def custom_log_to_obs(log_string, message_object, command_processor):
     message_edited.original_content = log_string
     command_processor.log_to_obs(message_edited)
 
+
+branch_name, branch_name_assumed = cmpc.get_git_repo_info()
 
 # Log copyright notice.
 COPYRIGHT_NOTICE = f"""
