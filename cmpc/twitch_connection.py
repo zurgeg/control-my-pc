@@ -3,7 +3,9 @@ from twitchio.ext.commands.bot import Bot
 
 class TwitchConnection(Bot):
     # TODO: write docstrings
-    def __init__(self, user, oauth, client_id=None, prefix=None):
+    def __init__(self, user, oauth, user_permissions, client_id=None, prefix=None):
+        USER_PERMISSIONS = user_permissions
+
         if client_id is None:
             client_id = 'CMPCscript (+https://cmpc.live/)'
         if prefix is None:

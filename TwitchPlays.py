@@ -205,7 +205,7 @@ async def handle_new_messages(message):
     # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
     message_dict = {
         'message': message.content,
-        'username': message.author.name,
+        'username': message.author.name.encode(),
     }
 
     twitch_message = cmpc.TwitchMessage(message_dict)
@@ -378,6 +378,6 @@ async def handle_new_messages(message):
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_PERMISSIONS)
     twitch_client.event_message = handle_new_messages
     twitch_client.run()
