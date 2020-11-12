@@ -158,7 +158,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                               'Script - **Online**\n'
                               f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                               f"**Environment -** {config['options']['DEPLOY']}",
-                              )
+            )
 
     async def event_message(self, message):
         global user_permissions_handler
