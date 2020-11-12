@@ -22,13 +22,20 @@ import cmpc  # Pretty much all of the custom shit we need.
 
 pyautogui.FAILSAFE = False
 
+
+def get_git_repo_info():
+    try:
+        branch_name = git.Repo().active_branch.name
+        branch_name_assumed = False
+    except git.exc.GitError:
+        branch_name = 'master'
+        branch_name_assumed = True
+    return branch_name, branch_name_assumed
+
+
+branch_name, branch_name_assumed = get_git_repo_info()
+
 # Log copyright notice.
-try:
-    branch_name = git.Repo().active_branch.name
-    branch_name_assumed = False
-except git.exc.GitError:
-    branch_name = 'master'
-    branch_name_assumed = True
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
@@ -121,7 +128,7 @@ apiconfig = requests.get(config['api']['apiconfig'])
 if apiconfig.status_code == 200:
     apiconfig = json.loads(apiconfig.text)
 
-    USER_PERMISSIONS = load_user_permissions(
+    user_permissions_handler = load_user_permissions(
         dev_list=apiconfig['devlist'],
         mod_list=apiconfig['modlist'],
     )
@@ -131,7 +138,7 @@ else:
     with open('staticdevlist.json', 'r') as static_dev_list_file:
         static_dev_list = json.load(static_dev_list_file)
 
-    USER_PERMISSIONS = load_user_permissions(
+    user_permissions_handler = load_user_permissions(
         dev_list=static_dev_list,
         mod_list=[],
     )
@@ -183,6 +190,7 @@ def custom_log_to_obs(log_string, message_object, command_processor=processor):
 
 
 async def handle_new_messages(message):
+    global user_permissions_handler
     written_nothing = True
 
     # TODO: remove
@@ -227,7 +235,7 @@ async def handle_new_messages(message):
         if command_has_run:
             written_nothing = False
             return
-        user_permissions = USER_PERMISSIONS.get(twitch_message.username, cmpc.Permissions())
+        user_permissions = user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
         # Commands for authorised developers in dev list only.
         if user_permissions.script or user_permissions.developer:
@@ -239,8 +247,8 @@ async def handle_new_messages(message):
                 context = {
                     'user': twitch_message.username,
                     'channel': TWITCH_USERNAME,
-                    'modlist': [i for i, o in USER_PERMISSIONS.items() if o.moderator],
-                    'devlist': [i for i, o in USER_PERMISSIONS.items() if o.developer],
+                    'modlist': [i for i, o in user_permissions_handler.items() if o.moderator],
+                    'devlist': [i for i, o in user_permissions_handler.items() if o.developer],
                     'options': config['options'],
                 }
                 cmpc.send_data(config['discord']['modtalk'], context)
@@ -248,8 +256,7 @@ async def handle_new_messages(message):
             if twitch_message.content == 'script- apirefresh':
                 apiconfig = requests.get(config['api']['apiconfig'])
                 apiconfig = json.loads(apiconfig.text)
-                # Note - all caps variables should really be constants.
-                USER_PERMISSIONS = load_user_permissions(
+                user_permissions_handler = load_user_permissions(
                     dev_list=apiconfig['devlist'],
                     mod_list=apiconfig['modlist'],
                 )
