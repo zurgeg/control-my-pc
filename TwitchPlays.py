@@ -16,8 +16,6 @@ from pynput.mouse import Controller  # Not really needed, but (I think) somethin
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
-# TODO: remove
-# import TwitchPlays_Connection  # Connect to twitch via IRC.
 
 
 pyautogui.FAILSAFE = False
@@ -99,6 +97,7 @@ COPYRIGHT_NOTICE = f"""
 ------------------------------------------
 """
 print(COPYRIGHT_NOTICE)
+
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
 log.basicConfig(
@@ -109,6 +108,7 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
+
 # Load Configuration
 log.debug('Stand by me.')
 config = toml.load('config.toml')
