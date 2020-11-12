@@ -19,10 +19,6 @@ import cmpc  # Pretty much all of the custom shit we need.
 # TODO: remove
 # import TwitchPlays_Connection  # Connect to twitch via IRC.
 
-# test
-import tracemalloc
-tracemalloc.start()
-
 
 pyautogui.FAILSAFE = False
 
@@ -186,7 +182,7 @@ def custom_log_to_obs(log_string, message_object, command_processor=processor):
     command_processor.log_to_obs(message_edited)
 
 
-def handle_new_messages(timestamp, tags, channel, user, message):
+async def handle_new_messages(message):
     written_nothing = True
 
     # TODO: remove
@@ -208,8 +204,8 @@ def handle_new_messages(timestamp, tags, channel, user, message):
     # noinspection PyTypeChecker
     # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
     message_dict = {
-        'message': message,
-        'username': user,
+        'message': message.content,
+        'username': message.author.name,
     }
 
     twitch_message = cmpc.TwitchMessage(message_dict)
@@ -217,7 +213,7 @@ def handle_new_messages(timestamp, tags, channel, user, message):
     # Command processing is very scary business - let's wrap the whole thing in a try/catch
     # NO, BAD
     # read an error handling guide
-    # TODO - remove
+    # TODO - remove try-except here
     try:
         # Log the chat if that's something we want to do
         if config['options']['LOG_ALL']:
@@ -382,7 +378,6 @@ def handle_new_messages(timestamp, tags, channel, user, message):
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME,
-                                          processor.remove_prefix(TWITCH_OAUTH_TOKEN, 'oauth:')).start()
-    twitch_client.on_message = handle_new_messages
-    twitch_client.handle_forever()
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+    twitch_client.event_message = handle_new_messages
+    twitch_client.run()
