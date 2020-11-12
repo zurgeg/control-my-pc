@@ -378,6 +378,6 @@ async def handle_new_messages(message):
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_PERMISSIONS)
+    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
     twitch_client.event_message = handle_new_messages
     twitch_client.run()
