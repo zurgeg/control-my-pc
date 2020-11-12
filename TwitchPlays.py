@@ -128,15 +128,6 @@ if os.getenv('DUKTHOSTING_API_KEY'):
 else:
     PANEL_API_KEY = config['api']['panelapikey']
 
-
-# Send starting up message with webhook if in config.
-if config['options']['START_MSG']:
-    cmpc.send_webhook(config['discord']['systemlog'],
-                      'Script - **Online**\n'
-                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                      f"**Environment -** {config['options']['DEPLOY']}",
-                      )
-
 # Get dev and mod lists from API.
 log.info('[API] Requesting data!')
 apiconfig = requests.get(config['api']['apiconfig'])
@@ -187,6 +178,15 @@ processor.log_to_obs(None)
 
 
 class TwitchPlays(cmpc.TwitchConnection):
+    async def event_ready(self):
+        # Send starting up message with webhook if in config.
+        if config['options']['START_MSG']:
+            cmpc.send_webhook(config['discord']['systemlog'],
+                              'Script - **Online**\n'
+                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                              f"**Environment -** {config['options']['DEPLOY']}",
+                              )
+
     async def event_message(self, message):
         global user_permissions_handler
         written_nothing = True
