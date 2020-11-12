@@ -186,187 +186,187 @@ processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 
 
-async def handle_new_messages(message):
-    global user_permissions_handler
-    written_nothing = True
+class TwitchPlays(cmpc.TwitchConnection):
+    async def event_message(self, message):
+        global user_permissions_handler
+        written_nothing = True
 
-    # Move the payload into an object so we can make better use of it
-    # noinspection PyTypeChecker
-    # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
-    message_dict = {
-        'message': message.content,
-        'username': message.author.name.encode(),
-    }
+        # Move the payload into an object so we can make better use of it
+        # noinspection PyTypeChecker
+        # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
+        message_dict = {
+            'message': message.content,
+            'username': message.author.name.encode(),
+        }
 
-    twitch_message = cmpc.TwitchMessage(message_dict)
+        twitch_message = cmpc.TwitchMessage(message_dict)
 
-    # Command processing is very scary business - let's wrap the whole thing in a try/catch
-    # NO, BAD
-    # read an error handling guide
-    # TODO - remove try-except here
-    try:
-        # Log the chat if that's something we want to do
-        if config['options']['LOG_ALL']:
-            log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
-        if config['options']['LOG_PPR']:
-            with open('chat.log', 'a', encoding='utf-8') as f:
-                f.write(f'{twitch_message.get_log_string()}\n')
+        # Command processing is very scary business - let's wrap the whole thing in a try/catch
+        # NO, BAD
+        # read an error handling guide
+        # TODO - remove try-except here
+        try:
+            # Log the chat if that's something we want to do
+            if config['options']['LOG_ALL']:
+                log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
+            if config['options']['LOG_PPR']:
+                with open('chat.log', 'a', encoding='utf-8') as f:
+                    f.write(f'{twitch_message.get_log_string()}\n')
 
-        # Process this beef
-        command_has_run = processor.process_commands(twitch_message)
-        if command_has_run:
-            written_nothing = False
-            return
-        user_permissions = user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
+            # Process this beef
+            command_has_run = processor.process_commands(twitch_message)
+            if command_has_run:
+                written_nothing = False
+                return
+            user_permissions = user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
-        # Commands for authorised developers in dev list only.
-        if user_permissions.script or user_permissions.developer:
-            if twitch_message.content == 'script- testconn':
-                cmpc.send_webhook(config['discord']['modtalk'],
-                                  'Connection made between twitch->script->webhook->discord')
+            # Commands for authorised developers in dev list only.
+            if user_permissions.script or user_permissions.developer:
+                if twitch_message.content == 'script- testconn':
+                    cmpc.send_webhook(config['discord']['modtalk'],
+                                      'Connection made between twitch->script->webhook->discord')
 
-            if twitch_message.content == 'script- reqdata':
-                context = {
-                    'user': twitch_message.username,
-                    'channel': TWITCH_USERNAME,
-                    'modlist': [i for i, o in user_permissions_handler.items() if o.moderator],
-                    'devlist': [i for i, o in user_permissions_handler.items() if o.developer],
-                    'options': config['options'],
-                }
-                cmpc.send_data(config['discord']['modtalk'], context)
+                if twitch_message.content == 'script- reqdata':
+                    context = {
+                        'user': twitch_message.username,
+                        'channel': TWITCH_USERNAME,
+                        'modlist': [i for i, o in user_permissions_handler.items() if o.moderator],
+                        'devlist': [i for i, o in user_permissions_handler.items() if o.developer],
+                        'options': config['options'],
+                    }
+                    cmpc.send_data(config['discord']['modtalk'], context)
 
-            if twitch_message.content == 'script- apirefresh':
-                apiconfig = requests.get(config['api']['apiconfig'])
-                apiconfig = json.loads(apiconfig.text)
-                user_permissions_handler = load_user_permissions(
-                    dev_list=apiconfig['devlist'],
-                    mod_list=apiconfig['modlist'],
-                )
-                log.info('[API] refreshed')
-                cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
+                if twitch_message.content == 'script- apirefresh':
+                    apiconfig = requests.get(config['api']['apiconfig'])
+                    apiconfig = json.loads(apiconfig.text)
+                    user_permissions_handler = load_user_permissions(
+                        dev_list=apiconfig['devlist'],
+                        mod_list=apiconfig['modlist'],
+                    )
+                    log.info('[API] refreshed')
+                    cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
 
-            if twitch_message.content == 'script- forceerror':
-                cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
-                                twitch_message, TWITCH_USERNAME,
-                                config['options']['DEPLOY'], branch_name, branch_name_assumed)
+                if twitch_message.content == 'script- forceerror':
+                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
+                                    twitch_message, TWITCH_USERNAME,
+                                    config['options']['DEPLOY'], branch_name, branch_name_assumed)
 
-            if twitch_message.original_content.startswith('chatbot- '):
-                if not PANEL_API_KEY:
-                    log.error('[CHATBOT] Command ran and no API key, '
-                              'skipping command and sending warning to discord.')
-                    cmpc.send_webhook(config['discord']['systemlog'],
-                                      'No chatbot api key was provided, skipping command.')
-                    return
-                # IF YOU NEED AN API KEY, CONTACT MAX.
-                signal = processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
-                payload = {
-                    "signal": signal
-                }
-                headers = {
-                    'User-Agent': f'{USER_AGENT}',
-                    'Accept': 'application/json',
-                    # DO NOT REMOVE THE QUOTES HERE.
-                    'Authorization': f'Bearer {PANEL_API_KEY}',
-                }
-                try:
-                    x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
-                    cmpc.send_webhook(config['discord']['systemlog'],
-                                      f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
-                except requests.RequestException:
-                    log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
-                              sys.exc_info())
-
-        # Commands for authorized moderators in mod list only.
-        if user_permissions.script or user_permissions.developer or user_permissions.moderator:
-            if twitch_message.content.startswith('modsay '):
-                data = {
-                    'username': twitch_message.username,
-                    'content': processor.remove_prefix(twitch_message.original_content, 'modsay '),
-                }
-                try:
-                    result = requests.post(config['discord']['modtalk'],
-                                           json=data, headers={'User-Agent': USER_AGENT})
-                except requests.RequestException:
-                    log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
-                              sys.exc_info())
-
-            if twitch_message.content in ['hideall']:
-                pyautogui.hotkey('win', 'm')
-            if twitch_message.content in ['mute']:
-                pyautogui.press('volumemute')
-
-            if twitch_message.content in ['el muchacho']:
-                # pyautogui.hotkey('win', 'r')
-                # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
-                #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
-                # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                # pyautogui.press('enter')
-                webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-
-            if twitch_message.content.startswith('script- suspend '):
-                duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
-                try:
-                    duration = float(duration)
-                except ValueError:
-                    log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
-                    return
-                else:
+                if twitch_message.original_content.startswith('chatbot- '):
+                    if not PANEL_API_KEY:
+                        log.error('[CHATBOT] Command ran and no API key, '
+                                  'skipping command and sending warning to discord.')
+                        cmpc.send_webhook(config['discord']['systemlog'],
+                                          'No chatbot api key was provided, skipping command.')
+                        return
+                    # IF YOU NEED AN API KEY, CONTACT MAX.
+                    signal = processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
+                    payload = {
+                        "signal": signal
+                    }
+                    headers = {
+                        'User-Agent': f'{USER_AGENT}',
+                        'Accept': 'application/json',
+                        # DO NOT REMOVE THE QUOTES HERE.
+                        'Authorization': f'Bearer {PANEL_API_KEY}',
+                    }
                     try:
-                        if duration == 1.0:
-                            log_message = '[Suspend script for 1 second]'
-                        else:
-                            log_message = f'[Suspend script for {int(duration)} seconds]'
-                        custom_log_to_obs(log_message, twitch_message, processor)
-                        time.sleep(duration)
-                    except ValueError:
-                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
-                    except OverflowError:
-                        log.error(f'Could not suspend for duration: {twitch_message.content}\n'
-                                  'Due to too large arg')
+                        x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
+                        cmpc.send_webhook(config['discord']['systemlog'],
+                                          f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
+                    except requests.RequestException:
+                        log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
+                                  sys.exc_info())
 
-            if twitch_message.content.startswith('!defcon '):
-                severity = processor.remove_prefix(twitch_message.content, '!defcon ')
+            # Commands for authorized moderators in mod list only.
+            if user_permissions.script or user_permissions.developer or user_permissions.moderator:
+                if twitch_message.content.startswith('modsay '):
+                    data = {
+                        'username': twitch_message.username,
+                        'content': processor.remove_prefix(twitch_message.original_content, 'modsay '),
+                    }
+                    try:
+                        result = requests.post(config['discord']['modtalk'],
+                                               json=data, headers={'User-Agent': USER_AGENT})
+                    except requests.RequestException:
+                        log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
+                                  sys.exc_info())
 
-                if severity == '1':
+                if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')
+                if twitch_message.content in ['mute']:
                     pyautogui.press('volumemute')
+
+                if twitch_message.content in ['el muchacho']:
                     # pyautogui.hotkey('win', 'r')
-                    # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                    # pyautogui.press('enter')
-                    os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                    custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, processor)
-                    time.sleep(999999)
-                # TODO: Add !defcon 2 -- close all running programs
-                elif severity == '3':
-                    pyautogui.hotkey('win', 'm')
-                    pyautogui.press('volumemute')
-                    custom_log_to_obs('[defcon 3, suspend script]', twitch_message, processor)
-                    time.sleep(86400)
-                elif severity == 'blue':
-                    # pyautogui.hotkey('win', 'r')
-                    # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
-                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                     # pyautogui.press('enter')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                    custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, processor)
-                    time.sleep(30)
 
-        # Commands for cmpcscript only.
-        if user_permissions.script:
-            print(f'CMPC SCRIPT: {twitch_message.content}')
-            if twitch_message.original_content == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
-                sys.exit(1)
+                if twitch_message.content.startswith('script- suspend '):
+                    duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
+                    try:
+                        duration = float(duration)
+                    except ValueError:
+                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
+                        return
+                    else:
+                        try:
+                            if duration == 1.0:
+                                log_message = '[Suspend script for 1 second]'
+                            else:
+                                log_message = f'[Suspend script for {int(duration)} seconds]'
+                            custom_log_to_obs(log_message, twitch_message, processor)
+                            time.sleep(duration)
+                        except ValueError:
+                            log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
+                        except OverflowError:
+                            log.error(f'Could not suspend for duration: {twitch_message.content}\n'
+                                      'Due to too large arg')
 
-    except Exception as error:
-        # Send error data to systemlog.
-        log.error(f'{error}', sys.exc_info())
-        cmpc.send_error(config['discord']['systemlog'], error,
-                        twitch_message, TWITCH_USERNAME,
-                        config['options']['DEPLOY'], branch_name, branch_name_assumed)
+                if twitch_message.content.startswith('!defcon '):
+                    severity = processor.remove_prefix(twitch_message.content, '!defcon ')
+
+                    if severity == '1':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
+                        # pyautogui.hotkey('win', 'r')
+                        # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
+                        # pyautogui.press('enter')
+                        os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
+                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, processor)
+                        time.sleep(999999)
+                    # TODO: Add !defcon 2 -- close all running programs
+                    elif severity == '3':
+                        pyautogui.hotkey('win', 'm')
+                        pyautogui.press('volumemute')
+                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message, processor)
+                        time.sleep(86400)
+                    elif severity == 'blue':
+                        # pyautogui.hotkey('win', 'r')
+                        # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
+                        #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
+                        # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
+                        # pyautogui.press('enter')
+                        webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, processor)
+                        time.sleep(30)
+
+            # Commands for cmpcscript only.
+            if user_permissions.script:
+                print(f'CMPC SCRIPT: {twitch_message.content}')
+                if twitch_message.original_content == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
+                    sys.exit(1)
+
+        except Exception as error:
+            # Send error data to systemlog.
+            log.error(f'{error}', sys.exc_info())
+            cmpc.send_error(config['discord']['systemlog'], error,
+                            twitch_message, TWITCH_USERNAME,
+                            config['options']['DEPLOY'], branch_name, branch_name_assumed)
 
 
 if __name__ == '__main__':
-    twitch_client = cmpc.TwitchConnection(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
-    twitch_client.event_message = handle_new_messages
+    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
     twitch_client.run()
