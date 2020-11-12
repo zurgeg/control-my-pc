@@ -184,29 +184,11 @@ if not PANEL_API_KEY:
 mouse = Controller()
 processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
-# TODO: remove
-# t = TwitchPlays_Connection.Twitch()
-# t.twitch_connect(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
 
 
 async def handle_new_messages(message):
     global user_permissions_handler
     written_nothing = True
-
-    # TODO: remove
-    # # Get all messages from Twitch
-    # new_messages = t.twitch_receive_messages()
-    #
-    # # If we didn't get any new messages, let's log that nothing is happening and
-    # # keep looping for new stuff
-    # if not new_messages:
-    #     if written_nothing:
-    #         processor.log_to_obs(None)
-    #         written_nothing = False
-    #     continue
-    #
-    # # We got some messages, nice! In that case, let's loop through each and try and process it
-    # for message in new_messages:
 
     # Move the payload into an object so we can make better use of it
     # noinspection PyTypeChecker
