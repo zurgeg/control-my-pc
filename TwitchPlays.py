@@ -16,16 +16,20 @@ import toml  # configuration
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
+
 pyautogui.FAILSAFE = False
-COPYRIGHT_NOTICE = """
+BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
+COPYRIGHT_NOTICE = f"""
 ------------------------------------------
            TWITCH PLAYS
-           {branch_name_upper} BRANCH
+           {BRANCH_NAME.upper()} BRANCH
            https://cmpc.live
            © 2020 controlmypc
            by CMPC Developers
 ------------------------------------------
 """
+# Log copyright notice.
+print(COPYRIGHT_NOTICE)
 
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
@@ -76,32 +80,6 @@ def custom_log_to_obs(log_string, message_object, command_processor):
     command_processor.log_to_obs(message_edited)
 
 
-branch_name, branch_name_assumed = cmpc.get_git_repo_info()
-
-# Log copyright notice.
-
-print(COPYRIGHT_NOTICE.format(branch_name_upper=branch_name.upper()))
-
-# Load Configuration
-log.debug('Stand by me.')
-config = toml.load('config.toml')
-USER_AGENT = config['api']['useragent']
-# Twitch channel name and oauth token from config will be overridden 
-# by env vars if they exist. This makes testing more streamlined.
-if os.getenv('TWITCH_CHANNEL'):
-    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
-else:
-    TWITCH_USERNAME = config['twitch']['channel']
-if os.getenv('TWITCH_OAUTH_TOKEN'):
-    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
-else:
-    TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
-if os.getenv('DUKTHOSTING_API_KEY'):
-    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
-else:
-    PANEL_API_KEY = config['api']['panelapikey']
-
-
 def load_permissions_handler():
     # Get dev and mod lists from API.
     log.info('[API] Requesting data!')
@@ -136,6 +114,26 @@ def load_permissions_handler():
     return user_permissions_handler
 
 
+# Load Configuration
+log.debug('Stand by me.')
+config = toml.load('config.toml')
+USER_AGENT = config['api']['useragent']
+# Twitch channel name and oauth token from config will be overridden
+# by env vars if they exist. This makes testing more streamlined.
+if os.getenv('TWITCH_CHANNEL'):
+    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
+else:
+    TWITCH_USERNAME = config['twitch']['channel']
+if os.getenv('TWITCH_OAUTH_TOKEN'):
+    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
+else:
+    TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
+if os.getenv('DUKTHOSTING_API_KEY'):
+    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
+else:
+    PANEL_API_KEY = config['api']['panelapikey']
+
+
 class TwitchPlays(cmpc.TwitchConnection):
     def __init__(self, user, oauth, client_id):
         # Remove temp chat log if it exists.
@@ -148,7 +146,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
             sys.exit(2)
         if not PANEL_API_KEY:
-            log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
+            log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
 
         self.user_permissions_handler = load_permissions_handler()
 
@@ -220,7 +218,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
-                                    config['options']['DEPLOY'], branch_name, branch_name_assumed)
+                                    config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
@@ -326,7 +324,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(config['discord']['systemlog'], error,
                             twitch_message, TWITCH_USERNAME,
-                            config['options']['DEPLOY'], branch_name, branch_name_assumed)
+                            config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
 
 if __name__ == '__main__':
