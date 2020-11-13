@@ -114,7 +114,7 @@ def load_permissions_handler():
     return user_permissions_handler
 
 
-# Load Configuration
+# Load configuration
 log.debug('Stand by me.')
 config = toml.load('config.toml')
 USER_AGENT = config['api']['useragent']
@@ -157,6 +157,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         super().__init__(user, oauth, client_id)
 
     async def event_ready(self):
+        log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in config.
         if config['options']['START_MSG']:
             cmpc.send_webhook(config['discord']['systemlog'],
@@ -166,8 +167,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                               )
 
     async def event_message(self, message):
-        written_nothing = True
-
         twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
@@ -185,8 +184,9 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
             if command_has_run:
-                written_nothing = False
+                self.processor.log_to_obs(None)
                 return
+
             user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
             # Commands for authorised developers in dev list only.
@@ -254,8 +254,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                         'content': self.processor.remove_prefix(twitch_message.original_content, 'modsay '),
                     }
                     try:
-                        result = requests.post(config['discord']['modtalk'],
-                                               json=data, headers={'User-Agent': USER_AGENT})
+                        requests.post(config['discord']['modtalk'],
+                                      json=data, headers={'User-Agent': USER_AGENT})
                     except requests.RequestException:
                         log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
                                   sys.exc_info())
@@ -310,7 +310,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                         # os.system('vlc -f --repeat --no-osd --no-play-and-pause '
                         #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
                         webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, self.processor)
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]',
+                                          twitch_message, self.processor)
                         time.sleep(30)
 
             # Commands for cmpcscript only.
@@ -318,6 +319,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                 print(f'CMPC SCRIPT: {twitch_message.content}')
                 if twitch_message.original_content == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
                     sys.exit(1)
+
+            self.processor.log_to_obs(None)
 
         except Exception as error:
             # Send error data to systemlog.

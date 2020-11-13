@@ -168,24 +168,19 @@ class CommandProcessor:
         # else:
         #     pass
 
-    def log_to_obs(self, message):
+    def log_to_obs(self, message, none_log_msg='nothing'):
         """Log a message to the file shown on-screen for the stream."""
-        if message is None:
-            with open(self.obs_file_name, 'r', encoding='utf-8') as obs_file_handle:
-                current_obs_file_contents = obs_file_handle.read()
-            if current_obs_file_contents == 'nothing':
-                return
+        with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
+            if message is None:
+                obs_file_handle.write(none_log_msg)
             else:
-                with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                    obs_file_handle.write('nothing')
-        else:
-            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                 obs_file_handle.write(message.get_log_string())
-            time.sleep(0.5)
-            log.info(message.get_log_string())
-            requests.post(self.config['discord']['chatrelay'],
-                          json=message.get_log_webhook_payload(),
-                          headers={'User-Agent': self.config['api']['useragent']})
+
+                time.sleep(0.5)
+                log.info(message.get_log_string())
+                requests.post(self.config['discord']['chatrelay'],
+                              json=message.get_log_webhook_payload(),
+                              headers={'User-Agent': self.config['api']['useragent']})
 
     @staticmethod
     def _hold_key_pyautogui(key_to_press, time_value):
