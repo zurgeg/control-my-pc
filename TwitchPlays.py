@@ -138,26 +138,25 @@ def load_permissions_handler():
 
 user_permissions_handler = load_permissions_handler()
 
-# Remove temp chat log or log if it doesn't exist.
-if os.path.exists('chat.log'):
-    os.remove('chat.log')
-
-if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
-    log.fatal('[TWITCH] No channel or oauth token was provided.')
-    cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
-    sys.exit(2)
-
-if not PANEL_API_KEY:
-    log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
-
-# Misc final setup
-mouse = pynput.mouse.Controller()
-processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
-processor.log_to_obs(None)
-
 
 class TwitchPlays(cmpc.TwitchConnection):
     def __init__(self, user, oauth, client_id):
+        # Remove temp chat log if it exists.
+        if os.path.exists('chat.log'):
+            os.remove('chat.log')
+
+        # Check essential constants are not empty.
+        if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
+            log.fatal('[TWITCH] No channel or oauth token was provided.')
+            cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
+            sys.exit(2)
+        if not PANEL_API_KEY:
+            log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
+
+        mouse = pynput.mouse.Controller()
+        self.processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
+        self.processor.log_to_obs(None)
+
         super().__init__(user, oauth, client_id)
 
     async def event_ready(self):
@@ -188,7 +187,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Process this beef
-            command_has_run = processor.process_commands(twitch_message)
+            command_has_run = self.processor.process_commands(twitch_message)
             if command_has_run:
                 written_nothing = False
                 return
@@ -233,7 +232,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                           'No chatbot api key was provided, skipping command.')
                         return
                     # IF YOU NEED AN API KEY, CONTACT MAX.
-                    signal = processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
+                    signal = self.processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
                     payload = {
                         "signal": signal
                     }
@@ -256,7 +255,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content.startswith('modsay '):
                     data = {
                         'username': twitch_message.username,
-                        'content': processor.remove_prefix(twitch_message.original_content, 'modsay '),
+                        'content': self.processor.remove_prefix(twitch_message.original_content, 'modsay '),
                     }
                     try:
                         result = requests.post(config['discord']['modtalk'],
@@ -279,7 +278,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
                 if twitch_message.content.startswith('script- suspend '):
-                    duration = processor.remove_prefix(twitch_message.content, 'script- suspend ')
+                    duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')
                     try:
                         duration = float(duration)
                     except ValueError:
@@ -291,7 +290,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                 log_message = '[Suspend script for 1 second]'
                             else:
                                 log_message = f'[Suspend script for {int(duration)} seconds]'
-                            custom_log_to_obs(log_message, twitch_message, processor)
+                            custom_log_to_obs(log_message, twitch_message, self.processor)
                             time.sleep(duration)
                         except ValueError:
                             log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
@@ -300,7 +299,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                       'Due to too large arg')
 
                 if twitch_message.content.startswith('!defcon '):
-                    severity = processor.remove_prefix(twitch_message.content, '!defcon ')
+                    severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')
 
                     if severity == '1':
                         pyautogui.hotkey('win', 'm')
@@ -309,13 +308,13 @@ class TwitchPlays(cmpc.TwitchConnection):
                         # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         # pyautogui.press('enter')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, processor)
+                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
                         time.sleep(999999)
                     # TODO: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message, processor)
+                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
                         time.sleep(86400)
                     elif severity == 'blue':
                         # pyautogui.hotkey('win', 'r')
@@ -324,7 +323,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
                         # pyautogui.press('enter')
                         webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, processor)
+                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, self.processor)
                         time.sleep(30)
 
             # Commands for cmpcscript only.
@@ -342,5 +341,5 @@ class TwitchPlays(cmpc.TwitchConnection):
 
 
 if __name__ == '__main__':
-    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN)
+    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT)
     twitch_client.run()
