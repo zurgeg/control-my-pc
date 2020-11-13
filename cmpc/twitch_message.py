@@ -19,7 +19,7 @@ class TwitchMessage:
     def __init__(self, message_content, message_author):
         """Initialise the class attributes.
 
-        Takes the payload dict and makes it into an attribute, as well as some of its contents.
+        Takes the capitalised message content and author and makes them into attributes.
         """
         self.content = message_content.lower()
         self.original_content = message_content

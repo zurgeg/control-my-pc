@@ -9,15 +9,34 @@ import logging as log  # better print()
 
 # PIP Packages;
 import pyautogui  # only used in rawsend- command
+import pynput  # Not really needed, but (I think) something still relies on mouse so /shrug
 import requests  # api and discord webhooks
 import toml  # configuration
-from pynput.mouse import Controller  # Not really needed, but (I think) something still relies on it so /shrug
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-
 pyautogui.FAILSAFE = False
+COPYRIGHT_NOTICE = """
+------------------------------------------
+           TWITCH PLAYS
+           {branch_name_upper} BRANCH
+           https://cmpc.live
+           © 2020 controlmypc
+           by CMPC Developers
+------------------------------------------
+"""
+
+# handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
+log.basicConfig(
+    level=log.INFO,
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        log.FileHandler('system.log', encoding='utf-8'),
+        log.StreamHandler()
+    ]
+)
 
 
 def load_user_permissions(dev_list, mod_list):
@@ -60,27 +79,8 @@ def custom_log_to_obs(log_string, message_object, command_processor):
 branch_name, branch_name_assumed = cmpc.get_git_repo_info()
 
 # Log copyright notice.
-COPYRIGHT_NOTICE = f"""
-------------------------------------------
-           TWITCH PLAYS
-           {branch_name.upper()} BRANCH
-           https://cmpc.live
-           © 2020 controlmypc
-           by CMPC Developers
-------------------------------------------
-"""
-print(COPYRIGHT_NOTICE)
 
-# handle logging shit (copyright notice will remain on print)
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler('system.log', encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
+print(COPYRIGHT_NOTICE.format(branch_name_upper=branch_name.upper()))
 
 # Load Configuration
 log.debug('Stand by me.')
@@ -138,7 +138,6 @@ def load_permissions_handler():
 
 user_permissions_handler = load_permissions_handler()
 
-
 # Remove temp chat log or log if it doesn't exist.
 if os.path.exists('chat.log'):
     os.remove('chat.log')
@@ -152,12 +151,15 @@ if not PANEL_API_KEY:
     log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
 
 # Misc final setup
-mouse = Controller()
+mouse = pynput.mouse.Controller()
 processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
 processor.log_to_obs(None)
 
 
 class TwitchPlays(cmpc.TwitchConnection):
+    def __init__(self, user, oauth, client_id):
+        super().__init__(user, oauth, client_id)
+
     async def event_ready(self):
         # Send starting up message with webhook if in config.
         if config['options']['START_MSG']:
@@ -165,7 +167,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                               'Script - **Online**\n'
                               f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                               f"**Environment -** {config['options']['DEPLOY']}",
-            )
+                              )
 
     async def event_message(self, message):
         global user_permissions_handler
