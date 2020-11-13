@@ -136,9 +136,6 @@ def load_permissions_handler():
     return user_permissions_handler
 
 
-user_permissions_handler = load_permissions_handler()
-
-
 class TwitchPlays(cmpc.TwitchConnection):
     def __init__(self, user, oauth, client_id):
         # Remove temp chat log if it exists.
@@ -152,6 +149,8 @@ class TwitchPlays(cmpc.TwitchConnection):
             sys.exit(2)
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No api key was provided to the panel, command has been disabled.')
+
+        self.user_permissions_handler = load_permissions_handler()
 
         mouse = pynput.mouse.Controller()
         self.processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
@@ -169,7 +168,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                               )
 
     async def event_message(self, message):
-        global user_permissions_handler
         written_nothing = True
 
         twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
@@ -191,7 +189,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             if command_has_run:
                 written_nothing = False
                 return
-            user_permissions = user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
+            user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
@@ -203,8 +201,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                     context = {
                         'user': twitch_message.username,
                         'channel': TWITCH_USERNAME,
-                        'modlist': [i for i, o in user_permissions_handler.items() if o.moderator],
-                        'devlist': [i for i, o in user_permissions_handler.items() if o.developer],
+                        'modlist': [i for i, o in self.user_permissions_handler.items() if o.moderator],
+                        'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
                         'options': config['options'],
                     }
                     cmpc.send_data(config['discord']['modtalk'], context)
@@ -212,7 +210,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content == 'script- apirefresh':
                     apiconfig = requests.get(config['api']['apiconfig'])
                     apiconfig = json.loads(apiconfig.text)
-                    user_permissions_handler = load_user_permissions(
+                    self.user_permissions_handler = load_user_permissions(
                         dev_list=apiconfig['devlist'],
                         mod_list=apiconfig['modlist'],
                     )
@@ -270,11 +268,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                     pyautogui.press('volumemute')
 
                 if twitch_message.content in ['el muchacho']:
-                    # pyautogui.hotkey('win', 'r')
-                    # pyautogui.typewrite('vlc -f --no-repeat --no-osd --no-play-and-pause '
-                    #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
-                    # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                    # pyautogui.press('enter')
+                    # os.system('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
                 if twitch_message.content.startswith('script- suspend '):
@@ -304,9 +299,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                     if severity == '1':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        # pyautogui.hotkey('win', 'r')
-                        # pyautogui.typewrite('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        # pyautogui.press('enter')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
                         time.sleep(999999)
@@ -317,11 +309,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                         custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
                         time.sleep(86400)
                     elif severity == 'blue':
-                        # pyautogui.hotkey('win', 'r')
-                        # pyautogui.typewrite('vlc -f --repeat --no-osd --no-play-and-pause '
-                        #                     '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
-                        # pyautogui.typewrite('https://www.youtube.com/watch?v=GdtuG-j9Xog')
-                        # pyautogui.press('enter')
+                        # os.system('vlc -f --repeat --no-osd --no-play-and-pause '
+                        #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
                         webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
                         custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]', twitch_message, self.processor)
                         time.sleep(30)
