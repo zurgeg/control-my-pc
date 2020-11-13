@@ -101,35 +101,42 @@ if os.getenv('DUKTHOSTING_API_KEY'):
 else:
     PANEL_API_KEY = config['api']['panelapikey']
 
-# Get dev and mod lists from API.
-log.info('[API] Requesting data!')
-apiconfig = requests.get(config['api']['apiconfig'])
-if apiconfig.status_code == 200:
-    apiconfig = json.loads(apiconfig.text)
 
-    user_permissions_handler = load_user_permissions(
-        dev_list=apiconfig['devlist'],
-        mod_list=apiconfig['modlist'],
-    )
-    log.info('[API] Data here, and parsed!')
-else:
-    log.warning('[API] Failed to load data from API')
-    with open('staticdevlist.json', 'r') as static_dev_list_file:
-        static_dev_list = json.load(static_dev_list_file)
+def load_permissions_handler():
+    # Get dev and mod lists from API.
+    log.info('[API] Requesting data!')
+    apiconfig = requests.get(config['api']['apiconfig'])
+    if apiconfig.status_code == 200:
+        apiconfig = json.loads(apiconfig.text)
 
-    user_permissions_handler = load_user_permissions(
-        dev_list=static_dev_list,
-        mod_list=[],
-    )
-    log.info('[API] Loaded dev list from static file instead')
-    log.warning('[API] Mod list will be unavailable')
-    cmpc.send_webhook(config['discord']['systemlog'],
-                      'Failed to load data from API\n'
-                      'Loaded dev list from static file instead\n'
-                      'Mod list will be unavailable\n\n'
-                      f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                      f"**Environment -** {config['options']['DEPLOY']}"
-                      )
+        user_permissions_handler = load_user_permissions(
+            dev_list=apiconfig['devlist'],
+            mod_list=apiconfig['modlist'],
+        )
+        log.info('[API] Data here, and parsed!')
+    else:
+        log.warning('[API] Failed to load data from API')
+        with open('staticdevlist.json', 'r') as static_dev_list_file:
+            static_dev_list = json.load(static_dev_list_file)
+
+        user_permissions_handler = load_user_permissions(
+            dev_list=static_dev_list,
+            mod_list=[],
+        )
+        log.info('[API] Loaded dev list from static file instead')
+        log.warning('[API] Mod list will be unavailable')
+        cmpc.send_webhook(config['discord']['systemlog'],
+                          'Failed to load data from API\n'
+                          'Loaded dev list from static file instead\n'
+                          'Mod list will be unavailable\n\n'
+                          f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                          f"**Environment -** {config['options']['DEPLOY']}"
+                          )
+
+    return user_permissions_handler
+
+
+user_permissions_handler = load_permissions_handler()
 
 
 # Remove temp chat log or log if it doesn't exist.
@@ -164,15 +171,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         global user_permissions_handler
         written_nothing = True
 
-        # Move the payload into an object so we can make better use of it
-        # noinspection PyTypeChecker
-        # TODO: also refactor cmpc.TwitchMessage to handle the new message format. This is a hack
-        message_dict = {
-            'message': message.content,
-            'username': message.author.name.encode(),
-        }
-
-        twitch_message = cmpc.TwitchMessage(message_dict)
+        twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
         # NO, BAD

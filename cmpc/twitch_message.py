@@ -14,17 +14,17 @@ class TwitchMessage:
     get_log_webhook_payload
     """
 
-    __slots__ = ('payload', 'content', 'original_content', 'username',)
+    __slots__ = ('content', 'original_content', 'username', 'original_username',)
 
-    def __init__(self, payload: dict):
+    def __init__(self, message_content, message_author):
         """Initialise the class attributes.
 
         Takes the payload dict and makes it into an attribute, as well as some of its contents.
         """
-        self.payload = payload
-        self.content = payload['message'].lower()
-        self.original_content = payload['message']
-        self.username = payload['username'].lower().decode()
+        self.content = message_content.lower()
+        self.original_content = message_content
+        self.username = message_author.lower()
+        self.original_username = message_author
 
     def get_log_string(self) -> str:
         """Generate a string containing the message and the user who sent it in brackets."""
