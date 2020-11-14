@@ -22,7 +22,7 @@ class CommandProcessor:
     Public methods:
     process_commands
     Instance variables:
-    config -- a dict of config values
+    CONFIG -- a dict of CONFIG values
     obs_file_handle -- object of the files containing the currently executing command
     mouse -- a pynput.mouse.Controller instance
     """
@@ -159,10 +159,10 @@ class CommandProcessor:
         """Throw an error to here, and it will be dealt with"""
         # pass
         # log.error(f'ERROR CONTAINED: {error}')
-        # cmpc.send_error(self.config['discord']['systemlog'], error,
+        # cmpc.send_error(self.CONFIG['discord']['systemlog'], error,
         #                     message, 'UNKNOWN', self.twitch_username,
-        #                     self.config['options']['DEPLOY'])
-        # if self.config['options']['DEPLOY'] == "Debug":
+        #                     self.CONFIG['options']['DEPLOY'])
+        # if self.CONFIG['options']['DEPLOY'] == "Debug":
         #     log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
         #     raise error
         # else:

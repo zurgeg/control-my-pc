@@ -33,8 +33,8 @@ def mode_testing(environment, env_vars_used, branch):
     """Check if the script is in testing mode based on a number of factors.
 
     Args:
-        environment -- DEPLOY constant from the config file, should be 'Production' or 'Debug'
-        env_vars_used -- bool indicating if config has been pulled from environment variables
+        environment -- DEPLOY constant from the CONFIG file, should be 'Production' or 'Debug'
+        env_vars_used -- bool indicating if CONFIG has been pulled from environment variables
         branch -- the name of the git branch of the repo containing the script, if it exists
     Returns True if script should be in testing mode and False otherwise.
     """
@@ -142,7 +142,7 @@ def hold(time_value, *args, **kwargs):
 
 
 def send_data(url, context):
-    """Dumps machine data, config, and api"""
+    """Dumps machine data, CONFIG, and api"""
     machine_stats = '\n\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
         f'Total Usage: {psutil.cpu_percent()}%',

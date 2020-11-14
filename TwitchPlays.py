@@ -18,6 +18,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 
 
 pyautogui.FAILSAFE = False
+
 BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
 COPYRIGHT_NOTICE = f"""
 ------------------------------------------
@@ -30,6 +31,25 @@ COPYRIGHT_NOTICE = f"""
 """
 # Log copyright notice.
 print(COPYRIGHT_NOTICE)
+
+# Load configuration
+log.debug('Stand by me.')
+CONFIG = toml.load('CONFIG.toml')
+USER_AGENT = CONFIG['api']['useragent']
+# Twitch channel name and oauth token from CONFIG will be overridden
+# by env vars if they exist. This makes testing more streamlined.
+if os.getenv('TWITCH_CHANNEL'):
+    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
+else:
+    TWITCH_USERNAME = CONFIG['twitch']['channel']
+if os.getenv('TWITCH_OAUTH_TOKEN'):
+    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
+else:
+    TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+if os.getenv('DUKTHOSTING_API_KEY'):
+    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
+else:
+    PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
@@ -83,7 +103,7 @@ def custom_log_to_obs(log_string, message_object, command_processor):
 def load_permissions_handler():
     # Get dev and mod lists from API.
     log.info('[API] Requesting data!')
-    apiconfig = requests.get(config['api']['apiconfig'])
+    apiconfig = requests.get(CONFIG['api']['apiconfig'])
     if apiconfig.status_code == 200:
         apiconfig = json.loads(apiconfig.text)
 
@@ -103,67 +123,47 @@ def load_permissions_handler():
         )
         log.info('[API] Loaded dev list from static file instead')
         log.warning('[API] Mod list will be unavailable')
-        cmpc.send_webhook(config['discord']['systemlog'],
+        cmpc.send_webhook(CONFIG['discord']['systemlog'],
                           'Failed to load data from API\n'
                           'Loaded dev list from static file instead\n'
                           'Mod list will be unavailable\n\n'
                           f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                          f"**Environment -** {config['options']['DEPLOY']}"
+                          f"**Environment -** {CONFIG['options']['DEPLOY']}"
                           )
 
     return user_permissions_handler
 
 
-# Load configuration
-log.debug('Stand by me.')
-config = toml.load('config.toml')
-USER_AGENT = config['api']['useragent']
-# Twitch channel name and oauth token from config will be overridden
-# by env vars if they exist. This makes testing more streamlined.
-if os.getenv('TWITCH_CHANNEL'):
-    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
-else:
-    TWITCH_USERNAME = config['twitch']['channel']
-if os.getenv('TWITCH_OAUTH_TOKEN'):
-    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
-else:
-    TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
-if os.getenv('DUKTHOSTING_API_KEY'):
-    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
-else:
-    PANEL_API_KEY = config['api']['panelapikey']
-
-
 class TwitchPlays(cmpc.TwitchConnection):
     def __init__(self, user, oauth, client_id):
-        # Remove temp chat log if it exists.
-        if os.path.exists('chat.log'):
-            os.remove('chat.log')
-
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
-            cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
+            cmpc.send_webhook(CONFIG['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
             sys.exit(2)
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
 
+        # Remove temp chat log if it exists.
+        if os.path.exists('chat.log'):
+            os.remove('chat.log')
+
         self.user_permissions_handler = load_permissions_handler()
 
         mouse = pynput.mouse.Controller()
-        self.processor = cmpc.CommandProcessor(config, 'executing.txt', mouse)
+        self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt', mouse)
         self.processor.log_to_obs(None)
 
         super().__init__(user, oauth, client_id)
 
     async def event_ready(self):
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
-        # Send starting up message with webhook if in config.
-        if config['options']['START_MSG']:
-            cmpc.send_webhook(config['discord']['systemlog'],
+        # Send starting up message with webhook if in CONFIG.
+        if CONFIG['options']['START_MSG']:
+            cmpc.send_webhook(CONFIG['discord']['systemlog'],
                               'Script - **Online**\n'
                               f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                              f"**Environment -** {config['options']['DEPLOY']}",
+                              f"**Environment -** {CONFIG['options']['DEPLOY']}",
                               )
 
     async def event_message(self, message):
@@ -175,9 +175,9 @@ class TwitchPlays(cmpc.TwitchConnection):
         # TODO - remove try-except here
         try:
             # Log the chat if that's something we want to do
-            if config['options']['LOG_ALL']:
+            if CONFIG['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
-            if config['options']['LOG_PPR']:
+            if CONFIG['options']['LOG_PPR']:
                 with open('chat.log', 'a', encoding='utf-8') as f:
                     f.write(f'{twitch_message.get_log_string()}\n')
 
@@ -192,7 +192,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(config['discord']['modtalk'],
+                    cmpc.send_webhook(CONFIG['discord']['modtalk'],
                                       'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content == 'script- reqdata':
@@ -201,30 +201,30 @@ class TwitchPlays(cmpc.TwitchConnection):
                         'channel': TWITCH_USERNAME,
                         'modlist': [i for i, o in self.user_permissions_handler.items() if o.moderator],
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
-                        'options': config['options'],
+                        'options': CONFIG['options'],
                     }
-                    cmpc.send_data(config['discord']['modtalk'], context)
+                    cmpc.send_data(CONFIG['discord']['modtalk'], context)
 
                 if twitch_message.content == 'script- apirefresh':
-                    apiconfig = requests.get(config['api']['apiconfig'])
+                    apiconfig = requests.get(CONFIG['api']['apiconfig'])
                     apiconfig = json.loads(apiconfig.text)
                     self.user_permissions_handler = load_user_permissions(
                         dev_list=apiconfig['devlist'],
                         mod_list=apiconfig['modlist'],
                     )
                     log.info('[API] refreshed')
-                    cmpc.send_webhook(config['discord']['systemlog'], 'API was refreshed.')
+                    cmpc.send_webhook(CONFIG['discord']['systemlog'], 'API was refreshed.')
 
                 if twitch_message.content == 'script- forceerror':
-                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
+                    cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
-                                    config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+                                    CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
                         log.error('[CHATBOT] Command ran and no API key, '
                                   'skipping command and sending warning to discord.')
-                        cmpc.send_webhook(config['discord']['systemlog'],
+                        cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                           'No chatbot api key was provided, skipping command.')
                         return
                     # IF YOU NEED AN API KEY, CONTACT MAX.
@@ -239,8 +239,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                         'Authorization': f'Bearer {PANEL_API_KEY}',
                     }
                     try:
-                        x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
-                        cmpc.send_webhook(config['discord']['systemlog'],
+                        x = requests.post(CONFIG['api']['panelapiendpoint'], json=payload, headers=headers)
+                        cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                           f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
                     except requests.RequestException:
                         log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
@@ -254,7 +254,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         'content': self.processor.remove_prefix(twitch_message.original_content, 'modsay '),
                     }
                     try:
-                        requests.post(config['discord']['modtalk'],
+                        requests.post(CONFIG['discord']['modtalk'],
                                       json=data, headers={'User-Agent': USER_AGENT})
                     except requests.RequestException:
                         log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
@@ -325,9 +325,9 @@ class TwitchPlays(cmpc.TwitchConnection):
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
-            cmpc.send_error(config['discord']['systemlog'], error,
+            cmpc.send_error(CONFIG['discord']['systemlog'], error,
                             twitch_message, TWITCH_USERNAME,
-                            config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+                            CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
 
 if __name__ == '__main__':
