@@ -7,8 +7,6 @@ import sys
 import requests
 import pyautogui
 import psutil
-# Git must be installed to use
-import git  # for automatic branch detection in the copyright message, `pip install gitpython`
 
 # Check if we are on a mac or not
 if not sys.platform == 'darwin':
@@ -44,14 +42,29 @@ def mode_testing(environment, env_vars_used, branch):
         return False
 
 
-def get_git_repo_info():
-    # TODO: Add docstring
+def get_git_repo_info(default_branch_name='master'):
+    """Try to get the name of the git branch containing the script.
+
+    Args:
+        default_branch_name -- this will be returned as branch_name if there is no git repo
+    Returns:
+        branch_name
+        branch_name_assumed -- True if there was no git repo and branch name defaulted, False otherwise
+    """
     try:
-        branch_name = git.Repo().active_branch.name
-        branch_name_assumed = False
-    except git.exc.GitError:
-        branch_name = 'master'
+        # noinspection PyUnresolvedReferences
+        import git
+    except ImportError:
+        branch_name = default_branch_name
         branch_name_assumed = True
+    else:
+        try:
+            branch_name = git.Repo().active_branch.name
+            branch_name_assumed = False
+        except (ImportError, git.exc.GitError):
+            branch_name = default_branch_name
+            branch_name_assumed = True
+
     return branch_name, branch_name_assumed
 
 

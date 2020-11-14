@@ -2,8 +2,18 @@ from twitchio.ext.commands.bot import Bot
 
 
 class TwitchConnection(Bot):
-    # TODO: write docstrings
+    """A layer on the twitchio.ext.commands.bot.Bot class to better fit how we use it.
+
+    Instance variables:
+    user -- the Twitch channel to log into and monitor chat
+            equivalent to twitchio nick
+    oauth -- the key to use to log into Twitch
+             equivalent to twitchio irc_token
+    client_id -- twitchio client_id
+    prefix -- twitchio prefix, defaults to asdf as unused
+    """
     def __init__(self, user, oauth, client_id, prefix=None):
+        """Wrapper for super().__init__, makes prefix optional and sets initial_channels to a list containing nick"""
         if prefix is None:
             # TODO: Change?
             prefix = 'asdf'
