@@ -3,7 +3,6 @@ import os  # file manager and .env handler, also runs cmd commands
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
-import copy  # for copying objects - used for custom obs logs
 import webbrowser  # el muchacho
 import logging as log  # better print()
 
@@ -83,21 +82,6 @@ def load_user_permissions(dev_list, mod_list):
     wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
     return wip_user_permissions
-
-
-# This is a bit of a hack, we should make cmpc.CommandProcessor.log_to_obs more flexible instead
-def custom_log_to_obs(log_string, message_object, command_processor):
-    """Write a custom message to the obs log file.
-
-    Args:
-        log_string -- the string to log to the file
-        message_object -- the original cmpc.TwitchMessage message which invoked the command
-        command_processor -- the cmpc.CommandProcessor to use to log to obs
-    Does not return
-    """
-    message_edited = copy.copy(message_object)
-    message_edited.original_content = log_string
-    command_processor.log_to_obs(message_edited)
 
 
 def load_permissions_handler():
@@ -283,7 +267,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                 log_message = '[Suspend script for 1 second]'
                             else:
                                 log_message = f'[Suspend script for {int(duration)} seconds]'
-                            custom_log_to_obs(log_message, twitch_message, self.processor)
+                            self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
                             time.sleep(duration)
                         except ValueError:
                             log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
@@ -298,20 +282,25 @@ class TwitchPlays(cmpc.TwitchConnection):
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
+                        # custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
+                        self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
                         time.sleep(999999)
                     # TODO: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
+                        # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
+                        self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
+                                                                     f' ({twitch_message.username})')
                         time.sleep(86400)
                     elif severity == 'blue':
                         # os.system('vlc -f --repeat --no-osd --no-play-and-pause '
                         #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
                         webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]',
-                                          twitch_message, self.processor)
+                        # custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]',
+                        #                   twitch_message, self.processor)
+                        self.processor.log_to_obs(None, none_log_msg='[defcon BLUE, el muchacho de los ojos tristes]'
+                                                                     f' ({twitch_message.username})')
                         time.sleep(30)
 
             # Commands for cmpcscript only.
