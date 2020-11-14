@@ -15,7 +15,16 @@ import toml  # configuration
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-
+# handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
+log.basicConfig(
+    level=log.INFO,
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        log.FileHandler('system.log', encoding='utf-8'),
+        log.StreamHandler()
+    ]
+)
 pyautogui.FAILSAFE = False
 
 BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
@@ -50,17 +59,6 @@ if os.getenv('DUKTHOSTING_API_KEY'):
 else:
     PANEL_API_KEY = CONFIG['api']['panelapikey']
 
-# handle logging shit (copyright notice will remain on print)
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler('system.log', encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
-
 
 def load_user_permissions(dev_list, mod_list):
     """Generate a dict of user permissions based on lists of devs and mods.
@@ -68,20 +66,20 @@ def load_user_permissions(dev_list, mod_list):
     Args:
         dev_list, mod_list -- self explanatory
     Returns:
-        wip_user_permissions -- the aforementioned dict
+        user_permissions -- the aforementioned dict
     """
-    wip_user_permissions = {}
+    user_permissions = {}
     for dev in dev_list:
-        perms = wip_user_permissions.get(dev, cmpc.Permissions())
+        perms = user_permissions.get(dev, cmpc.Permissions())
         perms.developer = True
-        wip_user_permissions[dev] = perms
+        user_permissions[dev] = perms
     for mod in mod_list:
-        perms = wip_user_permissions.get(mod, cmpc.Permissions())
+        perms = user_permissions.get(mod, cmpc.Permissions())
         perms.moderator = True
-        wip_user_permissions[mod] = perms
-    wip_user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+        user_permissions[mod] = perms
+    user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
 
-    return wip_user_permissions
+    return user_permissions
 
 
 def load_permissions_handler():
