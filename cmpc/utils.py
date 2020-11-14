@@ -1,4 +1,5 @@
 # PSL Packages;
+import time
 import json
 import sys
 
@@ -14,19 +15,14 @@ if not sys.platform == 'darwin':
 
 
 __all__ = (
-    'get_platform',
     'get_size',
     'send_webhook',
     'send_error',
     'move',
     'press',
+    'hold',
     'send_data',
 )
-
-
-def get_platform():
-    platform = sys.platform
-    return platform
 
 
 def get_size(value, suffix='B'):
@@ -46,7 +42,7 @@ def get_size(value, suffix='B'):
 
 def direct_or_auto():
     """Returns if we should use pydirectinput or pyautogui"""
-    platform = get_platform()
+    platform = sys.platform
     if platform == 'darwin':
         return 'auto'
     else:
@@ -88,18 +84,31 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
     requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
-def move(*args):
+def move(*args, **kwargs):
     """Moves the mouse with cross-platform support"""
     dor = direct_or_auto()
     if dor == 'auto':
-        pyautogui.move(*args)
+        pyautogui.move(*args, **kwargs)
     if dor == 'direct':
-        pydirectinput.move(*args)
+        pydirectinput.move(*args, **kwargs)
 
 
-def press(key):
+def press(*args, **kwargs):
     """Presses a key (more functionality coming soon)"""
-    pyautogui.press(key)
+    pyautogui.press(*args, **kwargs)
+
+
+def hold(time_value, *args, **kwargs):
+    """Holds a key with cross-platform support"""
+    dor = direct_or_auto()
+    if dor == 'auto':
+        handler = pyautogui
+    elif dor == 'direct':
+        handler = pydirectinput
+    # noinspection PyUnboundLocalVariable
+    handler.keyDown(*args, **kwargs)
+    time.sleep(time_value)
+    handler.keyUp(*args, **kwargs)
 
 
 def send_data(url, context):
