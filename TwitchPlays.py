@@ -87,17 +87,22 @@ def load_user_permissions(dev_list, mod_list):
     return user_permissions
 
 
-def permissions_handler_from_lists(static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
+def permissions_handler_from_lists(url=CONFIG['api']['apiconfig'],
+                                   static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
     # Attempt get dev and mod lists from API.
     log.info('[API] Requesting data!')
-    apiconfig = requests.get(CONFIG['api']['apiconfig'])
-    if apiconfig.status_code == 200:
-        apiconfig_json = json.loads(apiconfig.text)
-        log.info('[API] Data here, and parsed!')
-    else:
+    try:
+        apiconfig = requests.get(url)
+        if apiconfig.status_code != 200:
+            raise requests.RequestException
+        else:
+            apiconfig_json = json.loads(apiconfig.text)
+            log.info('[API] Data here, and parsed!')
+    # If the request errored or response status code wasn't 200 'ok', use backup
+    except requests.RequestException:
         log.warning('[API] Failed to load data from API')
-        with open(static_backup_path, 'r') as static_dev_list_file:
-            apiconfig_json = json.load(static_dev_list_file)
+        with open(static_backup_path, 'r') as static_backup_file:
+            apiconfig_json = json.load(static_backup_file)
 
         log.info('[API] Loaded lists from static file instead')
         log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date')
