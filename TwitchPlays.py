@@ -90,8 +90,19 @@ def load_user_permissions(dev_list, mod_list):
     return user_permissions
 
 
-def permissions_handler_from_lists(url=CONFIG['api']['apiconfig'],
-                                   static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
+def permissions_handler_from_json(url=CONFIG['api']['apiconfig'],
+                                  static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
+    """Init a cmpc.Permissions object after retrieving source dev and mod lists.
+
+    Args:
+        url -- the url to attempt to retrieve JSON from
+        static_backup_path -- path to the static backup local JSON file
+    Returns:
+        a cmpc.Permissions object generated with load_user_permissions
+    If retrieval from the url is successful, it will be backed up to the local file.
+    Otherwise, if retrieval is unsuccessful, the local file will be used instead, and warnings will be logged.
+    The warnings include information about when the local file was updated and retrieved.
+    """
     # Attempt get dev and mod lists from API.
     log.info('[API] Requesting data!')
     try:
@@ -149,7 +160,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         if os.path.exists('chat.log'):
             os.remove('chat.log')
 
-        self.user_permissions_handler = permissions_handler_from_lists()
+        self.user_permissions_handler = permissions_handler_from_json()
 
         mouse = pynput.mouse.Controller()
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt', mouse)
