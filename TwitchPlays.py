@@ -219,14 +219,9 @@ class TwitchPlays(cmpc.TwitchConnection):
                     cmpc.send_data(CONFIG['discord']['modtalk'], context)
 
                 if twitch_message.content == 'script- apirefresh':
-                    apiconfig = requests.get(CONFIG['api']['apiconfig'])
-                    apiconfig = json.loads(apiconfig.text)
-                    self.user_permissions_handler = self.load_user_permissions(
-                        dev_list=apiconfig['devlist'],
-                        mod_list=apiconfig['modlist'],
-                    )
-                    log.info('[API] refreshed')
-                    cmpc.send_webhook(CONFIG['discord']['systemlog'], 'API was refreshed.')
+                    self.user_permissions_handler = self.permissions_handler_from_json()
+                    log.info('[API] refreshed user permissions from API')
+                    cmpc.send_webhook(CONFIG['discord']['systemlog'], 'User permissions were refreshed from API.')
 
                 if twitch_message.content == 'script- forceerror':
                     cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',

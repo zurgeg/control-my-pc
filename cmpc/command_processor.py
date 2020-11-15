@@ -168,6 +168,7 @@ class CommandProcessor:
         # else:
         #     pass
 
+    # TODO: separate log_to_obs and logging commands to the systemlog somewhat
     def log_to_obs(self, message, none_log_msg='nothing'):
         """Log a message to the file shown on-screen for the stream."""
         if message is None:
