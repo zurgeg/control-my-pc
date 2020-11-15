@@ -1,3 +1,6 @@
+# Due to my strong personal convictions,
+# I wish to stress that this code in no
+# way endorses a belief in the occult.
 # PSL Packages;
 import os  # file manager and .env handler, also runs cmd commands
 import sys  # for exiting with best practices and getting exception info for log
@@ -105,11 +108,16 @@ def permissions_handler_from_lists(url=CONFIG['api']['apiconfig'],
             apiconfig_json = json.load(static_backup_file)
 
         log.info('[API] Loaded lists from static file instead')
-        log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date')
+        retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
+        log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
+                    f"JSON last updated: {apiconfig_json['last_updated']}\n"
+                    f"Retrieved: {retrieved_time}")
         cmpc.send_webhook(CONFIG['discord']['systemlog'],
                           'Failed to load data from API\n'
                           'Loaded dev list from static file instead\n'
-                          'Mod list will be unavailable\n\n'
+                          'One or multiple lists may be unavailable or incomplete/out of date\n'
+                          f"Last updated: {apiconfig_json['last_updated']}\n"
+                          f"Retrieved: {retrieved_time}\n\n"
                           f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                           f"**Environment -** {CONFIG['options']['DEPLOY']}"
                           )
