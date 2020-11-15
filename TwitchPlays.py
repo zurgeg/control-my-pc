@@ -21,6 +21,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
+LOGS_FOLDER = Path('logs/')
 
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
@@ -28,7 +29,7 @@ log.basicConfig(
     level=log.INFO,
     format='[%(levelname)s] %(message)s',
     handlers=[
-        log.FileHandler('system.log', encoding='utf-8'),
+        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
         log.StreamHandler()
     ]
 )
@@ -49,7 +50,7 @@ print(COPYRIGHT_NOTICE)
 
 # Load configuration
 log.debug('Stand by me.')
-CONFIG = toml.load('CONFIG.toml')
+CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 USER_AGENT = CONFIG['api']['useragent']
 # Twitch channel name and oauth token from CONFIG will be overridden
 # by env vars if they exist. This makes testing more streamlined.
@@ -78,8 +79,8 @@ class TwitchPlays(cmpc.TwitchConnection):
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
 
         # Remove temp chat log if it exists.
-        if os.path.exists('chat.log'):
-            os.remove('chat.log')
+        if os.path.exists(LOGS_FOLDER/'chat.log'):
+            os.remove(LOGS_FOLDER/'chat.log')
 
         self.user_permissions_handler = self.permissions_handler_from_json()
 
@@ -191,7 +192,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             if CONFIG['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
             if CONFIG['options']['LOG_PPR']:
-                with open('chat.log', 'a', encoding='utf-8') as f:
+                with open(LOGS_FOLDER/'chat.log', 'a', encoding='utf-8') as f:
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Process this beef
