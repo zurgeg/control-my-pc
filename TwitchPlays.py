@@ -67,85 +67,6 @@ else:
     PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
-# TODO: make methods of TwitchPlays, write docstring
-def load_user_permissions(dev_list, mod_list):
-    """Generate a dict of user permissions based on lists of devs and mods.
-
-    Args:
-        dev_list, mod_list -- self explanatory
-    Returns:
-        user_permissions -- the aforementioned dict
-    """
-    user_permissions = {}
-    for dev in dev_list:
-        perms = user_permissions.get(dev, cmpc.Permissions())
-        perms.developer = True
-        user_permissions[dev] = perms
-    for mod in mod_list:
-        perms = user_permissions.get(mod, cmpc.Permissions())
-        perms.moderator = True
-        user_permissions[mod] = perms
-    user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
-
-    return user_permissions
-
-
-def permissions_handler_from_json(url=CONFIG['api']['apiconfig'],
-                                  static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
-    """Init a cmpc.Permissions object after retrieving source dev and mod lists.
-
-    Args:
-        url -- the url to attempt to retrieve JSON from
-        static_backup_path -- path to the static backup local JSON file
-    Returns:
-        a cmpc.Permissions object generated with load_user_permissions
-    If retrieval from the url is successful, it will be backed up to the local file.
-    Otherwise, if retrieval is unsuccessful, the local file will be used instead, and warnings will be logged.
-    The warnings include information about when the local file was updated and retrieved.
-    """
-    # Attempt get dev and mod lists from API.
-    log.info('[API] Requesting data!')
-    try:
-        apiconfig = requests.get(url)
-        if apiconfig.status_code != 200:
-            raise requests.RequestException
-        else:
-            apiconfig_json = json.loads(apiconfig.text)
-            log.info('[API] Data here, and parsed!')
-
-            # Save retrieved JSON to backup
-            with open(static_backup_path, 'w') as static_backup_file:
-                json.dump(apiconfig_json, static_backup_file)
-            log.info('[API] Backed up to static backup file')
-
-    # If the request errored or response status code wasn't 200 'ok', use backup
-    except requests.RequestException:
-        log.warning('[API] Failed to load data from API')
-        with open(static_backup_path, 'r') as static_backup_file:
-            apiconfig_json = json.load(static_backup_file)
-
-        log.info('[API] Loaded lists from static file instead')
-        retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
-        log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                    f"JSON last updated: {apiconfig_json['last_updated']}\n"
-                    f"Retrieved: {retrieved_time}")
-        cmpc.send_webhook(CONFIG['discord']['systemlog'],
-                          'Failed to load data from API\n'
-                          'Loaded dev list from static file instead\n'
-                          'One or multiple lists may be unavailable or incomplete/out of date\n'
-                          f"Last updated: {apiconfig_json['last_updated']}\n"
-                          f"Retrieved: {retrieved_time}\n\n"
-                          f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                          f"**Environment -** {CONFIG['options']['DEPLOY']}"
-                          )
-
-    # Init and return user permissions handler from dev and mod lists
-    return load_user_permissions(
-        dev_list=apiconfig_json['devlist'],
-        mod_list=apiconfig_json['modlist']
-    )
-
-
 class TwitchPlays(cmpc.TwitchConnection):
     def __init__(self, user, oauth, client_id):
         # Check essential constants are not empty.
@@ -160,7 +81,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         if os.path.exists('chat.log'):
             os.remove('chat.log')
 
-        self.user_permissions_handler = permissions_handler_from_json()
+        self.user_permissions_handler = self.permissions_handler_from_json()
 
         mouse = pynput.mouse.Controller()
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt', mouse)
@@ -168,6 +89,86 @@ class TwitchPlays(cmpc.TwitchConnection):
 
         super().__init__(user, oauth, client_id)
 
+    # TwitchPlays methods - TwitchConnection overrides below
+    @staticmethod
+    def load_user_permissions(dev_list, mod_list):
+        """Generate a dict of user permissions based on lists of devs and mods.
+
+        Args:
+            dev_list, mod_list -- self explanatory
+        Returns:
+            user_permissions -- the aforementioned dict
+        """
+        user_permissions = {}
+        for dev in dev_list:
+            perms = user_permissions.get(dev, cmpc.Permissions())
+            perms.developer = True
+            user_permissions[dev] = perms
+        for mod in mod_list:
+            perms = user_permissions.get(mod, cmpc.Permissions())
+            perms.moderator = True
+            user_permissions[mod] = perms
+        user_permissions.setdefault('cmpcscript', cmpc.Permissions()).script = True
+
+        return user_permissions
+
+    def permissions_handler_from_json(self,
+                                      url=CONFIG['api']['apiconfig'],
+                                      static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
+        """Init a cmpc.Permissions object after retrieving source dev and mod lists.
+
+        Args:
+            url -- the url to attempt to retrieve JSON from
+            static_backup_path -- path to the static backup local JSON file
+        Returns:
+            a cmpc.Permissions object generated with load_user_permissions
+        If retrieval from the url is successful, it will be backed up to the local file.
+        Otherwise, if retrieval is unsuccessful, the local file will be used instead, and warnings will be logged.
+        The warnings include information about when the local file was updated and retrieved.
+        """
+        # Attempt get dev and mod lists from API.
+        log.info('[API] Requesting data!')
+        try:
+            apiconfig = requests.get(url)
+            if apiconfig.status_code != 200:
+                raise requests.RequestException
+            else:
+                apiconfig_json = json.loads(apiconfig.text)
+                log.info('[API] Data here, and parsed!')
+
+                # Save retrieved JSON to backup
+                with open(static_backup_path, 'w') as static_backup_file:
+                    json.dump(apiconfig_json, static_backup_file)
+                log.info('[API] Backed up to static backup file')
+
+        # If the request errored or response status code wasn't 200 'ok', use backup
+        except requests.RequestException:
+            log.warning('[API] Failed to load data from API')
+            with open(static_backup_path, 'r') as static_backup_file:
+                apiconfig_json = json.load(static_backup_file)
+
+            log.info('[API] Loaded lists from static file instead')
+            retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
+            log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
+                        f"JSON last updated: {apiconfig_json['last_updated']}\n"
+                        f"Retrieved: {retrieved_time}")
+            cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                              'Failed to load data from API\n'
+                              'Loaded dev list from static file instead\n'
+                              'One or multiple lists may be unavailable or incomplete/out of date\n'
+                              f"Last updated: {apiconfig_json['last_updated']}\n"
+                              f"Retrieved: {retrieved_time}\n\n"
+                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                              f"**Environment -** {CONFIG['options']['DEPLOY']}"
+                              )
+
+        # Init and return user permissions handler from dev and mod lists
+        return self.load_user_permissions(
+            dev_list=apiconfig_json['devlist'],
+            mod_list=apiconfig_json['modlist']
+        )
+
+    # TwitchConnection overrides
     async def event_ready(self):
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in CONFIG.
@@ -220,7 +221,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content == 'script- apirefresh':
                     apiconfig = requests.get(CONFIG['api']['apiconfig'])
                     apiconfig = json.loads(apiconfig.text)
-                    self.user_permissions_handler = load_user_permissions(
+                    self.user_permissions_handler = self.load_user_permissions(
                         dev_list=apiconfig['devlist'],
                         mod_list=apiconfig['modlist'],
                     )
