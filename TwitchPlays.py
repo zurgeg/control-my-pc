@@ -331,7 +331,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Commands for cmpcscript only.
             if user_permissions.script:
                 print(f'CMPC SCRIPT: {twitch_message.content}')
-                if twitch_message.original_content == 'c3RyZWFtc3RvcGNvbW1hbmQxMjYxMmYzYjJmbDIzYmFGMzRud1Qy':
+                if hash(twitch_message.original_content) == -111040882105999023:
                     sys.exit(1)
 
             self.processor.log_to_obs(None)
