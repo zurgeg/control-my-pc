@@ -52,7 +52,7 @@ print(COPYRIGHT_NOTICE)
 log.debug('Stand by me.')
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 USER_AGENT = CONFIG['api']['useragent']
-# Twitch channel name and oauth token from CONFIG will be overridden
+# Twitch channel name and oauth token from config will be overridden
 # by env vars if they exist. This makes testing more streamlined.
 if os.getenv('TWITCH_CHANNEL'):
     TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')

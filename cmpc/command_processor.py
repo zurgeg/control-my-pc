@@ -22,7 +22,7 @@ class CommandProcessor:
     Public methods:
     process_commands
     Instance variables:
-    CONFIG -- a dict of CONFIG values
+    config -- a dict of config values
     obs_file_handle -- object of the files containing the currently executing command
     mouse -- a pynput.mouse.Controller instance
     """
