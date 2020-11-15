@@ -5,7 +5,8 @@ class Permissions:
     Instance variables:
     moderator
     developer
-    script"""
+    script
+    """
 
     MOD_PERMISSION = 0b001
     DEV_PERMISSION = 0b010

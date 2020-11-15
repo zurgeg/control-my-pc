@@ -1,4 +1,7 @@
-[
+{
+  "modlist": [],
+
+  "devlist": [
     "maxlovetoby",
     "controlmypc",
     "joel_mcb",
@@ -7,3 +10,4 @@
     "winnerspiros",
     "kaylum_"
   ]
+}

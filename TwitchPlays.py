@@ -5,6 +5,7 @@ import json  # json, duh,
 import time  # for script- suspend command
 import webbrowser  # el muchacho
 import logging as log  # better print()
+from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
 import pyautogui  # only used in rawsend- command
@@ -14,6 +15,9 @@ import toml  # configuration
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
+
+# Folders we use
+CONFIG_FOLDER = Path('config/')
 
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
@@ -60,6 +64,7 @@ else:
     PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
+# TODO: make methods of TwitchPlays, write docstring
 def load_user_permissions(dev_list, mod_list):
     """Generate a dict of user permissions based on lists of devs and mods.
 
@@ -82,29 +87,20 @@ def load_user_permissions(dev_list, mod_list):
     return user_permissions
 
 
-def load_permissions_handler():
-    # Get dev and mod lists from API.
+def permissions_handler_from_lists(static_backup_path=CONFIG_FOLDER/'apiconfig_static_backup.json'):
+    # Attempt get dev and mod lists from API.
     log.info('[API] Requesting data!')
     apiconfig = requests.get(CONFIG['api']['apiconfig'])
     if apiconfig.status_code == 200:
-        apiconfig = json.loads(apiconfig.text)
-
-        user_permissions_handler = load_user_permissions(
-            dev_list=apiconfig['devlist'],
-            mod_list=apiconfig['modlist'],
-        )
+        apiconfig_json = json.loads(apiconfig.text)
         log.info('[API] Data here, and parsed!')
     else:
         log.warning('[API] Failed to load data from API')
-        with open('staticdevlist.json', 'r') as static_dev_list_file:
-            static_dev_list = json.load(static_dev_list_file)
+        with open(static_backup_path, 'r') as static_dev_list_file:
+            apiconfig_json = json.load(static_dev_list_file)
 
-        user_permissions_handler = load_user_permissions(
-            dev_list=static_dev_list,
-            mod_list=[],
-        )
-        log.info('[API] Loaded dev list from static file instead')
-        log.warning('[API] Mod list will be unavailable')
+        log.info('[API] Loaded lists from static file instead')
+        log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date')
         cmpc.send_webhook(CONFIG['discord']['systemlog'],
                           'Failed to load data from API\n'
                           'Loaded dev list from static file instead\n'
@@ -113,7 +109,11 @@ def load_permissions_handler():
                           f"**Environment -** {CONFIG['options']['DEPLOY']}"
                           )
 
-    return user_permissions_handler
+    # Init and return user permissions handler from dev and mod lists
+    return load_user_permissions(
+        dev_list=apiconfig_json['devlist'],
+        mod_list=apiconfig_json['modlist']
+    )
 
 
 class TwitchPlays(cmpc.TwitchConnection):
@@ -130,7 +130,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         if os.path.exists('chat.log'):
             os.remove('chat.log')
 
-        self.user_permissions_handler = load_permissions_handler()
+        self.user_permissions_handler = permissions_handler_from_lists()
 
         mouse = pynput.mouse.Controller()
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt', mouse)
