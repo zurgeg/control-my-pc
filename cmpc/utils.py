@@ -144,11 +144,11 @@ def press(*args, **kwargs):
 def hold(time_value, *args, **kwargs):
     """Holds a key with cross-platform support"""
     dor = direct_or_auto()
+    handler = pyautogui
     if dor == 'auto':
         handler = pyautogui
     elif dor == 'direct':
         handler = pydirectinput
-    # noinspection PyUnboundLocalVariable
     handler.keyDown(*args, **kwargs)
     time.sleep(time_value)
     handler.keyUp(*args, **kwargs)
