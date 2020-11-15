@@ -101,6 +101,12 @@ def permissions_handler_from_lists(url=CONFIG['api']['apiconfig'],
         else:
             apiconfig_json = json.loads(apiconfig.text)
             log.info('[API] Data here, and parsed!')
+
+            # Save retrieved JSON to backup
+            with open(static_backup_path, 'w') as static_backup_file:
+                json.dump(apiconfig_json, static_backup_file)
+            log.info('[API] Backed up to static backup file')
+
     # If the request errored or response status code wasn't 200 'ok', use backup
     except requests.RequestException:
         log.warning('[API] Failed to load data from API')
