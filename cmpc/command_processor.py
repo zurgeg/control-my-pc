@@ -7,10 +7,9 @@ import logging as log
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
-from pynput.mouse import Button
 
 # Local Packages
-from cmpc.utils import move as move_mouse, hold as hold_key
+from cmpc.utils import move_mouse, hold_mouse, hold_key
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
@@ -20,11 +19,10 @@ class CommandProcessor:
 
     Does not handle permissions, all commands are unrestricted.
     Public methods:
-    process_commands
+        process_commands
     Instance variables:
-    config -- a dict of config values
-    obs_file_handle -- object of the files containing the currently executing command
-    mouse -- a pynput.mouse.Controller instance
+        config -- a dict of config values
+        obs_file_handle -- object of the files containing the currently executing command
     """
 
     KEY_PRESS_COMMANDS = {
@@ -113,11 +111,10 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name, mouse):
+    def __init__(self, config, obs_file_name):
         """"Initialise the class attributes"""
         self.config = config
         self.obs_file_name = obs_file_name
-        self.mouse = mouse
         # self.twitch_username = TWITCH_USERNAME
 
     def process_commands(self, message) -> bool:
@@ -242,9 +239,7 @@ class CommandProcessor:
         for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
-                self.mouse.press(Button.left)
-                time.sleep(output)
-                self.mouse.release(Button.left)
+                hold_mouse(time_value=output, button='left')
                 return True
         return False
 

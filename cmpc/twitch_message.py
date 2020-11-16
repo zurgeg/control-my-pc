@@ -5,13 +5,13 @@ class TwitchMessage:
     """Container for a single message from the Twitch chat.
 
     Instance variables:
-    payload -- the message as a dict
-    content -- the message text in lowercase
-    original_content -- the message text in its original case
-    username -- the Twitch user that sent the message
+        content -- the message text in lowercase
+        original_content -- the message text in its original case
+        username -- the Twitch user that sent the message
+        original_username -- the Twitch user that sent the message in original case
     Public methods:
-    get_log_string
-    get_log_webhook_payload
+        get_log_string
+        get_log_webhook_payload
     """
 
     __slots__ = ('content', 'original_content', 'username', 'original_username',)

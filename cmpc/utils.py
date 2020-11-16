@@ -20,9 +20,10 @@ __all__ = (
     'get_size',
     'send_webhook',
     'send_error',
-    'move',
-    'press',
-    'hold',
+    'move_mouse',
+    'hold_mouse',
+    'press_key',
+    'hold_key',
     'send_data',
 )
 
@@ -127,7 +128,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
     requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
-def move(*args, **kwargs):
+def move_mouse(*args, **kwargs):
     """Moves the mouse with cross-platform support"""
     dor = direct_or_auto()
     if dor == 'auto':
@@ -136,12 +137,25 @@ def move(*args, **kwargs):
         pydirectinput.move(*args, **kwargs)
 
 
-def press(*args, **kwargs):
+def hold_mouse(time_value, *args, **kwargs):
+    """Holds a mouse button with cross-platform support"""
+    dor = direct_or_auto()
+    handler = pyautogui
+    if dor == 'auto':
+        handler = pyautogui
+    elif dor == 'direct':
+        handler = pydirectinput
+    handler.mouseDown(*args, **kwargs)
+    time.sleep(time_value)
+    handler.mouseUp(*args, **kwargs)
+
+
+def press_key(*args, **kwargs):
     """Presses a key (more functionality coming soon)"""
     pyautogui.press(*args, **kwargs)
 
 
-def hold(time_value, *args, **kwargs):
+def hold_key(time_value, *args, **kwargs):
     """Holds a key with cross-platform support"""
     dor = direct_or_auto()
     handler = pyautogui

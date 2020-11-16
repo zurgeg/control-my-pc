@@ -3,9 +3,9 @@ class Permissions:
     """Holds the permissions of a user.
 
     Instance variables:
-    moderator
-    developer
-    script
+        moderator
+        developer
+        script
     """
 
     MOD_PERMISSION = 0b001

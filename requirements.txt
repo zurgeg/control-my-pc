@@ -13,13 +13,11 @@ PyAutoGUI==0.9.52
 PyDirectInput==1.0.2
 PyGetWindow==0.0.9
 PyMsgBox==1.0.9
-pynput==1.7.1
 pyperclip==1.8.1
 PyRect==0.1.4
 PyScreeze==0.1.26
 PyTweening==1.0.3
 requests==2.24.0
-six==1.15.0
 smmap==3.0.4
 toml==0.10.1
 twitchio==1.1.0

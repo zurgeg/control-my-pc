@@ -12,7 +12,6 @@ from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
 import pyautogui  # only used in rawsend- command
-import pynput  # Not really needed, but (I think) something still relies on mouse so /shrug
 import requests  # api and discord webhooks
 import toml  # configuration
 
@@ -69,7 +68,15 @@ else:
 
 
 class TwitchPlays(cmpc.TwitchConnection):
+    """Implements functionality with permissions and some startup stuff."""
     def __init__(self, user, oauth, client_id):
+        """Get set up, then call super().__init__
+
+        Args:
+            same as cmpc.TwitchConnection.__init__
+        Checks that username and auth are present. Deletes chat log if it exists. Instantiates a command processor
+        and permissions handler.
+        """
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
@@ -84,8 +91,7 @@ class TwitchPlays(cmpc.TwitchConnection):
 
         self.user_permissions_handler = self.permissions_handler_from_json()
 
-        mouse = pynput.mouse.Controller()
-        self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt', mouse)
+        self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
 
         super().__init__(user, oauth, client_id)
