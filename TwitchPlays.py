@@ -96,6 +96,21 @@ class TwitchPlays(cmpc.TwitchConnection):
 
         super().__init__(user, oauth, client_id)
 
+    @staticmethod
+    def get_oauth_key():
+        # noinspection SpellCheckingInspection
+        payload = {
+            'client_id': 'zvlttmj8jah002ucbqbpt1lkuq4oj3',
+            'redirect_uri': 'https://cmpc.live/oauthdisplay',
+            'response_type': 'token',
+            'scope': 'chat:read'
+        }
+
+        url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
+        webbrowser.open(url)
+
+        return input("OAuth key from page: ")
+
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
     def load_user_permissions(dev_list, mod_list):
