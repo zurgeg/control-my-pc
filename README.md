@@ -39,10 +39,11 @@ Massive rewrite with improved code and new features.
 
 - **vX.Y.Z YYYY-MM-DD INFO**
 - **Date descending**
+- v3.5.1 2020-11-14 Make hold key functionality work in more games (was broken in rewrite).
 - v3.5.0 2020-11-10 Add 'ptype' command, types by pasting to support unicode
-- v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
-- v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
 - v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
+- v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
+- v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
 - *Changelog created 2020-11-09*
 - *Following entries are retroactive*
 - v3.1.1 2020-10-31 Stable rewrite

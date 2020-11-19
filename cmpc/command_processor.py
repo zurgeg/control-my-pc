@@ -10,7 +10,7 @@ import pyperclip  # for ptype command
 from pynput.mouse import Button
 
 # Local Packages
-from cmpc.utils import get_platform, move as move_mouse
+from cmpc.utils import move as move_mouse, hold as hold_key
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
@@ -187,14 +187,6 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    @staticmethod
-    def _hold_key_pyautogui(key_to_press, time_value):
-        """Hold the key for the duration specified."""
-        log.debug('HONEY HE IS OFF THE DRUG!')
-        pyautogui.keyDown(key_to_press)
-        time.sleep(time_value)
-        pyautogui.keyUp(key_to_press)
-
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
 
@@ -350,7 +342,7 @@ class CommandProcessor:
                         log.debug('time was a success')
                         self.log_to_obs(message)
                         log.debug("WHAT HAPPENED TO MY SWEET BABY BOY!")
-                        self._hold_key_pyautogui(output, time_value)
+                        hold_key(key=output, time_value=time_value)
                 except Exception as error:
                     self.error_handle(error, message)
                 return True
@@ -390,7 +382,7 @@ class CommandProcessor:
         if message.content.startswith('go to '):
             try:
                 coord = self.remove_prefix(message.content, 'go to ')
-                if coord == 'center':
+                if coord in ['center', 'centre']:
                     xval, yval = tuple(res / 2 for res in pyautogui.size())
                 else:
                     xval, yval = coord.split(' ', 1)
@@ -410,7 +402,7 @@ class CommandProcessor:
         # you don't say?
         if message.content.startswith('gtype '):
             try:
-                if get_platform() == 'darwin':
+                if sys.platform == 'darwin':
                     log.error(f'COULD NOT GTYPE: {message.content}\n'
                               'DUE TO PLATFORM: darwin')
                     return True
