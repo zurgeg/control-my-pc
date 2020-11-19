@@ -20,7 +20,10 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3'):
     url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
     webbrowser.open(url)
 
-    return input("OAuth key from page: ")
+    oauth = input("OAuth key from page: ")
+    oauth = f'oauth:{oauth}'
+
+    return oauth
 
 
 def save_oauth_key(oauth_key):
@@ -28,9 +31,10 @@ def save_oauth_key(oauth_key):
     os.system(f'setx TWITCH_OAUTH_TOKEN "{oauth_key}"')
 
     # Edit config.toml
-    config = toml.load(CONFIG_FOLDER / 'config.toml')
+    config = toml.load(CONFIG_FOLDER/'config.toml')
     config['twitch']['oauth_token'] = oauth_key
-    toml.dump(config, CONFIG_FOLDER / 'config.toml')
+    with open(CONFIG_FOLDER / 'config.toml', 'w') as config_file:
+        toml.dump(config, config_file)
 
     return True
 
