@@ -1,3 +1,18 @@
+"""Helper functions for cmpc.
+
+Functions:
+    mode_testing -- take a number of things into account to see if script is in testing mode
+    get_get_repo_info -- self explanatory
+    get_size -- for encoding large numbers into SI prefixes
+    send_webhook -- simplifies sending of basic messages to discord webhooks
+    send_error -- sends info on an unexpected exception to a discord webhook in embed form
+    move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
+    hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
+    press_key -- similar to adjacent functions in this list, currently unimplemented
+    hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
+    send_data -- gets info about the environment of the script and sends it to a discord webhook
+"""
+
 # PSL Packages;
 import time
 import json
@@ -101,7 +116,7 @@ def send_webhook(url: str, content: str):
 
 
 def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
-    """Sends an error to a discord webhook."""
+    """Send info about an error to a discord webhook."""
     embed_description = f'***Last Sent Message -*** {t_msg.content}\n\n'\
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\

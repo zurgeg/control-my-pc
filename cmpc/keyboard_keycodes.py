@@ -1,3 +1,6 @@
+"""Only features hex DirectX keycodes."""
+
+
 class KeyboardKeycodes:
     """Container for hexadecimal DirectX key codes used by pynput.
 

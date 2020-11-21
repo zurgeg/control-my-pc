@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Due to my strong personal convictions,
 # I wish to stress that this code in no
 # way endorses a belief in the occult.
@@ -178,6 +180,7 @@ class TwitchPlays(cmpc.TwitchConnection):
 
     # TwitchConnection overrides
     async def event_ready(self):
+        """Override TwitchPlays.event_ready - log and send discord webhook for startup message if applicable."""
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in CONFIG.
         if CONFIG['options']['START_MSG']:
@@ -188,6 +191,15 @@ class TwitchPlays(cmpc.TwitchConnection):
                               )
 
     async def event_message(self, message):
+        """Override TwitchPlays.event_message - process a message.
+
+        Args:
+            message -- a twitchio.Message object
+        Returns nothing
+        Will run message through the command processor, returning if a command is found.
+        Additionally looks for and executes some permission based commands, this might be refactored in the future.
+        Also responsible for logging to obs, log files and discord webhooks if applicable.
+        """
         twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch

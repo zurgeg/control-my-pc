@@ -1,4 +1,6 @@
-# What is the point of all this? Why not just use simple attributes? -J
+"""Handles checking if a Twitch user has some permission like dev or mod."""
+
+
 class Permissions:
     """Holds the permissions of a user.
 
@@ -46,10 +48,23 @@ class Permissions:
 
     @property
     def developer(self):
+        """Getter for the developer attribute.
+
+        Finds the boolean of the bitwise AND between the instance's value and DEV_PERMISSION
+        Therefore returns True if the instance's permissions value has a 1 in the DEV_PERMISSION position.
+        """
         return bool(self.value & self.DEV_PERMISSION)
 
     @developer.setter
     def developer(self, value):
+        """Setter for the developer attribute.
+
+        Args:
+            value -- boolean indicating whether the instance has developer permissions.
+        If giving the instance developer permissions, use a bitwise OR to set a 1 in the DEV_PERMISSION position.
+        Otherwise, use a bitwise AND with the bitwise XOR of ALL_PERMISSIONS and DEV_PERMISSION
+        to set a 0 in the DEV_PERMISSION position.
+        """
         if value:
             self.value = self.value | self.DEV_PERMISSION
         else:
@@ -57,10 +72,23 @@ class Permissions:
 
     @property
     def script(self):
+        """Getter for the script attribute.
+
+        Finds the boolean of the bitwise AND between the instance's value and SCRIPT_PERMISSION
+        Therefore returns True if the instance's permissions value has a 1 in the SCRIPT_PERMISSION position.
+        """
         return bool(self.value & self.SCRIPT_PERMISSION)
 
     @script.setter
     def script(self, value):
+        """Setter for the script attribute.
+
+        Args:
+            value -- boolean indicating whether the instance has script permissions.
+        If giving the instance script permissions, use a bitwise OR to set a 1 in the SCRIPT_PERMISSION position.
+        Otherwise, use a bitwise AND with the bitwise XOR of ALL_PERMISSIONS and SCRIPT_PERMISSION
+        to set a 0 in the SCRIPT_PERMISSION position.
+        """
         if value:
             self.value = self.value | self.SCRIPT_PERMISSION
         else:

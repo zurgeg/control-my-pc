@@ -1,3 +1,9 @@
+"""Processes and executes commands.
+
+Classes:
+    CommandProcessor -- processes commands, includes helper methods like remove_prefix and log_to_obs
+"""
+
 # PSL Packages
 import time
 import sys
@@ -22,7 +28,7 @@ class CommandProcessor:
         process_commands
     Instance variables:
         config -- a dict of config values
-        obs_file_handle -- object of the files containing the currently executing command
+        obs_file_name -- path to the file containing the currently executing command
     """
 
     KEY_PRESS_COMMANDS = {

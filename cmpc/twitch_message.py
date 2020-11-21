@@ -1,3 +1,9 @@
+"""Class for handling twitch message.
+
+Classes:
+    TwitchMessage - provides some case-insensitive attributes, and methods for making its content into usable strings
+"""
+
 import time
 
 
