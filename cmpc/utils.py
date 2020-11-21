@@ -113,6 +113,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
 
     data = {
+        'content': '<@&779783726196064323>',
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
