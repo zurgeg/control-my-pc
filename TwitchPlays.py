@@ -69,8 +69,9 @@ else:
 
 class TwitchPlays(cmpc.TwitchConnection):
     """Implements functionality with permissions and some startup stuff."""
+
     def __init__(self, user, oauth, client_id):
-        """Get set up, then call super().__init__
+        """Get set up, then call super().__init__.
 
         Args:
             same as cmpc.TwitchConnection.__init__

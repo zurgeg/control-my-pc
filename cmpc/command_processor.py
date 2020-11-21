@@ -112,7 +112,7 @@ class CommandProcessor:
     }  # note trailing space - this is to process args better
 
     def __init__(self, config, obs_file_name):
-        """"Initialise the class attributes"""
+        """Initialise the class attributes."""
         self.config = config
         self.obs_file_name = obs_file_name
         # self.twitch_username = TWITCH_USERNAME
@@ -153,7 +153,7 @@ class CommandProcessor:
         return message[len(prefix):]
 
     def error_handle(self, error, message):
-        """Throw an error to here, and it will be dealt with"""
+        """Throw an error to here, and it will be dealt with."""
         # pass
         # log.error(f'ERROR CONTAINED: {error}')
         # cmpc.send_error(self.CONFIG['discord']['systemlog'], error,
@@ -347,7 +347,6 @@ class CommandProcessor:
         Takes a cmpc.TwitchMessage instance.
         Returns True if a command has been run and False otherwise.
         """
-
         # !modalert command
         if message.content.startswith('!modalert'):
             log.info('[MODALERT] called.')

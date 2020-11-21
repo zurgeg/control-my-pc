@@ -12,8 +12,9 @@ class TwitchConnection(Bot):
         client_id -- twitchio client_id
         prefix -- twitchio prefix, defaults to asdf as unused
     """
+
     def __init__(self, user, oauth, client_id, prefix=None):
-        """Wrapper for super().__init__, makes prefix optional and sets initial_channels to a list containing nick"""
+        """Extend Bot.__init__, makes prefix optional and sets initial_channels to a list containing nick."""
         if prefix is None:
             # TODO: Change?
             prefix = 'asdf'

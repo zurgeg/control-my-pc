@@ -76,7 +76,6 @@ def get_size(value, suffix='B'):
         1253656 => '1.20MB'
         1253656678 => '1.17GB'
     """
-
     factor = 1024
     for unit in ['', 'K', 'M', 'G', 'T', 'P']:
         if value < factor:
@@ -85,7 +84,7 @@ def get_size(value, suffix='B'):
 
 
 def direct_or_auto():
-    """Returns if we should use pydirectinput or pyautogui"""
+    """Return if we should use pydirectinput or pyautogui."""
     platform = sys.platform
     if platform == 'darwin':
         return 'auto'
@@ -94,7 +93,7 @@ def direct_or_auto():
 
 
 def send_webhook(url: str, content: str):
-    """Sends a webhook to discord, takes (url, message)"""
+    """Send a webhook to discord, takes (url, message)."""
     data = {'content': content}
     if url == "":
         return
@@ -102,7 +101,7 @@ def send_webhook(url: str, content: str):
 
 
 def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
-    """Sends a error to discord"""
+    """Sends an error to a discord webhook."""
     embed_description = f'***Last Sent Message -*** {t_msg.content}\n\n'\
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
@@ -130,7 +129,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
 
 
 def move_mouse(*args, **kwargs):
-    """Moves the mouse with cross-platform support"""
+    """Move the mouse, with cross-platform support."""
     dor = direct_or_auto()
     if dor == 'auto':
         pyautogui.move(*args, **kwargs)
@@ -139,7 +138,7 @@ def move_mouse(*args, **kwargs):
 
 
 def hold_mouse(time_value, *args, **kwargs):
-    """Holds a mouse button with cross-platform support"""
+    """Hold a mouse button, with cross-platform support."""
     dor = direct_or_auto()
     handler = pyautogui
     if dor == 'auto':
@@ -152,12 +151,12 @@ def hold_mouse(time_value, *args, **kwargs):
 
 
 def press_key(*args, **kwargs):
-    """Presses a key (more functionality coming soon)"""
+    """Press a key (more functionality coming soon)."""
     pyautogui.press(*args, **kwargs)
 
 
 def hold_key(time_value, *args, **kwargs):
-    """Holds a key with cross-platform support"""
+    """Hold a key, with cross-platform support."""
     dor = direct_or_auto()
     handler = pyautogui
     if dor == 'auto':
@@ -170,7 +169,7 @@ def hold_key(time_value, *args, **kwargs):
 
 
 def send_data(url, context):
-    """Dumps machine data, CONFIG, and api"""
+    """Dump machine data, CONFIG, and api info to a discord webhook."""
     machine_stats = '\n\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
         f'Total Usage: {psutil.cpu_percent()}%',
