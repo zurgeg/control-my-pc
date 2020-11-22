@@ -1,8 +1,24 @@
 #!/usr/bin/env python
 
+"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration.
+
+Env vars:
+    TWITCH_USERNAME -- Twitch account to log in as
+    TWITCH_OAUTH_KEY -- authorisation for that twitch account
+    DUKTHOSTING_API_KEY -- auth key to control a controlmybot instance on Dukt Hosting through a dev command
+Files:
+    config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
+    config/config.example.toml -- example config file with no keys, included in the git repo for reference
+    config/config.toml -- real working instance of the config
+    logs/chat.log -- every message sent in the connected Twitch chat
+    logs/system.log -- mirror of the console output handled py the logging package
+    executing.txt -- contains info about the currently executing command, for OBS
+"""
+
 # Due to my strong personal convictions,
 # I wish to stress that this code in no
 # way endorses a belief in the occult.
+
 # PSL Packages;
 import os  # file manager and .env handler, also runs cmd commands
 import sys  # for exiting with best practices and getting exception info for log

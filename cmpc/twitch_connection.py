@@ -1,4 +1,4 @@
-"""Features superclass that uses twitchio to connect to Twitch
+"""Features superclass that uses twitchio to connect to Twitch.
 
 Classes:
     TwitchConnection -- Parent class for TwitchPlays class
@@ -29,5 +29,5 @@ class TwitchConnection(Bot):
 
     # I don't know why this method is classed as necessary to implement but here it is.
     async def event_pubsub(self, data):
-        """Override Bot.event_pubsub - do nothing (:"""
+        """Override Bot.event_pubsub - do nothing (:."""
         pass
