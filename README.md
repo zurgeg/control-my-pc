@@ -39,7 +39,7 @@ Massive rewrite with improved code and new features.
 
 - **vX.Y.Z YYYY-MM-DD INFO**
 - **Date descending**
-- v3.6.0 2020-11-xx Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring.
+- v3.6.0 2020-11-22 Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring, and some minor changes like new commands.
 - v3.5.1 2020-11-14 Make hold key functionality work in more games (was broken in rewrite).
 - v3.5.0 2020-11-10 Add 'ptype' command, types by pasting to support unicode
 - v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
