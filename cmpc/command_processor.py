@@ -117,10 +117,14 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name):
+    def __init__(self, config, obs_file_name, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
         self.config = config
         self.obs_file_name = obs_file_name
+        if obs_log_sleep_duration is None:
+            self.obs_log_sleep_duration = 0.5
+        else:
+            self.obs_log_sleep_duration = obs_log_sleep_duration
         # self.twitch_username = TWITCH_USERNAME
 
     def process_commands(self, message) -> bool:
@@ -181,7 +185,7 @@ class CommandProcessor:
             with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                 obs_file_handle.write(message.get_log_string())
 
-            time.sleep(0.5)
+            time.sleep(self.obs_log_sleep_duration)
             log.info(message.get_log_string())
             requests.post(self.config['discord']['chatrelay'],
                           json=message.get_log_webhook_payload(),
