@@ -69,6 +69,10 @@ print(COPYRIGHT_NOTICE)
 log.debug('Stand by me.')
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 USER_AGENT = CONFIG['api']['useragent']
+if CONFIG['twitch']['custom_channels_to_join']:
+    CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
+else:
+    CHANNELS_TO_JOIN = None
 # Twitch channel name and oauth token from config will be overridden
 # by env vars if they exist. This makes testing more streamlined.
 if os.getenv('TWITCH_CHANNEL'):
@@ -88,11 +92,11 @@ else:
 class TwitchPlays(cmpc.TwitchConnection):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id):
+    def __init__(self, user, oauth, client_id, initial_channels):
         """Get set up, then call super().__init__.
 
         Args:
-            same as cmpc.TwitchConnection.__init__
+            same as cmpc.TwitchConnection.__init__ but without prefix
         Checks that username and auth are present. Deletes chat log if it exists. Instantiates a command processor
         and permissions handler.
         """
@@ -113,7 +117,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
 
-        super().__init__(user, oauth, client_id)
+        super().__init__(user, oauth, client_id, initial_channels)
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
@@ -196,7 +200,7 @@ class TwitchPlays(cmpc.TwitchConnection):
 
     # TwitchConnection overrides
     async def event_ready(self):
-        """Override TwitchPlays.event_ready - log and send discord webhook for startup message if applicable."""
+        """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable."""
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in CONFIG.
         if CONFIG['options']['START_MSG']:
@@ -383,5 +387,5 @@ class TwitchPlays(cmpc.TwitchConnection):
 
 
 if __name__ == '__main__':
-    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT)
+    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT, CHANNELS_TO_JOIN)
     twitch_client.run()
