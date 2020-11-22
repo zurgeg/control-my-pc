@@ -63,6 +63,7 @@ class CommandProcessor:
         ('screenshot', 'screen shot',): ('win', 'prtsc',),
     }
 
+    # note that here doubleclick is not actually a valid pyautogui input, but it gets fixed in the actual def later on
     CLICK_COMMANDS = {
         ('click', 'leftclick', 'left click',): 'left',
         ('doubleclick', 'double click',): 'doubleclick',
@@ -308,6 +309,7 @@ class CommandProcessor:
         Types the message and also calls log_to_obs.
         Takes a cmpc.TwitchMessage instance.
         Returns True if a command has been run and False otherwise.
+        This only handles regular typing, not ptype or gtype.
         """
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
@@ -347,7 +349,6 @@ class CommandProcessor:
                     if 0.0 < time_value <= 10.0:
                         log.debug('time was a success')
                         self.log_to_obs(message)
-                        log.debug("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         hold_key(key=output, time_value=time_value)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -384,6 +385,8 @@ class CommandProcessor:
                     'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
                 }
                 log.info('[MODALERT] Sending request...')
+                # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
+                #  set if not, then log what should have been sent to console.
                 requests.post(self.config['discord']['chatalerts'],
                               json=data,
                               headers={'User-Agent': self.config['api']['useragent']})
