@@ -314,6 +314,9 @@ class TwitchPlays(cmpc.TwitchConnection):
                     #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
+                if twitch_message.content in ['shutdownabort']:
+                    os.system('shutdown -a')
+
                 if twitch_message.content.startswith('script- suspend '):
                     duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')
                     try:
