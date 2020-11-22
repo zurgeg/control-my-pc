@@ -58,6 +58,7 @@ class CommandProcessor:
         ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
         ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
         ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
+        ('control /', 'ctrl /',): ('ctrl', '/'),
         ('alt f4', 'quit',): ('altleft', 'f4',),
         ('alt tab', 'alt-tab',): ('altleft', 'tab',),
         ('screenshot', 'screen shot',): ('win', 'prtsc',),
