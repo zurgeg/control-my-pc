@@ -22,8 +22,7 @@ class TwitchConnection(Bot):
     def __init__(self, user, oauth, client_id, prefix=None):
         """Extend Bot.__init__, makes prefix optional and sets initial_channels to a list containing nick."""
         if prefix is None:
-            # TODO: Change?
-            prefix = 'asdf'
+            prefix = '!'
 
         super().__init__(irc_token=oauth, client_id=client_id, nick=user, prefix=prefix, initial_channels=[user])
 

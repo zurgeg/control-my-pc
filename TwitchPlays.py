@@ -29,7 +29,7 @@ import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
-import pyautogui  # only used in rawsend- command
+import pyautogui
 import requests  # api and discord webhooks
 import toml  # configuration
 

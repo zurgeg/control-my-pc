@@ -29,6 +29,7 @@ class CommandProcessor:
     Instance variables:
         config -- a dict of config values
         obs_file_name -- path to the file containing the currently executing command
+        obs_log_sleep_duration -- how long to leave executing.txt to make it readable on obs on stream
     """
 
     KEY_PRESS_COMMANDS = {
@@ -125,7 +126,10 @@ class CommandProcessor:
             self.obs_log_sleep_duration = 0.5
         else:
             self.obs_log_sleep_duration = obs_log_sleep_duration
-        # self.twitch_username = TWITCH_USERNAME
+
+        self.cooldowns = {
+            '!modalert': {'required': 30.0, 'last_called': 0.0},
+        }
 
     def process_commands(self, message) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
@@ -360,24 +364,33 @@ class CommandProcessor:
         # !modalert command
         if message.content.startswith('!modalert'):
             log.info('[MODALERT] called.')
-            data = {
-                'embeds': [
-                    {
-                        'title': ':rotating_light: '
-                                 '**The user above needs a moderator on the stream.** '
-                                 ':rotating_light:',
-                        'description': f'Extra info: *{message.content[10:] or "none given"}*'
-                    }
-                ],
-                'username': message.username,
-                'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
-            }
-            log.info('[MODALERT] Sending request...')
-            requests.post(self.config['discord']['chatalerts'],
-                          json=data,
-                          headers={'User-Agent': self.config['api']['useragent']})
-            log.info('[MODALERT] Request sent')
-            return True
+            # Check cooldown
+            time_since_last_called = time.time() - self.cooldowns['!modalert']['last_called']
+            cooldown_ok = (time_since_last_called > self.cooldowns['!modalert']['required'])
+
+            if cooldown_ok:
+                self.cooldowns['!modalert']['last_called'] = time.time()
+
+                data = {
+                    'embeds': [
+                        {
+                            'title': ':rotating_light: '
+                                     '**The user above needs a moderator on the stream.** '
+                                     ':rotating_light:',
+                            'description': f'Extra info: *{message.content[10:] or "none given"}*'
+                        }
+                    ],
+                    'username': message.username,
+                    'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
+                }
+                log.info('[MODALERT] Sending request...')
+                requests.post(self.config['discord']['chatalerts'],
+                              json=data,
+                              headers={'User-Agent': self.config['api']['useragent']})
+                log.info('[MODALERT] Request sent')
+                return True
+            else:
+                log.info('[MODALERT] still on cooldown.')
 
         # 'go to' command
         if message.content.startswith('go to '):
