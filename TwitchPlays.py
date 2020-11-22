@@ -224,7 +224,6 @@ class TwitchPlays(cmpc.TwitchConnection):
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
         # NO, BAD
-        # read an error handling guide
         # TODO - remove try-except here
         try:
             # Log the chat if that's something we want to do
@@ -233,6 +232,10 @@ class TwitchPlays(cmpc.TwitchConnection):
             if CONFIG['options']['LOG_PPR']:
                 with open(LOGS_FOLDER/'chat.log', 'a', encoding='utf-8') as f:
                     f.write(f'{twitch_message.get_log_string()}\n')
+
+            # Ignore bot messages
+            if twitch_message.username == 'controlmybot' or twitch_message.username == 'cmpclive':
+                return
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
