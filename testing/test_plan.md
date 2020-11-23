@@ -63,6 +63,12 @@
 
 # Command cooldowns
 
+| Feature           | Input type | Input                                              | Expected result  | Passing? | Notes |
+|-------------------|------------|----------------------------------------------------|------------------|----------|-------|
+| !modalert         | valid      | !modalert test                                     | modalert sent    |          |       |
+|                   | edge       | !modalert test less than 30 seconds after previous | no modalert sent |          |       |
+|                   | valid      | !modalert test more than 30 seconds after previous | modalert sent    |          |       |
+
 # Logging with `logging`
 
 # Obs logging
