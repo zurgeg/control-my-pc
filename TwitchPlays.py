@@ -183,18 +183,21 @@ class TwitchPlays(cmpc.TwitchConnection):
 
             log.info('[API] Loaded lists from static file instead')
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
-            log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                        f"JSON last updated: {apiconfig_json['last_updated']}\n"
-                        f"Retrieved: {retrieved_time}")
-            cmpc.send_webhook(CONFIG['discord']['systemlog'],
-                              'Failed to load data from API\n'
-                              'Loaded dev list from static file instead\n'
-                              'One or multiple lists may be unavailable or incomplete/out of date\n'
-                              f"Last updated: {apiconfig_json['last_updated']}\n"
-                              f"Retrieved: {retrieved_time}\n\n"
-                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                              f"**Environment -** {CONFIG['options']['DEPLOY']}"
-                              )
+            try:
+                log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
+                            f"JSON last updated: {apiconfig_json['last_updated']}\n"
+                            f"Retrieved: {retrieved_time}")
+                cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                                  'Failed to load data from API\n'
+                                  'Loaded dev list from static file instead\n'
+                                  'One or multiple lists may be unavailable or incomplete/out of date\n'
+                                  f"Last updated: {apiconfig_json['last_updated']}\n"
+                                  f"Retrieved: {retrieved_time}\n\n"
+                                  f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                                  f"**Environment -** {CONFIG['options']['DEPLOY']}"
+                                  )
+            except TypeError:
+                log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
 
         # Init and return user permissions handler from dev and mod lists
         return self.load_user_permissions(
