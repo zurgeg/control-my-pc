@@ -330,6 +330,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content in ['version', 'version?']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
+                    log.info(f'Version {__version__} ({twitch_message.username})')
 
                 if twitch_message.content.startswith('script- suspend '):
                     duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')
