@@ -286,7 +286,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                     headers = {
                         'User-Agent': f'{USER_AGENT}',
                         'Accept': 'application/json',
-                        # DO NOT REMOVE THE QUOTES HERE.
                         'Authorization': f'Bearer {PANEL_API_KEY}',
                     }
                     try:
