@@ -18,7 +18,7 @@ An overhaul update to DougDoug TwitchPlays script.
   * `python -m pip install --upgrade pip`
   * `python -m pip install -r requirements.txt`
 
-  3)  Edit `config.toml` with your oauth and twitch token. (you can find your oauth token [here](http://twitchapps.com/tmi/)).       
+  3)  Edit `config.toml` with your oauth and twitch token. (you can get an oauth token with `new_oauth_key.py`).       
   Set TWITCH_CHANNEL AND TWITCH_OAUTH_TOKEN environment variables if you want to use env vars, see For more information see [here](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script#how-to-set-environment-variables). 
 
   4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
