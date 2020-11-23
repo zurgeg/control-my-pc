@@ -54,7 +54,7 @@
 |                                | invalid    | script- suspend 999999999999999999                             | too large arg log message                                                               |          |       |
 | !defcon command                | valid      | !defcon 1                                                      | win + m pressed, mute key pressed, system shuts down immediately, script sleeps         |          |       |
 |                                | valid      | !defcon 3                                                      | win + m pressed, mute key pressed, script sleeps                                        |          |       |
-|                                | valid      | !defcon blue                                                   | browser window opened, script sleeps 30 secds                                           |          |       |
+|                                | valid      | !defcon blue                                                   | browser window opened, script sleeps 30 secs                                           |          |       |
 |                                | invalid    | !defcon mmm                                                    | nothing                                                                                 |          |       |
 |                                | invalid    | !defcon                                                        | nothing                                                                                 |          |       |
 | script shutdown                | valid      | correct key while logged in as account with script permissions | script quits                                                                            |          |       |
@@ -93,5 +93,6 @@
 |                                 | valid      | a for 10                  | \--                                                                          |          |       |
 |                                 | valid      | arrow up for 3            | \--                                                                          |          |       |
 |                                 | valid      | arrow up for 10           | \--                                                                          |          |       |
+| Commands that use custom logs   |            |                           |                                                                              |          |       |
 
 TODO: expand
