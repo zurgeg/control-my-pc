@@ -1,3 +1,18 @@
+"""Helper functions for cmpc.
+
+Functions:
+    mode_testing -- take a number of things into account to see if script is in testing mode
+    get_get_repo_info -- self explanatory
+    get_size -- for encoding large numbers into SI prefixes
+    send_webhook -- simplifies sending of basic messages to discord webhooks
+    send_error -- sends info on an unexpected exception to a discord webhook in embed form
+    move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
+    hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
+    press_key -- similar to adjacent functions in this list, currently unimplemented
+    hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
+    send_data -- gets info about the environment of the script and sends it to a discord webhook
+"""
+
 # PSL Packages;
 import time
 import json
@@ -15,14 +30,58 @@ if not sys.platform == 'darwin':
 
 
 __all__ = (
+    'mode_testing',
+    'get_git_repo_info',
     'get_size',
     'send_webhook',
     'send_error',
-    'move',
-    'press',
-    'hold',
+    'move_mouse',
+    'hold_mouse',
+    'press_key',
+    'hold_key',
     'send_data',
 )
+
+
+def mode_testing(environment, env_vars_used, branch):
+    """Check if the script is in testing mode based on a number of factors.
+
+    Args:
+        environment -- DEPLOY constant from the CONFIG file, should be 'Production' or 'Debug'
+        env_vars_used -- bool indicating if CONFIG has been pulled from environment variables
+        branch -- the name of the git branch of the repo containing the script, if it exists
+    Returns True if script should be in testing mode and False otherwise.
+    """
+    if environment == 'Debug' or env_vars_used or branch != 'master':
+        return True
+    else:
+        return False
+
+
+def get_git_repo_info(default_branch_name='master'):
+    """Try to get the name of the git branch containing the script.
+
+    Args:
+        default_branch_name -- this will be returned as branch_name if there is no git repo
+    Returns:
+        branch_name
+        branch_name_assumed -- True if there was no git repo and branch name defaulted, False otherwise
+    """
+    try:
+        # noinspection PyUnresolvedReferences
+        import git
+    except ImportError:
+        branch_name = default_branch_name
+        branch_name_assumed = True
+    else:
+        try:
+            branch_name = git.Repo().active_branch.name
+            branch_name_assumed = False
+        except (ImportError, git.exc.GitError):
+            branch_name = default_branch_name
+            branch_name_assumed = True
+
+    return branch_name, branch_name_assumed
 
 
 def get_size(value, suffix='B'):
@@ -32,7 +91,6 @@ def get_size(value, suffix='B'):
         1253656 => '1.20MB'
         1253656678 => '1.17GB'
     """
-
     factor = 1024
     for unit in ['', 'K', 'M', 'G', 'T', 'P']:
         if value < factor:
@@ -41,7 +99,7 @@ def get_size(value, suffix='B'):
 
 
 def direct_or_auto():
-    """Returns if we should use pydirectinput or pyautogui"""
+    """Return if we should use pydirectinput or pyautogui."""
     platform = sys.platform
     if platform == 'darwin':
         return 'auto'
@@ -50,7 +108,7 @@ def direct_or_auto():
 
 
 def send_webhook(url: str, content: str):
-    """Sends a webhook to discord, takes (url, message)"""
+    """Send a webhook to discord, takes (url, message)."""
     data = {'content': content}
     if url == "":
         return
@@ -58,7 +116,7 @@ def send_webhook(url: str, content: str):
 
 
 def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
-    """Sends a error to discord"""
+    """Send info about an error to a discord webhook."""
     embed_description = f'***Last Sent Message -*** {t_msg.content}\n\n'\
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
@@ -69,6 +127,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
 
     data = {
+        'content': '<@&779783726196064323>',
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
@@ -84,8 +143,8 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
     requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
-def move(*args, **kwargs):
-    """Moves the mouse with cross-platform support"""
+def move_mouse(*args, **kwargs):
+    """Move the mouse, with cross-platform support."""
     dor = direct_or_auto()
     if dor == 'auto':
         pyautogui.move(*args, **kwargs)
@@ -93,26 +152,39 @@ def move(*args, **kwargs):
         pydirectinput.move(*args, **kwargs)
 
 
-def press(*args, **kwargs):
-    """Presses a key (more functionality coming soon)"""
-    pyautogui.press(*args, **kwargs)
-
-
-def hold(time_value, *args, **kwargs):
-    """Holds a key with cross-platform support"""
+def hold_mouse(time_value, *args, **kwargs):
+    """Hold a mouse button, with cross-platform support."""
     dor = direct_or_auto()
+    handler = pyautogui
     if dor == 'auto':
         handler = pyautogui
     elif dor == 'direct':
         handler = pydirectinput
-    # noinspection PyUnboundLocalVariable
+    handler.mouseDown(*args, **kwargs)
+    time.sleep(time_value)
+    handler.mouseUp(*args, **kwargs)
+
+
+def press_key(*args, **kwargs):
+    """Press a key (more functionality coming soon)."""
+    pyautogui.press(*args, **kwargs)
+
+
+def hold_key(time_value, *args, **kwargs):
+    """Hold a key, with cross-platform support."""
+    dor = direct_or_auto()
+    handler = pyautogui
+    if dor == 'auto':
+        handler = pyautogui
+    elif dor == 'direct':
+        handler = pydirectinput
     handler.keyDown(*args, **kwargs)
     time.sleep(time_value)
     handler.keyUp(*args, **kwargs)
 
 
 def send_data(url, context):
-    """Dumps machine data, config, and api"""
+    """Dump machine data, CONFIG, and api info to a discord webhook."""
     machine_stats = '\n\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
         f'Total Usage: {psutil.cpu_percent()}%',

@@ -23,11 +23,11 @@ An overhaul update to DougDoug TwitchPlays script.
 
   4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
 
-## "I dont have all this fancy stuff, what can i do?"
+## "I don't have all this fancy stuff, what can i do?"
 
 NO API) If you do not have a api, leave these values blank and edit the manual configuration in `TwitchPlays.py` You mainly need `developer` as a admin, `moderator` is just at the minute for the `modsay ` command.
 
-NO DISCORD) If you dont have a discord webhook, look at a guide online, if you dont want to do this, most of the dev commands wont be the best option for you, There is no error handling for no config at the minute, so your best bet is just to make a discord server and just use discord, NOTE: These do not need to be separate webhooks, they can all be the same (this is not recommended), but it would help if you dont want to make 6 webhooks.
+NO DISCORD) If you don't have a discord webhook, look at a guide online, if you don't want to do this, most of the dev commands wont be the best option for you, There is no error handling for no config at the minute, so your best bet is just to make a discord server and just use discord, NOTE: These do not need to be separate webhooks, they can all be the same (this is not recommended), but it would help if you don't want to make 6 webhooks.
 
 NO TWITCH) If you are testing the script offline, you're fucked. There is no good way to do this at the minute, we might add a option in the future to do manual offline testing
 
@@ -39,6 +39,7 @@ Massive rewrite with improved code and new features.
 
 - **vX.Y.Z YYYY-MM-DD INFO**
 - **Date descending**
+- v3.6.0 2020-11-22 Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring, and some minor changes like new commands.
 - v3.5.1 2020-11-14 Make hold key functionality work in more games (was broken in rewrite).
 - v3.5.0 2020-11-10 Add 'ptype' command, types by pasting to support unicode
 - v3.4.2 2020-11-09 Fix some mod commands that used the run dialog

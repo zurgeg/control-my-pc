@@ -1,3 +1,9 @@
+"""Processes and executes commands.
+
+Classes:
+    CommandProcessor -- processes commands, includes helper methods like remove_prefix and log_to_obs
+"""
+
 # PSL Packages
 import time
 import sys
@@ -7,10 +13,9 @@ import logging as log
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
-from pynput.mouse import Button
 
 # Local Packages
-from cmpc.utils import move as move_mouse, hold as hold_key
+from cmpc.utils import move_mouse, hold_mouse, hold_key
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
@@ -20,11 +25,11 @@ class CommandProcessor:
 
     Does not handle permissions, all commands are unrestricted.
     Public methods:
-    process_commands
+        process_commands
     Instance variables:
-    config -- a dict of config values
-    obs_file_handle -- object of the files containing the currently executing command
-    mouse -- a pynput.mouse.Controller instance
+        config -- a dict of config values
+        obs_file_name -- path to the file containing the currently executing command
+        obs_log_sleep_duration -- how long to leave executing.txt to make it readable on obs on stream
     """
 
     KEY_PRESS_COMMANDS = {
@@ -53,11 +58,13 @@ class CommandProcessor:
         ('control w', 'ctrl w', 'close tab', 'close the tab',): ('ctrl', 'w',),
         ('control a', 'ctrl a', 'select all',): ('ctrl', 'a',),
         ('control k', 'ctrl k', 'tayne',): ('ctrl', 'k',),
+        ('control /', 'ctrl /',): ('ctrl', '/'),
         ('alt f4', 'quit',): ('altleft', 'f4',),
         ('alt tab', 'alt-tab',): ('altleft', 'tab',),
         ('screenshot', 'screen shot',): ('win', 'prtsc',),
     }
 
+    # note that here doubleclick is not actually a valid pyautogui input, but it gets fixed in the actual def later on
     CLICK_COMMANDS = {
         ('click', 'leftclick', 'left click',): 'left',
         ('doubleclick', 'double click',): 'doubleclick',
@@ -113,12 +120,18 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name, mouse):
-        """"Initialise the class attributes"""
+    def __init__(self, config, obs_file_name, obs_log_sleep_duration=None):
+        """Initialise the class attributes."""
         self.config = config
         self.obs_file_name = obs_file_name
-        self.mouse = mouse
-        # self.twitch_username = TWITCH_USERNAME
+        if obs_log_sleep_duration is None:
+            self.obs_log_sleep_duration = 0.5
+        else:
+            self.obs_log_sleep_duration = obs_log_sleep_duration
+
+        self.cooldowns = {
+            '!modalert': {'required': 30.0, 'last_called': 0.0},
+        }
 
     def process_commands(self, message) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
@@ -156,32 +169,35 @@ class CommandProcessor:
         return message[len(prefix):]
 
     def error_handle(self, error, message):
-        """Throw an error to here, and it will be dealt with"""
+        """Throw an error to here, and it will be dealt with."""
         # pass
         # log.error(f'ERROR CONTAINED: {error}')
-        # cmpc.send_error(self.config['discord']['systemlog'], error,
+        # cmpc.send_error(self.CONFIG['discord']['systemlog'], error,
         #                     message, 'UNKNOWN', self.twitch_username,
-        #                     self.config['options']['DEPLOY'])
-        # if self.config['options']['DEPLOY'] == "Debug":
+        #                     self.CONFIG['options']['DEPLOY'])
+        # if self.CONFIG['options']['DEPLOY'] == "Debug":
         #     log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
         #     raise error
         # else:
         #     pass
 
-    def log_to_obs(self, message):
+    # TODO: separate log_to_obs and logging commands to the systemlog somewhat
+    def log_to_obs(self, message, none_log_msg='nothing', sleep_duration=None, none_sleep=False):
         """Log a message to the file shown on-screen for the stream."""
+        # Default log duration
+        if sleep_duration is None:
+            sleep_duration = self.obs_log_sleep_duration
+
         if message is None:
-            with open(self.obs_file_name, 'r', encoding='utf-8') as obs_file_handle:
-                current_obs_file_contents = obs_file_handle.read()
-            if current_obs_file_contents == 'nothing':
-                return
-            else:
-                with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                    obs_file_handle.write('nothing')
+            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
+                obs_file_handle.write(none_log_msg)
+            if none_sleep:
+                time.sleep(sleep_duration)
         else:
             with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
                 obs_file_handle.write(message.get_log_string())
-            time.sleep(0.5)
+
+            time.sleep(sleep_duration)
             log.info(message.get_log_string())
             requests.post(self.config['discord']['chatrelay'],
                           json=message.get_log_webhook_payload(),
@@ -245,9 +261,7 @@ class CommandProcessor:
         for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
-                self.mouse.press(Button.left)
-                time.sleep(output)
-                self.mouse.release(Button.left)
+                hold_mouse(time_value=output, button='left')
                 return True
         return False
 
@@ -302,6 +316,7 @@ class CommandProcessor:
         Types the message and also calls log_to_obs.
         Takes a cmpc.TwitchMessage instance.
         Returns True if a command has been run and False otherwise.
+        This only handles regular typing, not ptype or gtype.
         """
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
@@ -341,7 +356,6 @@ class CommandProcessor:
                     if 0.0 < time_value <= 10.0:
                         log.debug('time was a success')
                         self.log_to_obs(message)
-                        log.debug("WHAT HAPPENED TO MY SWEET BABY BOY!")
                         hold_key(key=output, time_value=time_value)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -355,28 +369,38 @@ class CommandProcessor:
         Takes a cmpc.TwitchMessage instance.
         Returns True if a command has been run and False otherwise.
         """
-
         # !modalert command
         if message.content.startswith('!modalert'):
             log.info('[MODALERT] called.')
-            data = {
-                'embeds': [
-                    {
-                        'title': ':rotating_light: '
-                                 '**The user above needs a moderator on the stream.** '
-                                 ':rotating_light:',
-                        'description': f'Extra info: *{message.content[10:] or "none given"}*'
-                    }
-                ],
-                'username': message.username,
-                'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
-            }
-            log.info('[MODALERT] Sending request...')
-            requests.post(self.config['discord']['chatalerts'],
-                          json=data,
-                          headers={'User-Agent': self.config['api']['useragent']})
-            log.info('[MODALERT] Request sent')
-            return True
+            # Check cooldown
+            time_since_last_called = time.time() - self.cooldowns['!modalert']['last_called']
+            cooldown_ok = (time_since_last_called > self.cooldowns['!modalert']['required'])
+
+            if cooldown_ok:
+                self.cooldowns['!modalert']['last_called'] = time.time()
+
+                data = {
+                    'embeds': [
+                        {
+                            'title': ':rotating_light: '
+                                     '**The user above needs a moderator on the stream.** '
+                                     ':rotating_light:',
+                            'description': f'Extra info: *{message.content[10:] or "none given"}*'
+                        }
+                    ],
+                    'username': message.username,
+                    'content': '<@&741308237135216650> https://twitch.tv/controlmypc',
+                }
+                log.info('[MODALERT] Sending request...')
+                # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
+                #  set if not, then log what should have been sent to console.
+                requests.post(self.config['discord']['chatalerts'],
+                              json=data,
+                              headers={'User-Agent': self.config['api']['useragent']})
+                log.info('[MODALERT] Request sent')
+                return True
+            else:
+                log.info('[MODALERT] still on cooldown.')
 
         # 'go to' command
         if message.content.startswith('go to '):
