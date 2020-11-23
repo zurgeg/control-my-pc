@@ -36,6 +36,10 @@ import toml  # configuration
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
+
+# Module level dunder names
+__version__ = '3.6.0'
+
 # Folders we use
 CONFIG_FOLDER = Path('config/')
 LOGS_FOLDER = Path('logs/')
@@ -322,6 +326,10 @@ class TwitchPlays(cmpc.TwitchConnection):
 
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
+
+                if twitch_message.content in ['version', 'version?']:
+                    self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
+                                              sleep_duration=3.0, none_sleep=True)
 
                 if twitch_message.content.startswith('script- suspend '):
                     duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')
