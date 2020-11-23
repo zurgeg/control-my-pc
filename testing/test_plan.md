@@ -69,6 +69,29 @@
 |                   | edge       | !modalert test less than 30 seconds after previous | no modalert sent |          |       |
 |                   | valid      | !modalert test more than 30 seconds after previous | modalert sent    |          |       |
 
-# Logging with `logging`
+# Main logging
+
+| Feature                 | Input type | Input                         | Expected result                                           | Passing? | Notes |
+|-------------------------|------------|-------------------------------|-----------------------------------------------------------|----------|-------|
+| chat log                | valid      | any chat message              | saved to logs/chat.log                                    |          |       |
+|                         | edge       | any chat message with unicode | saved to logs/chat.log                                    |          |       |
+| Regular command logging | valid      | any command                   | logged to console and logs/system.log in appropriate form |          |       |
+|                         | edge       | type command with unicode     | logged to console and logs/system.log in appropriate form |          |       |
 
 # Obs logging
+
+| Feature                         | Input type | Input                     | Expected result                                                              | Passing? | Notes |
+|---------------------------------|------------|---------------------------|------------------------------------------------------------------------------|----------|-------|
+| Regular command logging         | valid      | any command               | logged to executing.txt in appropriate form for correct duration             |          |       |
+|                                 | edge       | type command with unicode | logged to executing.txt in appropriate form for correct duration             |          |       |
+| Command with irregular duration | valid      | gtype testtesttesttest    | logged to executing.txt in appropriate form for entire duration of execution |          |       |
+|                                 | valid      | script- suspend 3         | \--                                                                          |          |       |
+|                                 | valid      | script- suspend 10        | \--                                                                          |          |       |
+|                                 | valid      | hold the mouse            | \--                                                                          |          |       |
+|                                 | valid      | hold the mouse long       | \--                                                                          |          |       |
+|                                 | valid      | a for 3                   | \--                                                                          |          |       |
+|                                 | valid      | a for 10                  | \--                                                                          |          |       |
+|                                 | valid      | arrow up for 3            | \--                                                                          |          |       |
+|                                 | valid      | arrow up for 10           | \--                                                                          |          |       |
+
+TODO: expand
