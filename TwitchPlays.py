@@ -176,7 +176,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 log.info('[API] Backed up to static backup file')
 
         # If the request errored or response status code wasn't 200 'ok', use backup
-        except requests.RequestException:
+        except (requests.RequestException, json.JSONDecodeError):
             log.warning('[API] Failed to load data from API')
             with open(static_backup_path, 'r') as static_backup_file:
                 apiconfig_json = json.load(static_backup_file)
