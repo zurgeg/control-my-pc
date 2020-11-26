@@ -277,7 +277,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
-                if twitch_message.original_content.startswith('rawsend- ')  :
+                if twitch_message.original_content.startswith('rawsend- '):
                     try:
                         keytopress = self.processor.remove_prefix(twitch_message.original_content, 'rawsend- ')
                         pyautogui.press(keytopress)
@@ -333,6 +333,9 @@ class TwitchPlays(cmpc.TwitchConnection):
                     # os.system('vlc -f --no-repeat --no-osd --no-play-and-pause '
                     #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
+
+                if twitch_message.content in ['hands across the water', 'paul']:
+                    webbrowser.open('https://youtu.be/UvUkPtSheyg?t=138', new=1)
 
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
