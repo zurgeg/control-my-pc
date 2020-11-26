@@ -43,16 +43,6 @@ __version__ = '3.6.1'
 CONFIG_FOLDER = Path('config/')
 LOGS_FOLDER = Path('logs/')
 
-# handle logging shit (copyright notice will remain on print)
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
 pyautogui.FAILSAFE = False
 
 BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
@@ -69,8 +59,18 @@ COPYRIGHT_NOTICE = f"""
 print(COPYRIGHT_NOTICE)
 
 # Load configuration
-log.debug('Stand by me.')
+# handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+log.basicConfig(
+    level=f'{CONFIG["options"]["LOGGER_LEVEL"].upper()}',
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
+        log.StreamHandler()
+    ]
+)
+log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
 if CONFIG['twitch']['custom_channels_to_join']:
     CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
