@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration.
+"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration, and a whole lot more"
 
-Env vars:
+Env vars(optional):
     TWITCH_USERNAME -- Twitch account to log in as
     TWITCH_OAUTH_KEY -- authorisation for that twitch account
     DUKTHOSTING_API_KEY -- auth key to control a controlmybot instance on Dukt Hosting through a dev command
@@ -29,7 +29,7 @@ import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
-import pyautogui
+import pyautogui # rawsend- command, and some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
 
@@ -283,7 +283,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         pyautogui.press(keytopress)
                     except:
                         log.error(f'Rawsend failure {twitch_message.original_content}', sys.exc_info())
-                        
+
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
