@@ -36,9 +36,8 @@ import toml  # configuration
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-
 # Module level dunder names
-__version__ = '3.6.0'
+__version__ = '3.6.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -277,6 +276,14 @@ class TwitchPlays(cmpc.TwitchConnection):
                     cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+
+                if twitch_message.original_content.startswith('rawsend- ')  :
+                    try:
+                        keytopress = self.processor.remove_prefix(twitch_message.original_content, 'rawsend- ')
+                        pyautogui.press(keytopress)
+                    except:
+                        log.error(f'Rawsend failure {twitch_message.original_content}', sys.exc_info())
+                        
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
