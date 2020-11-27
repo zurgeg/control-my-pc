@@ -2,10 +2,6 @@
 
 """Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration.
 
-Env vars:
-    TWITCH_USERNAME -- Twitch account to log in as
-    TWITCH_OAUTH_KEY -- authorisation for that twitch account
-    DUKTHOSTING_API_KEY -- auth key to control a controlmybot instance on Dukt Hosting through a dev command
 Files:
     config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
     config/config.example.toml -- example config file with no keys, included in the git repo for reference
@@ -20,7 +16,7 @@ Files:
 # way endorses a belief in the occult.
 
 # PSL Packages;
-import os  # file manager and .env handler, also runs cmd commands
+import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
@@ -77,20 +73,10 @@ if CONFIG['twitch']['custom_channels_to_join']:
     CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
 else:
     CHANNELS_TO_JOIN = None
-# Twitch channel name and oauth token from config will be overridden
-# by env vars if they exist. This makes testing more streamlined.
-if os.getenv('TWITCH_CHANNEL'):
-    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
-else:
-    TWITCH_USERNAME = CONFIG['twitch']['channel']
-if os.getenv('TWITCH_OAUTH_TOKEN'):
-    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
-else:
-    TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
-if os.getenv('DUKTHOSTING_API_KEY'):
-    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
-else:
-    PANEL_API_KEY = CONFIG['api']['panelapikey']
+# Configure out vars
+TWITCH_USERNAME = CONFIG['twitch']['channel']
+TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
 class TwitchPlays(cmpc.TwitchConnection):
