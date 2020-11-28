@@ -43,8 +43,6 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
 
 def save_oauth_key(oauth_key):
     """Save an oauth key to the appropriate env var, and config.toml."""
-    # Set env var
-    os.system(f'setx TWITCH_OAUTH_TOKEN "{oauth_key}"')
 
     # Edit config.toml
     config = toml.load(CONFIG_FOLDER/'config.toml')
@@ -52,6 +50,13 @@ def save_oauth_key(oauth_key):
     with open(CONFIG_FOLDER / 'config.toml', 'w') as config_file:
         toml.dump(config, config_file)
 
+    # Ask them if they want to set a env var
+    cheese = input("[Y/N] Save as a env var?")
+    if cheese.lower() == "y":
+        print("Cheese.")
+        os.system(f'setx TWITCH_OAUTH_TOKEN "{oauth_key}"')
+    if cheese.lower() == "n":
+        pass # do nothing
     return True
 
 

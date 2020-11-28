@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration.
+"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration, and a whole lot more"
 
-Env vars:
+Env vars(optional):
     TWITCH_USERNAME -- Twitch account to log in as
     TWITCH_OAUTH_KEY -- authorisation for that twitch account
     DUKTHOSTING_API_KEY -- auth key to control a controlmybot instance on Dukt Hosting through a dev command
@@ -29,31 +29,20 @@ import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
-import pyautogui
+import pyautogui # rawsend- command, and some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-
 # Module level dunder names
-__version__ = '3.6.0'
+__version__ = '3.6.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
 LOGS_FOLDER = Path('logs/')
 
-# handle logging shit (copyright notice will remain on print)
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
 pyautogui.FAILSAFE = False
 
 BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
@@ -70,8 +59,18 @@ COPYRIGHT_NOTICE = f"""
 print(COPYRIGHT_NOTICE)
 
 # Load configuration
-log.debug('Stand by me.')
+# handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+log.basicConfig(
+    level=f'{CONFIG["options"]["LOGGER_LEVEL"].upper()}',
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
+        log.StreamHandler()
+    ]
+)
+log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
 if CONFIG['twitch']['custom_channels_to_join']:
     CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
@@ -278,6 +277,14 @@ class TwitchPlays(cmpc.TwitchConnection):
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
+                if twitch_message.original_content.startswith('rawsend- '):
+                    try:
+                        keytopress = self.processor.remove_prefix(twitch_message.original_content, 'rawsend- ')
+                        pyautogui.press(keytopress)
+                    except:
+                        log.error(f'Rawsend failure {twitch_message.original_content}', sys.exc_info())
+
+
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
                         log.error('[CHATBOT] Command ran and no API key, '
@@ -326,6 +333,9 @@ class TwitchPlays(cmpc.TwitchConnection):
                     # os.system('vlc -f --no-repeat --no-osd --no-play-and-pause '
                     #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
+
+                if twitch_message.content in ['hands across the water', 'paul']:
+                    webbrowser.open('https://youtu.be/UvUkPtSheyg?t=138', new=1)
 
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')

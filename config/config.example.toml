@@ -4,17 +4,16 @@
 	EXC_MSG = true  # Send exception messages to systemlog?
 	LOG_PPR = true  # Log all chat to a file?
 	DEPLOY = "Debug" # Either "Production" or "Debug"
+	LOGGER_LEVEL = "info" # non-case sensitive, set's logger level, most common are 'info' and 'debug'
 
-[twitch]
-	channel = "controlmypc" # The channel to log in as
+[twitch] # production example shown below
+	channel = "cmpcserver" # The channel to log in as
     oauth_token = "" # pretty much password to twitch
-	custom_channels_to_join = false # if false, ignore channels_to_join and just join the channel you're logged in as
+	custom_channels_to_join = true # if false, ignore channels_to_join and just join the channel you're logged in as
 	channels_to_join = ["controlmypc"] # Twitch channels to watch chat for
 
 [api]
-	mod = "https://api.cmpc.live/mods.txt" # moderator command access
-	dev = "https://api.cmpc.live/devs.txt" # developer command access
-	apiconfig = "https://api.cmpc.live/apiconfig.json"
+	apiconfig = "https://api.cmpc.live/apiconfig.json" # website to handle the dev and mod lists
 	useragent = "CMPCscript (+https://cmpc.live/)" # "who are we" - this also sends in the discord webhooks
 	panelapikey = "" # Panel API key for chatbot control
     panelapiendpoint = "https://panel.dukthosting.net/api/client/servers/xxxxx/power"
