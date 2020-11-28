@@ -6,10 +6,8 @@ If you just want to get the key, simply exit the program after you get it. If yo
 input it. Note that it's preferred to add oauth: to the start if you're going to save them manually.
 I'll probably improve the script and make this simpler.
 
-Env vars:
-    TWITCH_OAUTH_TOKEN -- where the new key will be assigned to
 Files:
-    config/config.toml -- also where the new key will be assigned to
+    config/config.toml -- where the new key will be assigned to
 """
 
 import os
@@ -35,14 +33,17 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
     url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
     webbrowser.open(url)
 
-    oauth = input("OAuth key from page: ")
-    oauth = f'oauth:{oauth}'
+    oauthraw = input("OAuth key from page: ")
+    if oauthraw.startswith('oauth:'):
+        pass
+    else: 
+        oauth = f'oauth:{oauth}'
 
     return oauth
 
 
 def save_oauth_key(oauth_key):
-    """Save an oauth key to the appropriate env var, and config.toml."""
+    """Save an oauth key to the config.toml."""
 
     # Edit config.toml
     config = toml.load(CONFIG_FOLDER/'config.toml')
