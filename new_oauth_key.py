@@ -33,8 +33,11 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
     url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
     webbrowser.open(url)
 
-    oauth = input("OAuth key from page: ")
-    oauth = f'oauth:{oauth}'
+    oauthraw = input("OAuth key from page: ")
+    if oauthraw.startswith('oauth:'):
+        pass
+    else: 
+        oauth = f'oauth:{oauth}'
 
     return oauth
 
