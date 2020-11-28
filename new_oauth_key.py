@@ -34,10 +34,8 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
     webbrowser.open(url)
 
     oauthraw = input("OAuth key from page: ")
-    if oauthraw.startswith('oauth:'):
-        pass
-    else: 
-        oauth = f'oauth:{oauth}'
+    if not oauthraw.startswith('oauth:'):
+        oauth = f'oauth:{oauthraw}'
 
     return oauth
 
