@@ -98,7 +98,8 @@ class TwitchPlays(cmpc.TwitchConnection):
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
         if CONFIG['options']['LOGGER_LEVEL'].lower() == "debug" and CONFIG['options']['DEPLOY'] == "Production":
-            log.waring('[LOG] You are enabling debug mode in a production env, this will log discord webhook urls to system.log and such. you have been warned.')
+            log.warning('[LOG] You are enabling debug mode in a production env, '
+                        'this will log discord webhook urls to system.log and such. you have been warned.')
 
         # Remove temp chat log if it exists.
         if os.path.exists(LOGS_FOLDER/'chat.log'):
