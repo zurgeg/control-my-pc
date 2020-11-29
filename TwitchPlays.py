@@ -155,7 +155,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             if apiconfig.status_code != 200:
                 raise requests.RequestException
             else:
-                apiconfig_json = json.loads(apiconfig.text)
+                apiconfig_json = apiconfig.json()
                 log.info('[API] Data here, and parsed!')
 
                 # Save retrieved JSON to backup
