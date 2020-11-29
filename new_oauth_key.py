@@ -36,6 +36,8 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
     oauthraw = input("OAuth key from page: ")
     if not oauthraw.startswith('oauth:'):
         oauth = f'oauth:{oauthraw}'
+    else:
+        oauth = oauthraw
 
     return oauth
 
@@ -55,7 +57,7 @@ def save_oauth_key(oauth_key):
         print("Cheese.")
         os.system(f'setx TWITCH_OAUTH_TOKEN "{oauth_key}"')
     if cheese.lower() == "n":
-        pass # do nothing
+        pass  # do nothing
     return True
 
 
