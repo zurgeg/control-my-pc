@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration, and a whole lot more"
+"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more."
 
 Files:
     config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
@@ -25,7 +25,7 @@ import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
-import pyautogui # rawsend- command, and some mod only commands
+import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
 
@@ -58,6 +58,7 @@ print(COPYRIGHT_NOTICE)
 # handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+# noinspection PyArgumentList
 log.basicConfig(
     level=f'{CONFIG["options"]["LOGGER_LEVEL"].upper()}',
     format='[%(levelname)s] %(message)s',
@@ -264,14 +265,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                     cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
-
-                if twitch_message.original_content.startswith('rawsend- '):
-                    try:
-                        keytopress = self.processor.remove_prefix(twitch_message.original_content, 'rawsend- ')
-                        pyautogui.press(keytopress)
-                    except:
-                        log.error(f'Rawsend failure {twitch_message.original_content}', sys.exc_info())
-
 
                 if twitch_message.original_content.startswith('chatbot- '):
                     if not PANEL_API_KEY:
