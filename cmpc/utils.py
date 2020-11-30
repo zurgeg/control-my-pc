@@ -144,6 +144,18 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
     requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
+def input_handler():
+
+    dor = direct_or_auto()
+    handler = pyautogui
+    if dor == 'auto':
+        handler = pyautogui
+    elif dor == 'direct':
+        handler = pydirectinput
+
+    return handler
+
+
 def move_mouse(*args, **kwargs):
     """Move the mouse, with cross-platform support."""
     dor = direct_or_auto()
