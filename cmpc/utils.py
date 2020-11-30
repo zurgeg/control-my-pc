@@ -23,8 +23,8 @@ import requests
 import pyautogui
 import psutil
 
-# Check if we are on a mac or not
-if not sys.platform == 'darwin':
+# Check if we are on windows
+if sys.platform == 'win32':
     import pydirectinput
     pydirectinput.FAILSAFE = False
 
@@ -100,11 +100,12 @@ def get_size(value, suffix='B'):
 
 def direct_or_auto():
     """Return if we should use pydirectinput or pyautogui."""
-    platform = sys.platform
-    if platform == 'darwin':
-        return 'auto'
-    else:
+    if sys.platform == 'win32':
+        # Windows only, better compatibility with games
         return 'direct'
+    else:
+        # Default
+        return 'auto'
 
 
 def send_webhook(url: str, content: str):
