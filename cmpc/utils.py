@@ -145,8 +145,8 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
 
 
 def input_handler():
-
     dor = direct_or_auto()
+
     handler = pyautogui
     if dor == 'auto':
         handler = pyautogui
