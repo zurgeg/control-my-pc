@@ -8,22 +8,16 @@ Classes:
 import time
 import sys
 import logging as log
-from pathlib import Path
 
 # PIP Packages;
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
-import toml # configuration
 
 # Local Packages
 from cmpc.utils import move_mouse, hold_mouse, hold_key
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
-
-# load config toml
-CONFIG_FOLDER = Path('config/')
-CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 
 class CommandProcessor:
     """For processing Twitch Plays commands.
@@ -394,7 +388,7 @@ class CommandProcessor:
                         }
                     ],
                     'username': message.username,
-                    'content': CONFIG['discord']['modalertping'] + ' https://twitch.tv/controlmypc',
+                    'content': self.config['discord']['modalertping'] + ' https://twitch.tv/controlmypc',
                 }
                 log.info('[MODALERT] Sending request...')
                 # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
