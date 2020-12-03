@@ -19,6 +19,7 @@ from cmpc.utils import move_mouse, hold_mouse, hold_key
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
+
 class CommandProcessor:
     """For processing Twitch Plays commands.
 
