@@ -17,6 +17,7 @@ Functions:
 import time
 import json
 import sys
+import logging as log
 
 # PIP Packages;
 import requests
@@ -39,6 +40,7 @@ __all__ = (
     'hold_mouse',
     'press_key',
     'hold_key',
+    'parse_goto_args',
     'send_data',
 )
 
@@ -194,6 +196,26 @@ def hold_key(time_value, *args, **kwargs):
     handler.keyDown(*args, **kwargs)
     time.sleep(time_value)
     handler.keyUp(*args, **kwargs)
+
+
+def parse_goto_args(command_processor, message):
+    """Return the x and y coords. Used in go to and drag to commands."""
+    try:
+        coord = command_processor.remove_prefix(message.content, 'go to ')
+        if coord in ['center', 'centre']:
+            xval, yval = tuple(res / 2 for res in pyautogui.size())
+        else:
+            xval, yval = coord.split(' ', 1)
+        xval = int(xval)
+        yval = int(yval)
+
+        return xval, yval
+    except ValueError:
+        log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
+    except pyautogui.PyAutoGUIException:
+        log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
+    except Exception as error:
+        command_processor.error_handle(error, message)
 
 
 def send_data(url, context):
