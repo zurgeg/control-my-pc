@@ -406,7 +406,7 @@ class CommandProcessor:
         if message.content.startswith('go to '):
             xval, yval = parse_goto_args(self, message, 'go to ')
             self.log_to_obs(message)
-            pyautogui.moveTo(xval, yval)
+            pyautogui.moveTo(xval, yval, duration=0.1)
 
             return True
 
@@ -414,7 +414,7 @@ class CommandProcessor:
         if message.content.startswith('drag to '):
             xval, yval = parse_goto_args(self, message, 'drag to ')
             self.log_to_obs(message)
-            pyautogui.dragTo(xval, yval)
+            pyautogui.dragTo(xval, yval, duration=0.1)
 
             return True
 
