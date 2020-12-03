@@ -73,7 +73,7 @@ if CONFIG['twitch']['custom_channels_to_join']:
     CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
 else:
     CHANNELS_TO_JOIN = None
-# Configure out vars
+# Configure our vars
 TWITCH_USERNAME = CONFIG['twitch']['channel']
 TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
