@@ -15,7 +15,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import move_mouse, hold_mouse, hold_key
+from cmpc.utils import move_mouse, hold_mouse, hold_key, parse_goto_args
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
@@ -404,22 +404,18 @@ class CommandProcessor:
 
         # 'go to' command
         if message.content.startswith('go to '):
-            try:
-                coord = self.remove_prefix(message.content, 'go to ')
-                if coord in ['center', 'centre']:
-                    xval, yval = tuple(res / 2 for res in pyautogui.size())
-                else:
-                    xval, yval = coord.split(' ', 1)
-                xval = int(xval)
-                yval = int(yval)
-                self.log_to_obs(message)
-                pyautogui.moveTo(xval, yval)
-            except ValueError:
-                log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
-            except pyautogui.PyAutoGUIException:
-                log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
-            except Exception as error:
-                self.error_handle(error, message)
+            xval, yval = parse_goto_args(self, message, 'go to ')
+            self.log_to_obs(message)
+            pyautogui.moveTo(xval, yval)
+
+            return True
+
+        # 'drag to' command
+        if message.content.startswith('drag to '):
+            xval, yval = parse_goto_args(self, message, 'drag to ')
+            self.log_to_obs(message)
+            pyautogui.dragTo(xval, yval)
+
             return True
 
         # gtype command
