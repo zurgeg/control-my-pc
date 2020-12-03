@@ -25,3 +25,4 @@
 	devtalk = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	botstat = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	systemlog = "https://discord.com/api/webhooks/xxxxx/xxxxx"
+	modalertping = "<@&xxxxxxxxxxxxxxxxxx>"
