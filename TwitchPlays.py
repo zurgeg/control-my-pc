@@ -319,7 +319,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
-                if twitch_message.content in ['version', 'version?']:
+                if twitch_message.content in ['script- version', 'version', 'version?']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
