@@ -316,9 +316,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                     #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
-                if twitch_message.content in ['hands across the water', 'paul']:
-                    webbrowser.open('https://youtu.be/UvUkPtSheyg?t=138', new=1)
-
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
@@ -366,15 +363,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                         self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
                                                                      f' ({twitch_message.username})')
                         time.sleep(86400)
-                    elif severity == 'blue':
-                        # os.system('vlc -f --repeat --no-osd --no-play-and-pause '
-                        #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
-                        webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        # custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]',
-                        #                   twitch_message, self.processor)
-                        self.processor.log_to_obs(None, none_log_msg='[defcon BLUE, el muchacho de los ojos tristes]'
-                                                                     f' ({twitch_message.username})')
-                        time.sleep(30)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
