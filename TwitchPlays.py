@@ -7,7 +7,7 @@ Files:
     config/config.example.toml -- example config file with no keys, included in the git repo for reference
     config/config.toml -- real working instance of the config
     logs/chat.log -- every message sent in the connected Twitch chat
-    logs/system.log -- mirror of the console output handled py the logging package
+    logs/system.log -- mirror of the console output handled by the logging package
     executing.txt -- contains info about the currently executing command, for OBS
 """
 
