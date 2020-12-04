@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions for mods and developers, discord integration.
+"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more."
 
-Env vars:
-    TWITCH_USERNAME -- Twitch account to log in as
-    TWITCH_OAUTH_KEY -- authorisation for that twitch account
-    DUKTHOSTING_API_KEY -- auth key to control a controlmybot instance on Dukt Hosting through a dev command
 Files:
     config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
     config/config.example.toml -- example config file with no keys, included in the git repo for reference
@@ -20,7 +16,7 @@ Files:
 # way endorses a belief in the occult.
 
 # PSL Packages;
-import os  # file manager and .env handler, also runs cmd commands
+import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
@@ -29,31 +25,20 @@ import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
-import pyautogui
+import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-
 # Module level dunder names
-__version__ = '3.6.0'
+__version__ = '3.6.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
 LOGS_FOLDER = Path('logs/')
 
-# handle logging shit (copyright notice will remain on print)
-# noinspection PyArgumentList
-log.basicConfig(
-    level=log.INFO,
-    format='[%(levelname)s] %(message)s',
-    handlers=[
-        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
 pyautogui.FAILSAFE = False
 
 BRANCH_NAME, BRANCH_NAME_ASSUMED = cmpc.get_git_repo_info()
@@ -70,27 +55,28 @@ COPYRIGHT_NOTICE = f"""
 print(COPYRIGHT_NOTICE)
 
 # Load configuration
-log.debug('Stand by me.')
+# handle logging shit (copyright notice will remain on print)
+# noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+# noinspection PyArgumentList
+log.basicConfig(
+    level=f'{CONFIG["options"]["LOGGER_LEVEL"].upper()}',
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
+        log.StreamHandler()
+    ]
+)
+log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
 if CONFIG['twitch']['custom_channels_to_join']:
     CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
 else:
     CHANNELS_TO_JOIN = None
-# Twitch channel name and oauth token from config will be overridden
-# by env vars if they exist. This makes testing more streamlined.
-if os.getenv('TWITCH_CHANNEL'):
-    TWITCH_USERNAME = os.getenv('TWITCH_CHANNEL')
-else:
-    TWITCH_USERNAME = CONFIG['twitch']['channel']
-if os.getenv('TWITCH_OAUTH_TOKEN'):
-    TWITCH_OAUTH_TOKEN = os.getenv('TWITCH_OAUTH_TOKEN')
-else:
-    TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
-if os.getenv('DUKTHOSTING_API_KEY'):
-    PANEL_API_KEY = os.getenv('DUKTHOSTING_API_KEY')
-else:
-    PANEL_API_KEY = CONFIG['api']['panelapikey']
+# Configure our vars
+TWITCH_USERNAME = CONFIG['twitch']['channel']
+TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
 class TwitchPlays(cmpc.TwitchConnection):
@@ -111,6 +97,9 @@ class TwitchPlays(cmpc.TwitchConnection):
             sys.exit(2)
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
+        if CONFIG['options']['LOGGER_LEVEL'].lower() == "debug" and CONFIG['options']['DEPLOY'] == "Production":
+            log.warning('[LOG] You are enabling debug mode in a production env, '
+                        'this will log discord webhook urls to system.log and such. you have been warned.')
 
         # Remove temp chat log if it exists.
         if os.path.exists(LOGS_FOLDER/'chat.log'):
@@ -167,7 +156,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             if apiconfig.status_code != 200:
                 raise requests.RequestException
             else:
-                apiconfig_json = json.loads(apiconfig.text)
+                apiconfig_json = apiconfig.json()
                 log.info('[API] Data here, and parsed!')
 
                 # Save retrieved JSON to backup
@@ -176,25 +165,28 @@ class TwitchPlays(cmpc.TwitchConnection):
                 log.info('[API] Backed up to static backup file')
 
         # If the request errored or response status code wasn't 200 'ok', use backup
-        except requests.RequestException:
+        except (requests.RequestException, json.JSONDecodeError):
             log.warning('[API] Failed to load data from API')
             with open(static_backup_path, 'r') as static_backup_file:
                 apiconfig_json = json.load(static_backup_file)
 
             log.info('[API] Loaded lists from static file instead')
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
-            log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                        f"JSON last updated: {apiconfig_json['last_updated']}\n"
-                        f"Retrieved: {retrieved_time}")
-            cmpc.send_webhook(CONFIG['discord']['systemlog'],
-                              'Failed to load data from API\n'
-                              'Loaded dev list from static file instead\n'
-                              'One or multiple lists may be unavailable or incomplete/out of date\n'
-                              f"Last updated: {apiconfig_json['last_updated']}\n"
-                              f"Retrieved: {retrieved_time}\n\n"
-                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                              f"**Environment -** {CONFIG['options']['DEPLOY']}"
-                              )
+            try:
+                log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
+                            f"JSON last updated: {apiconfig_json['last_updated']}\n"
+                            f"Retrieved: {retrieved_time}")
+                cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                                  'Failed to load data from API\n'
+                                  'Loaded dev list from static file instead\n'
+                                  'One or multiple lists may be unavailable or incomplete/out of date\n'
+                                  f"Last updated: {apiconfig_json['last_updated']}\n"
+                                  f"Retrieved: {retrieved_time}\n\n"
+                                  f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                                  f"**Environment -** {CONFIG['options']['DEPLOY']}"
+                                  )
+            except TypeError:
+                log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
 
         # Init and return user permissions handler from dev and mod lists
         return self.load_user_permissions(
@@ -324,12 +316,16 @@ class TwitchPlays(cmpc.TwitchConnection):
                     #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
                     webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
+                if twitch_message.content in ['hands across the water', 'paul']:
+                    webbrowser.open('https://youtu.be/UvUkPtSheyg?t=138', new=1)
+
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
                 if twitch_message.content in ['version', 'version?']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
+                    log.info(f'Version {__version__} ({twitch_message.username})')
 
                 if twitch_message.content.startswith('script- suspend '):
                     duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')

@@ -16,3 +16,6 @@ config/apiconfig_static_backup.json
 config/config.toml
 # Intro video
 intro.mp4
+# cmpc's stuff
+autorestart.py
+De*Hofnar*-*Zonnestraal.mp4
