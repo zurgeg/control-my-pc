@@ -362,7 +362,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
                         self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
                                                                      f' ({twitch_message.username})')
-                        time.sleep(86400)
+                        time.sleep(600)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
