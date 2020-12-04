@@ -15,7 +15,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import move_mouse, hold_mouse, hold_key, parse_goto_args
+from cmpc.utils import move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 # import cmpc  # custom stuff we need
 # from cmpc.keyboard_keycodes import KeyboardKeycodes
 
@@ -213,7 +213,11 @@ class CommandProcessor:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
                 self.log_to_obs(message)
-                pyautogui.press(output)
+                if 'enter' in valid_inputs:
+                    press_key(output)
+                else:
+                    pyautogui.press(output)
+
                 return True
         return False
 
