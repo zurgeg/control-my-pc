@@ -20,6 +20,7 @@ import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
+import webbrowser  # el muchacho
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -309,6 +310,11 @@ class TwitchPlays(cmpc.TwitchConnection):
                     pyautogui.hotkey('win', 'm')
                 if twitch_message.content in ['mute']:
                     pyautogui.press('volumemute')
+
+                if twitch_message.content in ['el muchacho']:
+                    # os.system('vlc -f --no-repeat --no-osd --no-play-and-pause '
+                    #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
+                    webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
 
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
