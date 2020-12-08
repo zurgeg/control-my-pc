@@ -8,7 +8,7 @@ Functions:
     send_error -- sends info on an unexpected exception to a discord webhook in embed form
     move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
-    press_key -- similar to adjacent functions in this list, currently unimplemented
+    press_key -- presses a key with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
     send_data -- gets info about the environment of the script and sends it to a discord webhook
 """
@@ -181,8 +181,12 @@ def hold_mouse(time_value, *args, **kwargs):
 
 
 def press_key(*args, **kwargs):
-    """Press a key (more functionality coming soon)."""
-    pyautogui.press(*args, **kwargs)
+    """Press a key , with cross-platform support."""
+    dor = direct_or_auto()
+    if dor == 'auto':
+        pyautogui.press(*args, **kwargs)
+    if dor == 'direct':
+        pydirectinput.press(*args, **kwargs)
 
 
 def hold_key(time_value, *args, **kwargs):
