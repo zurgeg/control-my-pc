@@ -32,7 +32,7 @@ import toml  # configuration
 import cmpc  # Pretty much all of the custom shit we need.
 
 # Module level dunder names
-__version__ = '3.7.0'
+__version__ = '3.7.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
