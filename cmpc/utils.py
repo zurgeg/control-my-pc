@@ -8,7 +8,7 @@ Functions:
     send_error -- sends info on an unexpected exception to a discord webhook in embed form
     move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
-    press_key -- similar to adjacent functions in this list, currently unimplemented
+    press_key -- presses a key with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
     send_data -- gets info about the environment of the script and sends it to a discord webhook
 """
@@ -17,7 +17,6 @@ Functions:
 import time
 import json
 import sys
-import logging as log
 
 # PIP Packages;
 import requests
@@ -181,8 +180,12 @@ def hold_mouse(time_value, *args, **kwargs):
 
 
 def press_key(*args, **kwargs):
-    """Press a key (more functionality coming soon)."""
-    pyautogui.press(*args, **kwargs)
+    """Press a key , with cross-platform support."""
+    dor = direct_or_auto()
+    if dor == 'auto':
+        pyautogui.press(*args, **kwargs)
+    if dor == 'direct':
+        pydirectinput.press(*args, **kwargs)
 
 
 def hold_key(time_value, *args, **kwargs):
@@ -200,22 +203,15 @@ def hold_key(time_value, *args, **kwargs):
 
 def parse_goto_args(command_processor, message, prefix):
     """Return the x and y coords. Used in go to and drag to commands."""
-    try:
-        coord = command_processor.remove_prefix(message.content, prefix)
-        if coord in ['center', 'centre']:
-            xval, yval = tuple(res / 2 for res in pyautogui.size())
-        else:
-            xval, yval = coord.split(' ', 1)
-        xval = int(xval)
-        yval = int(yval)
+    coord = command_processor.remove_prefix(message.content, prefix)
+    if coord in ['center', 'centre']:
+        xval, yval = tuple(res / 2 for res in pyautogui.size())
+    else:
+        xval, yval = coord.split(' ', 1)
+    xval = int(xval)
+    yval = int(yval)
 
-        return xval, yval
-    except ValueError:
-        log.error(f'Could not move mouse to location: {message.content}\nDue to non-numeric args')
-    except pyautogui.PyAutoGUIException:
-        log.error(f'Could not move mouse to location: {message.content}\nDue to pyautogui issue')
-    except Exception as error:
-        command_processor.error_handle(error, message)
+    return xval, yval
 
 
 def send_data(url, context):

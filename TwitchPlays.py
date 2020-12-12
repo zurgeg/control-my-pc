@@ -7,7 +7,7 @@ Files:
     config/config.example.toml -- example config file with no keys, included in the git repo for reference
     config/config.toml -- real working instance of the config
     logs/chat.log -- every message sent in the connected Twitch chat
-    logs/system.log -- mirror of the console output handled py the logging package
+    logs/system.log -- mirror of the console output handled by the logging package
     executing.txt -- contains info about the currently executing command, for OBS
 """
 
@@ -20,7 +20,6 @@ import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
-import webbrowser  # el muchacho
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -33,7 +32,7 @@ import toml  # configuration
 import cmpc  # Pretty much all of the custom shit we need.
 
 # Module level dunder names
-__version__ = '3.7.0'
+__version__ = '3.7.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -311,18 +310,10 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content in ['mute']:
                     pyautogui.press('volumemute')
 
-                if twitch_message.content in ['el muchacho']:
-                    # os.system('vlc -f --no-repeat --no-osd --no-play-and-pause '
-                    #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog" vlc://quit')
-                    webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-
-                if twitch_message.content in ['hands across the water', 'paul']:
-                    webbrowser.open('https://youtu.be/UvUkPtSheyg?t=138', new=1)
-
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
-                if twitch_message.content in ['version', 'version?']:
+                if twitch_message.content in ['script- version', 'version', 'version?']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
@@ -365,16 +356,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
                         self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
                                                                      f' ({twitch_message.username})')
-                        time.sleep(86400)
-                    elif severity == 'blue':
-                        # os.system('vlc -f --repeat --no-osd --no-play-and-pause '
-                        #           '"https://www.youtube.com/watch?v=GdtuG-j9Xog"')
-                        webbrowser.open('https://www.youtube.com/watch?v=GdtuG-j9Xog', new=1)
-                        # custom_log_to_obs('[defcon BLUE, el muchacho de los ojos tristes]',
-                        #                   twitch_message, self.processor)
-                        self.processor.log_to_obs(None, none_log_msg='[defcon BLUE, el muchacho de los ojos tristes]'
-                                                                     f' ({twitch_message.username})')
-                        time.sleep(30)
+                        time.sleep(600)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
