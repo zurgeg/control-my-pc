@@ -57,5 +57,5 @@ def save_oauth_key(oauth_key):
 if __name__ == '__main__':
     new_oauth_key = get_oauth_key()
     print(f'Your new oauth key is {new_oauth_key}')
-    save_oauth_key(get_oauth_key())
+    save_oauth_key(new_oauth_key)
     print('Saved oauth key to config.toml successfully.')
