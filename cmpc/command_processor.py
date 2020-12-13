@@ -7,7 +7,9 @@ Classes:
 # PSL Packages
 import time
 import sys
+import json
 import logging as log
+from pathlib import Path
 
 # PIP Packages;
 import requests  # !modalert and chatrelay
@@ -15,9 +17,10 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
-# import cmpc  # custom stuff we need
-# from cmpc.keyboard_keycodes import KeyboardKeycodes
+from cmpc.utils import twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
+
+
+CONFIG_FOLDER = Path('config/')
 
 
 class CommandProcessor:
@@ -120,10 +123,14 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name, obs_log_sleep_duration=None):
+    def __init__(self, config, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
         self.config = config
         self.obs_file_name = obs_file_name
+        if req_account_age_days is None:
+            self.req_account_age_days = 7
+        else:
+            self.req_account_age_days = req_account_age_days
         if obs_log_sleep_duration is None:
             self.obs_log_sleep_duration = 0.5
         else:
@@ -202,6 +209,21 @@ class CommandProcessor:
             requests.post(self.config['discord']['chatrelay'],
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
+
+    def check_user_account_age(self, user_name):
+        """Create docstring when done pls"""
+        with open(CONFIG_FOLDER/'user_info_cache.json', 'a+') as user_info_cache_file:
+            user_info_cache = json.load(user_info_cache_file)
+
+            if user_name in user_info_cache:
+                user_info = user_info_cache[user_name]
+            else:
+                try:
+                    user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
+                                                    self.config['twitch']['oauth_token'],
+                                                    user_name)
+                except requests.RequestException:
+                    return False
 
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
