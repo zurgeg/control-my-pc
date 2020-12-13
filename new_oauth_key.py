@@ -21,7 +21,7 @@ CONFIG_FOLDER = Path('config/')
 
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read'):
+def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read user:read:email'):
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
