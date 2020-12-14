@@ -4,8 +4,11 @@ Functions:
     mode_testing -- take a number of things into account to see if script is in testing mode
     get_get_repo_info -- self explanatory
     get_size -- for encoding large numbers into SI prefixes
+    direct_or_auto -- returns 'auto' or 'direct' based on platform
+    twitch_api_get_user -- get info about a Twitch account from their API using requests
     send_webhook -- simplifies sending of basic messages to discord webhooks
     send_error -- sends info on an unexpected exception to a discord webhook in embed form
+    input_handler -- returns pyautogui or pydirectinput based on platform
     move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
     press_key -- presses a key with either pyautogui or pydirectinput situtationally
@@ -33,8 +36,11 @@ __all__ = (
     'mode_testing',
     'get_git_repo_info',
     'get_size',
+    'direct_or_auto',
+    'twitch_api_get_user',
     'send_webhook',
     'send_error',
+    'input_handler',
     'move_mouse',
     'hold_mouse',
     'press_key',
@@ -107,6 +113,21 @@ def direct_or_auto():
     else:
         # Default
         return 'auto'
+
+
+def twitch_api_get_user(client_id, oauth_key, user_login_name):
+    """Return the JSON response containing info about the specified Twitch user, or raise a RequestException."""
+    data = {'login': user_login_name}
+    headers = {
+        'Client-Id': client_id,
+        'Authorization': f'Bearer {oauth_key}',
+    }
+
+    response = requests.get('https://api.twitch.tv/helix/users', data=data, headers=headers)
+    if response.ok:
+        return response.json()
+    else:
+        raise requests.RequestException('Unable to get info about user.')
 
 
 def send_webhook(url: str, content: str):

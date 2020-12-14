@@ -21,7 +21,7 @@ CONFIG_FOLDER = Path('config/')
 
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read'):
+def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read user:read:email'):
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
@@ -55,4 +55,7 @@ def save_oauth_key(oauth_key):
 
 
 if __name__ == '__main__':
-    save_oauth_key(get_oauth_key())
+    new_oauth_key = get_oauth_key()
+    print(f'Your new oauth key is {new_oauth_key}')
+    save_oauth_key(new_oauth_key)
+    print('Saved oauth key to config.toml successfully.')
