@@ -346,8 +346,16 @@ class TwitchPlays(cmpc.TwitchConnection):
                             log.error(f'Could not suspend for duration: {twitch_message.content}\n'
                                       'Due to too large arg')
 
-                if twitch_message.content.startswith('script- approve '):
-                    user_name = self.processor.remove_prefix(twitch_message.content, 'script- approve')
+                if twitch_message.content.startswith(('script- approve ', 'script- block ')):
+                    if twitch_message.content.startswith('script- approve '):
+                        prefix = 'script- approve '
+                        set_state = True
+                    # elif twitch_message.content.startswith('script- block '):
+                    else:
+                        prefix = 'script- block '
+                        set_state = False
+
+                    user_name = self.processor.remove_prefix(twitch_message.content, prefix)
 
                     try:
                         user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
@@ -355,11 +363,11 @@ class TwitchPlays(cmpc.TwitchConnection):
                                                                                         'oauth:'),
                                                            user_name=user_name)['id']
                     except requests.RequestException:
-                        log.error(f'Unable to approve user {user_name} - user not found!')
+                        log.error(f'Unable to approve/block user {user_name} - user not found!')
                     else:
                         with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
                             user_info_cache = json.load(user_info_cache_file)
-                        user_info_cache.setdefault(user_id, {})['allow'] = True
+                        user_info_cache.setdefault(user_id, {})['allow'] = set_state
 
                         with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
                             json.dump(user_info_cache, user_info_cache_file)
