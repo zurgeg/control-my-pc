@@ -6,7 +6,6 @@ Classes:
 
 # PSL Packages
 import time
-import os
 import sys
 import json
 import logging as log
@@ -211,7 +210,7 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    def check_user_account_age(self, user_id, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
+    def check_user_account_age(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.
 
         Args:
@@ -221,15 +220,7 @@ class CommandProcessor:
 
         Account age is checked against self.req_account_age_days
         """
-        # TODO: cache whole db in memory too at startup
         user_id = str(user_id)
-
-        # Load the cache
-        if os.path.isfile(cache_file_path):
-            with open(cache_file_path, 'r') as user_info_cache_file:
-                user_info_cache = json.load(user_info_cache_file)
-        else:
-            user_info_cache = {}
 
         # If the user is in the cache get their info from the cache
         if user_id in user_info_cache:

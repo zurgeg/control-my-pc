@@ -172,6 +172,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
 
 
 def input_handler():
+    """Return pyautogui or pydirectinput based on platform."""
     dor = direct_or_auto()
 
     handler = pyautogui
