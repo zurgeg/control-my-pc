@@ -212,18 +212,42 @@ class CommandProcessor:
 
     def check_user_account_age(self, user_name):
         """Create docstring when done pls"""
+        # TODO: switch from name to ID
+        # Load the cache
         with open(CONFIG_FOLDER/'user_info_cache.json', 'a+') as user_info_cache_file:
             user_info_cache = json.load(user_info_cache_file)
 
-            if user_name in user_info_cache:
-                user_info = user_info_cache[user_name]
+        # If the user is in the cache get their info from the cache
+        if user_name in user_info_cache:
+            cached_user_info = user_info_cache[user_name]
+
+            # If they're marked as allow or block, return that
+            if cached_user_info.get('allow'):
+                return cached_user_info['allow']
+            # If they're not marked, check the cached allow time
+            elif time.time() > cached_user_info['allow_after']:
+                return True
             else:
-                try:
-                    user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
+                return False
+        # Else, try to get it from the Twitch API
+        else:
+            try:
+                api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
                                                     self.config['twitch']['oauth_token'],
                                                     user_name)
-                except requests.RequestException:
+            except requests.RequestException:
+                return False
+            else:
+                account_created_seconds = time.mktime(time.strptime(api_user_info['created_at'], '%Y-%m-%dT%H:%M:%sZ'))
+
+                allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
+                if allow_after_time < time.time():
+                    user_info_cache[user_name] = {'allow': True}
+                    return True
+                else:
+                    user_info_cache[user_name] = {'allow_after': allow_after_time}
                     return False
+
 
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
