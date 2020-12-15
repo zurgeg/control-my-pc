@@ -222,7 +222,7 @@ class CommandProcessor:
         """
         # TODO: cache whole db in memory too at startup
         # Load the cache
-        with open(cache_file_path, 'r') as user_info_cache_file:
+        with open(cache_file_path, 'r+') as user_info_cache_file:
             user_info_cache = json.load(user_info_cache_file)
 
         # If the user is in the cache get their info from the cache
