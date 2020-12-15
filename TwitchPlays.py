@@ -231,6 +231,11 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Ignore bot messages
             if twitch_message.username == 'controlmybot' or twitch_message.username == 'cmpclive':
                 return
+            # Check the user's account age
+            if not self.processor.check_user_account_age(message.author.id):
+                # TODO: inform the user that their command was ignored, eg. sending a message
+                # (which would require the chat:edit scope)
+                return
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)

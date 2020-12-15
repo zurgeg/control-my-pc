@@ -115,9 +115,9 @@ def direct_or_auto():
         return 'auto'
 
 
-def twitch_api_get_user(client_id, oauth_key, user_login_name):
+def twitch_api_get_user(client_id, oauth_key, user_id):
     """Return the JSON response containing info about the specified Twitch user, or raise a RequestException."""
-    data = {'login': user_login_name}
+    data = {'id': user_id}
     headers = {
         'Client-Id': client_id,
         'Authorization': f'Bearer {oauth_key}',

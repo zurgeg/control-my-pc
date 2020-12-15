@@ -210,8 +210,16 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    def check_user_account_age(self, user_name, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
-        """Create docstring when done pls"""
+    def check_user_account_age(self, user_id, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+        """Check whether a Twitch user account is old enough to run commands.
+
+        Args:
+            user_id -- Twitch account ID to get info on from their API
+            cache_file_path -- JSON file to store info about users in. May be modified by this function.
+        Returns a boolean which will be True if the user's account age was verified.
+
+        Account age is checked against self.req_account_age_days
+        """
         # TODO: switch from name to ID
         # TODO: cache whole db in memory too at startup
         # Load the cache
@@ -219,14 +227,18 @@ class CommandProcessor:
             user_info_cache = json.load(user_info_cache_file)
 
         # If the user is in the cache get their info from the cache
-        if user_name in user_info_cache:
-            cached_user_info = user_info_cache[user_name]
+        if user_id in user_info_cache:
+            cached_user_info = user_info_cache[user_id]
 
             # If they're marked as allow or block, return that
             if cached_user_info.get('allow'):
                 return cached_user_info['allow']
             # If they're not marked, check the cached allow time
             elif time.time() > cached_user_info['allow_after']:
+                user_info_cache[user_id]['allow'] = True
+                with open(cache_file_path, 'w') as user_info_cache_file:
+                    json.dump(user_info_cache, user_info_cache_file)
+
                 return True
             else:
                 return False
@@ -235,18 +247,20 @@ class CommandProcessor:
             try:
                 api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
                                                     self.config['twitch']['oauth_token'],
-                                                    user_name)
+                                                    user_id)
             except requests.RequestException:
+                # No luck, no allow
                 return False
             else:
+                # Check the status from the response info, and save it to the cache
                 account_created_seconds = time.mktime(time.strptime(api_user_info['created_at'], '%Y-%m-%dT%H:%M:%sZ'))
 
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
                 if allow_after_time < time.time():
-                    user_info_cache[user_name] = {'allow': True}
+                    user_info_cache[user_id] = {'allow': True}
                     return_value = True
                 else:
-                    user_info_cache[user_name] = {'allow_after': allow_after_time}
+                    user_info_cache[user_id] = {'allow_after': allow_after_time}
                     return_value = False
 
                 # Update the cache file
