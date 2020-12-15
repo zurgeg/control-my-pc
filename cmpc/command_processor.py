@@ -6,6 +6,7 @@ Classes:
 
 # PSL Packages
 import time
+import os
 import sys
 import json
 import logging as log
@@ -222,8 +223,11 @@ class CommandProcessor:
         """
         # TODO: cache whole db in memory too at startup
         # Load the cache
-        with open(cache_file_path, 'r+') as user_info_cache_file:
-            user_info_cache = json.load(user_info_cache_file)
+        if os.path.isfile(cache_file_path):
+            with open(cache_file_path, 'r') as user_info_cache_file:
+                user_info_cache = json.load(user_info_cache_file)
+        else:
+            user_info_cache = {}
 
         # If the user is in the cache get their info from the cache
         if user_id in user_info_cache:
