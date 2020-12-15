@@ -226,7 +226,8 @@ class CommandProcessor:
 
         # Load the cache
         if os.path.isfile(cache_file_path):
-            user_info_cache = json.load(cache_file_path)
+            with open(cache_file_path, 'r') as user_info_cache_file:
+                user_info_cache = json.load(user_info_cache_file)
         else:
             user_info_cache = {}
 

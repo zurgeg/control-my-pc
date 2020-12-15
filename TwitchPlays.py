@@ -353,15 +353,16 @@ class TwitchPlays(cmpc.TwitchConnection):
                         user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
                                                            self.processor.remove_prefix(CONFIG['twitch']['oauth_token'],
                                                                                         'oauth:'),
-                                                           user_name=user_name)
+                                                           user_name=user_name)['id']
                     except requests.RequestException:
                         log.error(f'Unable to approve user {user_name} - user not found!')
                     else:
-                        user_info_cache = json.load(CONFIG_FOLDER/'user_info_cache.json')
+                        with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
+                            user_info_cache = json.load(user_info_cache_file)
                         user_info_cache.setdefault(user_id, {})['allow'] = True
 
-                        with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
-                            json.dump(user_info_cache_file, user_info_cache)
+                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
+                            json.dump(user_info_cache, user_info_cache_file)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')
