@@ -210,11 +210,12 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    def check_user_account_age(self, user_name):
+    def check_user_account_age(self, user_name, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Create docstring when done pls"""
         # TODO: switch from name to ID
+        # TODO: cache whole db in memory too at startup
         # Load the cache
-        with open(CONFIG_FOLDER/'user_info_cache.json', 'a+') as user_info_cache_file:
+        with open(cache_file_path, 'r') as user_info_cache_file:
             user_info_cache = json.load(user_info_cache_file)
 
         # If the user is in the cache get their info from the cache
@@ -243,11 +244,16 @@ class CommandProcessor:
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
                 if allow_after_time < time.time():
                     user_info_cache[user_name] = {'allow': True}
-                    return True
+                    return_value = True
                 else:
                     user_info_cache[user_name] = {'allow_after': allow_after_time}
-                    return False
+                    return_value = False
 
+                # Update the cache file
+                with open(cache_file_path, 'w') as user_info_cache_file:
+                    json.dump(user_info_cache, user_info_cache_file)
+
+                return return_value
 
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
