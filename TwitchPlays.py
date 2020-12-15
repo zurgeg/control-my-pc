@@ -182,7 +182,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                                   f"Last updated: {apiconfig_json['last_updated']}\n"
                                   f"Retrieved: {retrieved_time}\n\n"
                                   f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                                  f"**Environment -** {CONFIG['options']['DEPLOY']}"
+                                  f"**Environment -** {CONFIG['options']['DEPLOY']}\n"
+                                  f"**Response Status Code- ** {apiconfig.status_code}"
                                   )
             except TypeError:
                 log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
