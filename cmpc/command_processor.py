@@ -220,7 +220,6 @@ class CommandProcessor:
 
         Account age is checked against self.req_account_age_days
         """
-        # TODO: switch from name to ID
         # TODO: cache whole db in memory too at startup
         # Load the cache
         with open(cache_file_path, 'r') as user_info_cache_file:
