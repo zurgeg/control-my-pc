@@ -229,12 +229,14 @@ class TwitchPlays(cmpc.TwitchConnection):
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Ignore bot messages
-            if twitch_message.username == 'controlmybot' or twitch_message.username == 'cmpclive':
+            if twitch_message.username in ['controlmybot', 'cmpclive']:
+                log.info(f'Ignored message from {twitch_message.username} due to exemption.')
                 return
             # Check the user's account age
             if not self.processor.check_user_account_age(message.author.id):
                 # TODO: inform the user that their command was ignored, eg. sending a message
                 # (which would require the chat:edit scope)
+                log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
                 return
 
             # Process this beef

@@ -222,6 +222,8 @@ class CommandProcessor:
         Account age is checked against self.req_account_age_days
         """
         # TODO: cache whole db in memory too at startup
+        user_id = str(user_id)
+
         # Load the cache
         if os.path.isfile(cache_file_path):
             with open(cache_file_path, 'r') as user_info_cache_file:
@@ -258,13 +260,14 @@ class CommandProcessor:
                 # Check the status from the response info, and save it to the cache
                 account_created_string = api_user_info['data'][0]['created_at']
                 account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
-
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
+
+                user_info_cache[user_id] = {}
                 if allow_after_time < time.time():
-                    user_info_cache[user_id] = {'allow': True}
+                    user_info_cache[user_id]['allow'] = True
                     return_value = True
                 else:
-                    user_info_cache[user_id] = {'allow_after': allow_after_time}
+                    user_info_cache[user_id]['allow_after'] = allow_after_time
                     return_value = False
 
                 # Update the cache file
