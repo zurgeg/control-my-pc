@@ -249,14 +249,15 @@ class CommandProcessor:
         else:
             try:
                 api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
-                                                    self.config['twitch']['oauth_token'],
+                                                    self.remove_prefix(self.config['twitch']['oauth_token'], 'oauth:'),
                                                     user_id)
             except requests.RequestException:
                 # No luck, no allow
                 return False
             else:
                 # Check the status from the response info, and save it to the cache
-                account_created_seconds = time.mktime(time.strptime(api_user_info['created_at'], '%Y-%m-%dT%H:%M:%sZ'))
+                account_created_string = api_user_info['data'][0]['created_at']
+                account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
 
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
                 if allow_after_time < time.time():
