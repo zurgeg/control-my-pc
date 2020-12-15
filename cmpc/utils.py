@@ -115,9 +115,14 @@ def direct_or_auto():
         return 'auto'
 
 
-def twitch_api_get_user(client_id, oauth_key, user_id):
+def twitch_api_get_user(client_id, oauth_key, user_id=None, user_name=None):
     """Return the JSON response containing info about the specified Twitch user, or raise a RequestException."""
-    data = {'id': user_id}
+    if user_id:
+        data = {'id': user_id}
+    elif user_name:
+        data = {'login': user_id}
+    else:
+        raise NameError('No user ID or login given!')
     headers = {
         'Client-Id': client_id,
         'Authorization': f'Bearer {oauth_key}',
@@ -125,7 +130,7 @@ def twitch_api_get_user(client_id, oauth_key, user_id):
 
     response = requests.get('https://api.twitch.tv/helix/users', data=data, headers=headers)
     if response.ok:
-        return response.json()
+        return response.json()['data'][0]
     else:
         raise requests.RequestException('Unable to get info about user.')
 

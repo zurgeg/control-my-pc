@@ -211,7 +211,7 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    def check_user_account_age(self, user_id, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+    def check_user_account_age(self, user_id, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.
 
         Args:
@@ -226,8 +226,7 @@ class CommandProcessor:
 
         # Load the cache
         if os.path.isfile(cache_file_path):
-            with open(cache_file_path, 'r') as user_info_cache_file:
-                user_info_cache = json.load(user_info_cache_file)
+            user_info_cache = json.load(cache_file_path)
         else:
             user_info_cache = {}
 
@@ -252,13 +251,13 @@ class CommandProcessor:
             try:
                 api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
                                                     self.remove_prefix(self.config['twitch']['oauth_token'], 'oauth:'),
-                                                    user_id)
+                                                    user_id=user_id)
             except requests.RequestException:
                 # No luck, no allow
                 return False
             else:
                 # Check the status from the response info, and save it to the cache
-                account_created_string = api_user_info['data'][0]['created_at']
+                account_created_string = api_user_info['created_at']
                 account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
 
