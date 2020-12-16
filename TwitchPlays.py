@@ -215,6 +215,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                               f"**Environment -** {CONFIG['options']['DEPLOY']}",
                               )
 
+    # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
         """Override TwitchPlays.event_message - process a message.
 
@@ -357,14 +358,20 @@ class TwitchPlays(cmpc.TwitchConnection):
                                       'Due to too large arg')
 
                 # User allow list handling commands
-                if twitch_message.content.startswith(('script- approve ', 'script- block ')):
-                    if twitch_message.content.startswith('script- approve '):
-                        prefix = 'script- approve '
-                        set_state = True
-                    # elif twitch_message.content.startswith('script- block '):
-                    else:
-                        prefix = 'script- block '
+                # TODO: clean up/refactor?
+                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve')):
+                    if twitch_message.content.startswith('script- ban '):
+                        prefix = 'script- ban '
+                        key = 'allow'
                         set_state = False
+                    elif twitch_message.content.startswith('script- unban '):
+                        prefix = 'script- unban '
+                        key = 'allow'
+                        set_state = True
+                    elif twitch_message.content.startswith('script- approve '):
+                        prefix = 'script- approve '
+                        key = 'allow'
+                        set_state = True
 
                     user_name = self.processor.remove_prefix(twitch_message.content, prefix)
 
@@ -374,7 +381,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                                                                         'oauth:'),
                                                            user_name=user_name)['id']
                     except requests.RequestException:
-                        log.error(f'Unable to approve/block user {user_name} - user not found!')
+                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
                     else:
                         self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
 
