@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more.
+"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more."
 
 Files:
     config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
@@ -104,16 +104,6 @@ class TwitchPlays(cmpc.TwitchConnection):
         if os.path.exists(LOGS_FOLDER/'chat.log'):
             os.remove(LOGS_FOLDER/'chat.log')
 
-        # Load cache to memory
-        if os.path.isfile(CONFIG_FOLDER/'user_info_cache.json'):
-            with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
-                self.user_info_cache = json.load(user_info_cache_file)
-        else:
-            self.user_info_cache = {}
-
-            with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                json.dump(self.user_info_cache, user_info_cache_file)
-
         self.user_permissions_handler = self.permissions_handler_from_json()
 
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
@@ -216,7 +206,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                               f"**Environment -** {CONFIG['options']['DEPLOY']}",
                               )
 
-    # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
         """Override TwitchPlays.event_message - process a message.
 
@@ -241,14 +230,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Ignore bot messages
-            if twitch_message.username in ['controlmybot', 'cmpclive']:
-                log.info(f'Ignored message from {twitch_message.username} due to exemption.')
-                return
-            # Check the user's account age
-            if not self.processor.check_user_account_age(message.author.id, self.user_info_cache):
-                # TODO: inform the user that their command was ignored, eg. sending a message
-                # (which would require the chat:edit scope)
-                log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
+            if twitch_message.username == 'controlmybot' or twitch_message.username == 'cmpclive':
                 return
 
             # Process this beef
@@ -357,37 +339,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                         except OverflowError:
                             log.error(f'Could not suspend for duration: {twitch_message.content}\n'
                                       'Due to too large arg')
-
-                # User allow list handling commands
-                # TODO: clean up/refactor?
-                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve')):
-                    if twitch_message.content.startswith('script- ban '):
-                        prefix = 'script- ban '
-                        key = 'allow'
-                        set_state = False
-                    elif twitch_message.content.startswith('script- unban '):
-                        prefix = 'script- unban '
-                        key = 'allow'
-                        set_state = True
-                    elif twitch_message.content.startswith('script- approve '):
-                        prefix = 'script- approve '
-                        key = 'allow'
-                        set_state = True
-
-                    user_name = self.processor.remove_prefix(twitch_message.content, prefix)
-
-                    try:
-                        user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
-                                                           self.processor.remove_prefix(CONFIG['twitch']['oauth_token'],
-                                                                                        'oauth:'),
-                                                           user_name=user_name)['id']
-                    except requests.RequestException:
-                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
-                    else:
-                        self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
-
-                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                            json.dump(self.user_info_cache, user_info_cache_file)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')

@@ -7,7 +7,6 @@ Classes:
 import time
 
 
-# TODO: remove this class and move its methods to utils.py?
 class TwitchMessage:
     """Container for a single message from the Twitch chat.
 

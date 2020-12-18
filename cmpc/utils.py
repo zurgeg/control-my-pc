@@ -115,22 +115,17 @@ def direct_or_auto():
         return 'auto'
 
 
-def twitch_api_get_user(client_id, oauth_key, user_id=None, user_name=None):
+def twitch_api_get_user(client_id, oauth_key, user_login_name):
     """Return the JSON response containing info about the specified Twitch user, or raise a RequestException."""
-    if user_id:
-        payload = {'id': user_id}
-    elif user_name:
-        payload = {'login': user_name}
-    else:
-        raise NameError('No user ID or login given!')
+    data = {'login': user_login_name}
     headers = {
         'Client-Id': client_id,
         'Authorization': f'Bearer {oauth_key}',
     }
 
-    response = requests.get('https://api.twitch.tv/helix/users', params=payload, headers=headers)
+    response = requests.get('https://api.twitch.tv/helix/users', data=data, headers=headers)
     if response.ok:
-        return response.json()['data'][0]
+        return response.json()
     else:
         raise requests.RequestException('Unable to get info about user.')
 
@@ -155,7 +150,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
 
     data = {
-        'content': '' if environment == 'Debug' else '<@&779783726196064323>',
+        'content': '<@&779783726196064323>',
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
@@ -172,7 +167,6 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
 
 
 def input_handler():
-    """Return pyautogui or pydirectinput based on platform."""
     dor = direct_or_auto()
 
     handler = pyautogui
