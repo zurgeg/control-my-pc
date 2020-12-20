@@ -44,7 +44,6 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read u
 
 def save_oauth_key(oauth_key):
     """Save an oauth key to the config.toml."""
-
     # Edit config.toml
     config = toml.load(CONFIG_FOLDER/'config.toml')
     config['twitch']['oauth_token'] = oauth_key
