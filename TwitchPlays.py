@@ -359,35 +359,32 @@ class TwitchPlays(cmpc.TwitchConnection):
                                       'Due to too large arg')
 
                 # User allow list handling commands
-                # TODO: clean up/refactor?
                 if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve')):
-                    if twitch_message.content.startswith('script- ban '):
-                        prefix = 'script- ban '
-                        key = 'allow'
+                    args = twitch_message.content.split()
+                    subcommand = args[1]
+                    if subcommand in ['ban']:
                         set_state = False
-                    elif twitch_message.content.startswith('script- unban '):
-                        prefix = 'script- unban '
-                        key = 'allow'
+                    elif subcommand in ['unban', 'approve']:
                         set_state = True
-                    elif twitch_message.content.startswith('script- approve '):
-                        prefix = 'script- approve '
-                        key = 'allow'
-                        set_state = True
-
-                    user_name = self.processor.remove_prefix(twitch_message.content, prefix)
 
                     try:
-                        user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
-                                                           self.processor.remove_prefix(CONFIG['twitch']['oauth_token'],
-                                                                                        'oauth:'),
-                                                           user_name=user_name)['id']
-                    except requests.RequestException:
-                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
+                        user_name = args[2]
+                    except IndexError:
+                        log.error('Error in ban or unban, no username given.')
                     else:
-                        self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
+                        try:
+                            user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
+                                                               self.processor.remove_prefix(
+                                                                   CONFIG['twitch']['oauth_token'],
+                                                                   'oauth:'),
+                                                               user_name=user_name)['id']
+                        except requests.RequestException:
+                            log.error(f'Unable to unban/ban user {user_name} - user not found!')
+                        else:
+                            self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
 
-                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                            json.dump(self.user_info_cache, user_info_cache_file)
+                            with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
+                                json.dump(self.user_info_cache, user_info_cache_file)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')
