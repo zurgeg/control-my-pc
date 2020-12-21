@@ -212,17 +212,16 @@ class TwitchPlays(cmpc.TwitchConnection):
         )
 
     async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
-        if not self.user_info_cache[message.author.id].get('notified_ignored'):
-            try:
-                ctx = await self.get_context(message)
-                # TODO: add custom messages depending on why they were ignored
-                await ctx.send(f'@{message.author.name} your message was ignored by the script because '
-                               f'your account is under {self.processor.req_account_age_days} days old '
-                               'or because you have been banned/timed out.')
-            except twitchio.errors.EchoMessageWarning:
-                return
+        user_id = str(message.author.id)
+        if not self.user_info_cache[user_id].get('notified_ignored'):
+            ctx = await self.get_context(message)
+            # TODO: add custom messages depending on why they were ignored
+            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+                           f'your account is under {self.processor.req_account_age_days} days old '
+                           'or because you have been banned/timed out.')
+            log.info('Notified user they were ignored.')
 
-            self.user_info_cache[message.author.id]['notified_ignored'] = True
+            self.user_info_cache[user_id]['notified_ignored'] = True
             with open(cache_file_path, 'w') as user_info_cache_file:
                 json.dump(self.user_info_cache, user_info_cache_file)
 
@@ -266,7 +265,10 @@ class TwitchPlays(cmpc.TwitchConnection):
             if twitch_message.username in ['controlmybot', 'cmpclive', 'cmpcserver']:
                 log.info(f'Ignored message from {twitch_message.username} due to exemption.')
                 return
-            # Check the user's account age
+            # Ignore echo messages
+            if not message.author.id:
+                return
+            # Check if the user is allowed to run commands
             if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
                 await self.notify_ignored_user(message)
                 log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
