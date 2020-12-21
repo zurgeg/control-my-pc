@@ -360,32 +360,49 @@ class TwitchPlays(cmpc.TwitchConnection):
                                       'Due to too large arg')
 
                 # User allow list handling commands
-                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve')):
+                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve',
+                                                      'script- timeout', 'script- untimeout')):
                     args = twitch_message.content.split()
                     subcommand = args[1]
                     if subcommand in ['ban']:
-                        set_state = False
+                        set_states = {'allow': False}
                     elif subcommand in ['unban', 'approve']:
-                        set_state = True
+                        set_states = {'allow': True}
+                    elif subcommand in ['timeout']:
+                        try:
+                            timeout_duration = args[2]
+                        except IndexError:
+                            log.error('Error in timeout, no duration given.')
+                            return
+
+                        timeout_end = time.time() + timeout_duration
+                        # TODO: add handling for 'force_wait' to check_user_account_age
+                        set_states = {
+                            'allow_after': timeout_end,
+                            'force_wait': True
+                        }
+                    elif subcommand in ['untimeout']:
+                        set_states = {'force_wait': False}
 
                     try:
                         user_name = args[2]
                     except IndexError:
-                        log.error('Error in ban or unban, no username given.')
-                    else:
-                        try:
-                            user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
-                                                               self.processor.remove_prefix(
-                                                                   CONFIG['twitch']['oauth_token'],
-                                                                   'oauth:'),
-                                                               user_name=user_name)['id']
-                        except requests.RequestException:
-                            log.error(f'Unable to unban/ban user {user_name} - user not found!')
-                        else:
-                            self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
+                        log.error('Error in ban/timeout, no username given.')
+                        return
 
-                            with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                                json.dump(self.user_info_cache, user_info_cache_file)
+                    try:
+                        user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
+                                                           self.processor.remove_prefix(
+                                                               CONFIG['twitch']['oauth_token'],
+                                                               'oauth:'),
+                                                           user_name=user_name)['id']
+                    except requests.RequestException:
+                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
+                    else:
+                        self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
+
+                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
+                            json.dump(self.user_info_cache, user_info_cache_file)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')
