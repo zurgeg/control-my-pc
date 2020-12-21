@@ -268,10 +268,12 @@ class TwitchPlays(cmpc.TwitchConnection):
             if not message.author.id:
                 return
             # Check if the user is allowed to run commands
-            if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
-                await self.notify_ignored_user(message)
-                log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
-                return
+            # Don't bother checking for hardcoded exempt users
+            if message.author.name not in ['controlmypc']:
+                if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
+                    await self.notify_ignored_user(message)
+                    log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
+                    return
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
@@ -386,7 +388,10 @@ class TwitchPlays(cmpc.TwitchConnection):
                     args = twitch_message.content.split()
                     subcommand = args[1]
                     if subcommand in ['ban']:
-                        set_states = {'allow': False}
+                        set_states = {
+                            'allow': False,
+                            'notified_ignored': False
+                        }
                     elif subcommand in ['unban', 'approve']:
                         set_states = {'allow': True}
                     elif subcommand in ['timeout']:
@@ -399,7 +404,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                         timeout_end = time.time() + timeout_duration
                         set_states = {
                             'allow_after': timeout_end,
-                            'force_wait': True
+                            'force_wait': True,
+                            'notified_ignored': False
                         }
                     elif subcommand in ['untimeout']:
                         set_states = {'force_wait': False}
