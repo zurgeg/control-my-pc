@@ -228,12 +228,9 @@ class CommandProcessor:
         if user_id in user_info_cache:
             cached_user_info = user_info_cache[user_id]
 
+            force_wait = cached_user_info.get('force_wait')
             # If they're marked as allow or block, return that
-            if cached_user_info.get('force_wait'):
-                force_wait = cached_user_info['force_wait']
-            else:
-                force_wait = False
-            if cached_user_info.get('allow') and not force_wait:
+            if 'allow' in cached_user_info and not force_wait:
                 return cached_user_info['allow']
             # If they're not marked, check the cached allow time
             elif time.time() > cached_user_info['allow_after']:
