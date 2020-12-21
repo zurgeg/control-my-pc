@@ -19,15 +19,18 @@ import toml
 
 CONFIG_FOLDER = Path('config/')
 
+DEFAULT_SCOPES = "chat:read "\
+                 "whispers:edit"
+
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read user:read:email'):
+def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=DEFAULT_SCOPES):
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
         'redirect_uri': 'https://cmpc.live/oauthdisplay',
         'response_type': 'token',
-        'scope': scope
+        'scope': scopes
     }
 
     url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
