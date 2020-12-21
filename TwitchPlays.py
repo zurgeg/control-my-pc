@@ -246,7 +246,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 log.info(f'Ignored message from {twitch_message.username} due to exemption.')
                 return
             # Check the user's account age
-            if not self.processor.check_user_account_age(message.author.id, self.user_info_cache):
+            if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
                 # TODO: inform the user that their command was ignored, eg. sending a message
                 # (which would require the chat:edit scope)
                 log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
@@ -376,7 +376,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                             return
 
                         timeout_end = time.time() + timeout_duration
-                        # TODO: add handling for 'force_wait' to check_user_account_age
+                        # TODO: add handling for 'force_wait' to check_user_allowed
                         set_states = {
                             'allow_after': timeout_end,
                             'force_wait': True
@@ -399,7 +399,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                     except requests.RequestException:
                         log.error(f'Unable to unban/ban user {user_name} - user not found!')
                     else:
-                        self.user_info_cache.setdefault(user_id, {})['allow'] = set_state
+                        for key, value in set_states.items():
+                            self.user_info_cache.setdefault(user_id, {})[key] = value
 
                         with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
                             json.dump(self.user_info_cache, user_info_cache_file)
