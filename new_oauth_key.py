@@ -10,7 +10,6 @@ Files:
     config/config.toml -- where the new key will be assigned to
 """
 
-import os
 import webbrowser
 from pathlib import Path
 
@@ -19,12 +18,14 @@ import toml
 
 CONFIG_FOLDER = Path('config/')
 
-DEFAULT_SCOPES = "chat:read "\
-                 "whispers:edit"
+DEFAULT_SCOPES = [
+    'chat:read',
+    'chat:edit',
+]
 
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=DEFAULT_SCOPES):
+def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=' '.join(DEFAULT_SCOPES)):
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
