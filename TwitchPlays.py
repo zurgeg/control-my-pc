@@ -376,7 +376,6 @@ class TwitchPlays(cmpc.TwitchConnection):
                             return
 
                         timeout_end = time.time() + timeout_duration
-                        # TODO: add handling for 'force_wait' to check_user_allowed
                         set_states = {
                             'allow_after': timeout_end,
                             'force_wait': True

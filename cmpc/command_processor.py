@@ -218,8 +218,10 @@ class CommandProcessor:
             cache_file_path -- JSON file to store info about users in. May be modified by this function.
         Returns a boolean which will be True if the user's account age was verified.
 
-        Account age is checked against self.req_account_age_days
+        Account age is checked against self.req_account_age_days.
+        Also checks if the user has been manually banned or allowed.
         """
+        # TODO: split into smaller functions e.g. check_user_cache and check_user_twitch_api?
         user_id = str(user_id)
 
         # If the user is in the cache get their info from the cache
@@ -227,7 +229,11 @@ class CommandProcessor:
             cached_user_info = user_info_cache[user_id]
 
             # If they're marked as allow or block, return that
-            if cached_user_info.get('allow'):
+            if cached_user_info.get('force_wait'):
+                force_wait = cached_user_info['force_wait']
+            else:
+                force_wait = False
+            if cached_user_info.get('allow') and not force_wait:
                 return cached_user_info['allow']
             # If they're not marked, check the cached allow time
             elif time.time() > cached_user_info['allow_after']:
