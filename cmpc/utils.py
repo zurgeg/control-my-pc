@@ -120,6 +120,8 @@ def twitch_api_get_user(client_id, oauth_key, user_id=None, user_name=None):
     if user_id:
         payload = {'id': user_id}
     elif user_name:
+        if user_name.startswith('@'):
+            user_name = user_name[1:]
         payload = {'login': user_name}
     else:
         raise NameError('No user ID or login given!')

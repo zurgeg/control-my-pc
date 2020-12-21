@@ -222,6 +222,7 @@ class CommandProcessor:
         Also checks if the user has been manually banned or allowed.
         """
         # TODO: split into smaller functions e.g. check_user_cache and check_user_twitch_api?
+        # TODO: for performance, backup the cache occasionally, instead of every write?
         user_id = str(user_id)
 
         # If the user is in the cache get their info from the cache

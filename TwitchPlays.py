@@ -375,9 +375,9 @@ class TwitchPlays(cmpc.TwitchConnection):
                         set_states = {'allow': True}
                     elif subcommand in ['timeout']:
                         try:
-                            timeout_duration = args[2]
-                        except IndexError:
-                            log.error('Error in timeout, no duration given.')
+                            timeout_duration = float(args[2])
+                        except (IndexError, TypeError):
+                            log.error('Error in timeout, no or invalid duration given.')
                             return
 
                         timeout_end = time.time() + timeout_duration
