@@ -210,6 +210,18 @@ class TwitchPlays(cmpc.TwitchConnection):
             mod_list=apiconfig_json['modlist']
         )
 
+    async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+        if not self.user_info_cache[message.author.id].get('notified_ignored'):
+            ctx = await self.get_context(message)
+            # TODO: add custom messages depending on why they were ignored
+            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+                           f'your account is under {self.processor.req_account_age_days} days old '
+                           'or because you have been banned/timed out.')
+
+            self.user_info_cache[message.author.id]['notified_ignored'] = True
+            with open(cache_file_path, 'w') as user_info_cache_file:
+                json.dump(self.user_info_cache, user_info_cache_file)
+
     # TwitchConnection overrides
     async def event_ready(self):
         """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable."""
@@ -247,13 +259,12 @@ class TwitchPlays(cmpc.TwitchConnection):
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Ignore bot messages
-            if twitch_message.username in ['controlmybot', 'cmpclive']:
+            if twitch_message.username in ['controlmybot', 'cmpclive', 'cmpcserver']:
                 log.info(f'Ignored message from {twitch_message.username} due to exemption.')
                 return
             # Check the user's account age
             if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
-                # TODO: inform the user that their command was ignored, eg. sending a message
-                # (which would require the chat:edit scope)
+                await self.notify_ignored_user(message)
                 log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
                 return
 
