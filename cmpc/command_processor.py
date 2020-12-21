@@ -236,6 +236,8 @@ class CommandProcessor:
             # If they're not marked, check the cached allow time
             elif time.time() > cached_user_info['allow_after']:
                 user_info_cache[user_id]['allow'] = True
+                if cached_user_info.get('force_wait'):
+                    cached_user_info['force_wait'] = False
                 with open(cache_file_path, 'w') as user_info_cache_file:
                     json.dump(user_info_cache, user_info_cache_file)
 
