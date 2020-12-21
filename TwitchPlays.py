@@ -162,7 +162,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         log.info('[API] Requesting data!')
         try:
             apiconfig = requests.get(url)
-            if apiconfig.status_code != 200:
+            if not apiconfig.ok:
                 raise requests.RequestException
             else:
                 apiconfig_json = apiconfig.json()
@@ -185,6 +185,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
                             f"JSON last updated: {apiconfig_json['last_updated']}\n"
                             f"Retrieved: {retrieved_time}")
+                # noinspection PyUnboundLocalVariable
                 cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                   'Failed to load data from API\n'
                                   'Loaded dev list from static file instead\n'
