@@ -39,6 +39,7 @@ Massive rewrite with improved code and new features.
 
 - **vX.Y.Z YYYY-MM-DD INFO**
 - **Date descending**
+- v3.8.0 2020-12-21 Add new moderation features for ignoring brand-new user accounts and script-banning users  
 - v3.7.1 2020-12-11 Fix error handling for go to command  
 - v3.7.0 2020-12-04 Remove environment variable support for simplicity's sake, add !modalert ping role ID in config.
 - v3.6.0 2020-11-22 Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring, and some minor changes like new commands.
