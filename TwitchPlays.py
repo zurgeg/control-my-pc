@@ -105,10 +105,15 @@ class TwitchPlays(cmpc.TwitchConnection):
             os.remove(LOGS_FOLDER/'chat.log')
 
         # Load cache to memory
-        if os.path.isfile(CONFIG_FOLDER/'user_info_cache.json'):
+        try:
+            if not os.path.isfile(CONFIG_FOLDER/'user_info_cache.json'):
+                raise FileNotFoundError('User info cache does not exist.')
+
             with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
                 self.user_info_cache = json.load(user_info_cache_file)
-        else:
+                log.info('Loaded user info cache.')
+        except (FileNotFoundError, json.JSONDecodeError):
+            log.warning('User info cache did not exist or error decoding, initialising a new cache.')
             self.user_info_cache = {}
 
             with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:

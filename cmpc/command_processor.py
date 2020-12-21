@@ -257,6 +257,7 @@ class CommandProcessor:
                 # Check the status from the response info, and save it to the cache
                 account_created_string = api_user_info['created_at']
                 account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
+                # allow_after should be the time in seconds since the epoch after which the user is allowed
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
 
                 user_info_cache[user_id] = {}
