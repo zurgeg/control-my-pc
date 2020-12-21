@@ -27,6 +27,7 @@ from pathlib import Path  # for best practices filepath handling
 import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
+import twitchio.errors
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
@@ -212,11 +213,14 @@ class TwitchPlays(cmpc.TwitchConnection):
 
     async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
         if not self.user_info_cache[message.author.id].get('notified_ignored'):
-            ctx = await self.get_context(message)
-            # TODO: add custom messages depending on why they were ignored
-            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
-                           f'your account is under {self.processor.req_account_age_days} days old '
-                           'or because you have been banned/timed out.')
+            try:
+                ctx = await self.get_context(message)
+                # TODO: add custom messages depending on why they were ignored
+                await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+                               f'your account is under {self.processor.req_account_age_days} days old '
+                               'or because you have been banned/timed out.')
+            except twitchio.errors.EchoMessageWarning:
+                return
 
             self.user_info_cache[message.author.id]['notified_ignored'] = True
             with open(cache_file_path, 'w') as user_info_cache_file:
