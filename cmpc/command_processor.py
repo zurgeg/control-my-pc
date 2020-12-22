@@ -464,7 +464,8 @@ class CommandProcessor:
                         }
                     ],
                     'username': message.username,
-                    'content': f"{self.config['discord']['modalertping']} https://twitch.tv/controlmypc",
+                    'content': f"{self.config['discord']['modalertping']} "
+                               f"https://twitch.tv/{self.config['twitch']['channel']}",
                 }
                 log.info('[MODALERT] Sending request...')
                 # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
