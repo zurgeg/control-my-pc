@@ -267,9 +267,12 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Ignore echo messages
             if not message.author.id:
                 return
+
+            user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
+
             # Check if the user is allowed to run commands
-            # Don't bother checking for hardcoded exempt users
-            if message.author.name not in ['controlmypc']:
+            # Don't bother checking for moderators or developers
+            if not user_permissions.moderator or user_permissions.developer:
                 if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
                     await self.notify_ignored_user(message)
                     log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
@@ -280,8 +283,6 @@ class TwitchPlays(cmpc.TwitchConnection):
             if command_has_run:
                 self.processor.log_to_obs(None)
                 return
-
-            user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
