@@ -9,6 +9,7 @@
 
 [twitch] # production example shown below
 	channel = "cmpcserver" # The channel to log in as
+	clean_channel = "controlmypc" # "clean" channel name, what the modalert shows up as.
     oauth_token = "" # pretty much password to twitch
     api_client_id = "zvlttmj8jah002ucbqbpt1lkuq4oj3"  # used for getting info about users from the twitch api
                                                       # client id for the twitch app your got your oauth key from
