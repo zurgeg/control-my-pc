@@ -462,7 +462,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(CONFIG['discord']['systemlog'], error,
-                            twitch_message, TWITCH_USERNAME,
+                            twitch_message, CONFIG['twitch']['clean_channel'],
                             CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
 
