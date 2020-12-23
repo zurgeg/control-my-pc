@@ -84,17 +84,17 @@ class CommandProcessor:
 
     MOUSE_MOVE_COMMANDS = {
         ('left',): (-100, 0,),
-        ('light left', 'little left',): (-25, 0,),
-        ('super light left', 'super little left',): (-10, 0,),
+        ('light left', 'little left', 'slight left',): (-25, 0,),
+        ('super light left', 'super little left', 'super slight left',): (-10, 0,),
         ('right',): (100, 0,),
-        ('light right', 'little right',): (25, 0,),
-        ('super light right', 'super little right',): (10, 0,),
+        ('light right', 'little right', 'slight right',): (25, 0,),
+        ('super light right', 'super little right', 'super slight right',): (10, 0,),
         ('up',): (0, -100,),
-        ('light up', 'little up',): (0, -25,),
-        ('super light up', 'super little up',): (0, -10,),
+        ('light up', 'little up', 'slight up',): (0, -25,),
+        ('super light up', 'super little up', 'super slight up',): (0, -10,),
         ('down',): (0, 100,),
-        ('light down', 'little down',): (0, 25,),
-        ('super light down', 'super little down',): (0, 10,),
+        ('light down', 'little down', 'slight down',): (0, 25,),
+        ('super light down', 'super little down', 'super slight down',): (0, 10,),
     }
 
     MOUSE_DRAG_COMMANDS = {
