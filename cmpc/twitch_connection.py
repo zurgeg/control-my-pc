@@ -20,12 +20,11 @@ class TwitchConnection(Bot):
         prefix -- twitchio prefix, defaults to asdf as unused
     """
 
-    def __init__(self, user, oauth, client_id, initial_channels, prefix=None):
+    def __init__(self, user, oauth, client_id, initial_channel, prefix=None):
         """Extend Bot.__init__, makes prefix optional and sets initial_channels to a list containing nick by default."""
         if prefix is None:
             prefix = '!'
-        if initial_channels is None:
-            initial_channels = [user]
+        initial_channels = [initial_channel]
 
         super().__init__(irc_token=oauth, client_id=client_id, nick=user,
                          prefix=prefix, initial_channels=initial_channels)

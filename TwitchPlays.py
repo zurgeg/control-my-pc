@@ -68,12 +68,8 @@ log.basicConfig(
 )
 log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
-if CONFIG['twitch']['custom_channels_to_join']:
-    CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
-else:
-    CHANNELS_TO_JOIN = None
-# Configure our vars
-TWITCH_USERNAME = CONFIG['twitch']['channel']
+CHANNEL_TO_JOIN = CONFIG['twitch']['channel_to_join']
+TWITCH_USERNAME = CONFIG['twitch']['username']
 TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
@@ -232,7 +228,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         if CONFIG['options']['START_MSG']:
             cmpc.send_webhook(CONFIG['discord']['systemlog'],
                               'Script - **Online**\n'
-                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                              f"[***Stream Link***](<https://twitch.tv/{CONFIG['channel_to_join']}>)\n"
                               f"**Environment -** {CONFIG['options']['DEPLOY']}",
                               )
 
@@ -293,7 +289,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content == 'script- reqdata':
                     context = {
                         'user': twitch_message.username,
-                        'channel': TWITCH_USERNAME,
+                        'channel': CONFIG['twitch']['channel_to_join'],
                         'modlist': [i for i, o in self.user_permissions_handler.items() if o.moderator],
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
                         'options': CONFIG['options'],
@@ -463,10 +459,10 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(CONFIG['discord']['systemlog'], error,
-                            twitch_message, CONFIG['twitch']['clean_channel'],
+                            twitch_message, CONFIG['twitch']['channel_to_join'],
                             CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
 
 if __name__ == '__main__':
-    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT, CHANNELS_TO_JOIN)
+    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT, CHANNEL_TO_JOIN)
     twitch_client.run()
