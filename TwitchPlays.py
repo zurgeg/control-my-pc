@@ -283,7 +283,7 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(CONFIG['discord']['modtalk'],
+                    cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content == 'script- reqdata':
@@ -294,7 +294,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
                         'options': CONFIG['options'],
                     }
-                    cmpc.send_data(CONFIG['discord']['modtalk'], context)
+                    cmpc.send_data(CONFIG['discord']['systemlog'], context)
 
                 if twitch_message.content == 'script- apirefresh':
                     self.user_permissions_handler = self.permissions_handler_from_json()
