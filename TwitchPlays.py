@@ -186,8 +186,8 @@ class TwitchPlays(Bot):
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
             try:
                 log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                            f"JSON last updated: {apiconfig_json['last_updated']}\n"
-                            f"Retrieved: {retrieved_time}")
+                            f"    JSON last updated: {apiconfig_json['last_updated']}\n"
+                            f"    Retrieved: {retrieved_time}")
                 # noinspection PyUnboundLocalVariable
                 cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                   'Failed to load data from API\n'
