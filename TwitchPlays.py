@@ -96,10 +96,6 @@ class TwitchPlays(cmpc.TwitchConnection):
             log.warning('[LOG] You are enabling debug mode in a production env, '
                         'this will log discord webhook urls to system.log and such. you have been warned.')
 
-        # General config check, mainly for cmpc to help with setup on new releases
-        if not self.check_config_against_example():
-            log.warning('')
-
         # Remove temp chat log if it exists.
         if os.path.exists(LOGS_FOLDER/'chat.log'):
             os.remove(LOGS_FOLDER/'chat.log')
@@ -137,13 +133,11 @@ class TwitchPlays(cmpc.TwitchConnection):
 
         for key, value in config_example.items():
             if key not in CONFIG:
-                log.warning(f'Your config is missing the following key: [{key}]')
                 return False
 
             if value is dict:
                 for sub_key, sub_value in value.dict():
                     if sub_key not in CONFIG[key][sub_key]:
-                        log.warning(f'Your config is missing the following key: [{key}][{sub_key}]')
                         return False
 
         return True
