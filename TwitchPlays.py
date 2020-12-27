@@ -72,6 +72,7 @@ USER_AGENT = CONFIG['api']['useragent']
 CHANNEL_TO_JOIN = CONFIG['twitch']['channel_to_join']
 TWITCH_USERNAME = CONFIG['twitch']['username']
 TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
@@ -471,5 +472,6 @@ class TwitchPlays(Bot):
 
 
 if __name__ == '__main__':
-    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT, CHANNEL_TO_JOIN)
+    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
+                                initial_channel=CHANNEL_TO_JOIN)
     twitch_client.run()
