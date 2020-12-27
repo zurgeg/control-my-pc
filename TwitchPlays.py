@@ -124,7 +124,7 @@ class TwitchPlays(cmpc.TwitchConnection):
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
-    def check_config_against_example(example_config_filepath=CONFIG_FOLDER/'config.example.toml'):
+    def check_config_against_example(self, example_config_filepath=CONFIG_FOLDER/'config.example.toml'):
         """Check that every key in the config example exists in the loaded active config.
 
         Returns False if a key is missing, True otherwise.
