@@ -124,25 +124,6 @@ class TwitchPlays(cmpc.TwitchConnection):
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
-    def check_config_against_example(self, example_config_filepath=CONFIG_FOLDER/'config.example.toml'):
-        """Check that every key in the config example exists in the loaded active config.
-
-        Returns False if a key is missing, True otherwise.
-        """
-        config_example = toml.load(example_config_filepath)
-
-        for key, value in config_example.items():
-            if key not in CONFIG:
-                return False
-
-            if value is dict:
-                for sub_key, sub_value in value.dict():
-                    if sub_key not in CONFIG[key][sub_key]:
-                        return False
-
-        return True
-
-    @staticmethod
     def load_user_permissions(dev_list, mod_list):
         """Generate a dict of user permissions based on lists of devs and mods.
 
