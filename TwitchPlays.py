@@ -27,6 +27,7 @@ from pathlib import Path  # for best practices filepath handling
 import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
+from twitchio.ext.commands.bot import Bot
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
@@ -74,10 +75,10 @@ TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
-class TwitchPlays(cmpc.TwitchConnection):
+class TwitchPlays(Bot):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id, initial_channels):
+    def __init__(self, user, oauth, client_id, initial_channel):
         """Get set up, then call super().__init__.
 
         Args:
@@ -120,7 +121,8 @@ class TwitchPlays(cmpc.TwitchConnection):
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
 
-        super().__init__(user, oauth, client_id, initial_channels)
+        super().__init__(irc_token=oauth, client_id=client_id, nick=user,
+                         prefix='!', initial_channels=[initial_channel])
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
@@ -461,6 +463,11 @@ class TwitchPlays(cmpc.TwitchConnection):
             cmpc.send_error(CONFIG['discord']['systemlog'], error,
                             twitch_message, CONFIG['twitch']['channel_to_join'],
                             CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+
+    # I don't know why this method is classed as necessary to implement but here it is.
+    async def event_pubsub(self, data):
+        """Override Bot.event_pubsub - do nothing (:."""
+        pass
 
 
 if __name__ == '__main__':

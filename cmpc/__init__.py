@@ -14,4 +14,3 @@ from .keyboard_keycodes import KeyboardKeycodes
 from .command_processor import CommandProcessor
 from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
-from .twitch_connection import TwitchConnection
