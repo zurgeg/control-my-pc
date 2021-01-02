@@ -46,7 +46,7 @@ COPYRIGHT_NOTICE = f"""
            TWITCH PLAYS
            {BRANCH_NAME.upper()} BRANCH
            https://cmpc.live
-           © 2020 controlmypc
+           © 2020-2021 controlmypc
            by CMPC Developers
 ------------------------------------------
 """
