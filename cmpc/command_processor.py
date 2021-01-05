@@ -531,5 +531,7 @@ class CommandProcessor:
             else:
                 pyautogui.hotkey('ctrl', 'v')
 
+            return True
+
         # No commands run, sad cat hours
         return False
