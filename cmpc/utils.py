@@ -3,6 +3,7 @@
 Functions:
     mode_testing -- take a number of things into account to see if script is in testing mode
     get_get_repo_info -- self explanatory
+    removeprefix -- self explanatory, builtin as of 3.9 but here for compatibility with prior versions
     get_size -- for encoding large numbers into SI prefixes
     direct_or_auto -- returns 'auto' or 'direct' based on platform
     twitch_api_get_user -- get info about a Twitch account from their API using requests
@@ -35,6 +36,7 @@ if sys.platform == 'win32':
 __all__ = (
     'mode_testing',
     'get_git_repo_info',
+    'removeprefix',
     'get_size',
     'direct_or_auto',
     'twitch_api_get_user',
@@ -89,6 +91,24 @@ def get_git_repo_info(default_branch_name='master'):
             branch_name_assumed = True
 
     return branch_name, branch_name_assumed
+
+
+def removeprefix(string: str, prefix: str):
+    """Remove a prefix from a string.
+
+    For compatibility with pre-3.9.
+    See here: https://docs.python.org/3/library/stdtypes.html#str.removeprefix
+    From that link:
+    If the string starts with the prefix string, return string[len(prefix):]. Otherwise, return a copy of the original
+    string.
+    """
+    if sys.version_info.major >= 9:
+        return string.removeprefix(prefix)
+    else:
+        if string.startswith(prefix):
+            return string[len(prefix):]
+        else:
+            return string
 
 
 def get_size(value, suffix='B'):
@@ -232,7 +252,7 @@ def hold_key(time_value, *args, **kwargs):
 
 def parse_goto_args(message, prefix):
     """Return the x and y coords. Used in go to and drag to commands."""
-    coord = message.content.removeprefix(prefix)
+    coord = removeprefix(message.content, prefix)
     if coord in ['center', 'centre']:
         xval, yval = tuple(res / 2 for res in pyautogui.size())
     else:

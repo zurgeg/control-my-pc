@@ -317,7 +317,7 @@ class TwitchPlays(Bot):
                                           'No chatbot api key was provided, skipping command.')
                         return
                     # IF YOU NEED AN API KEY, CONTACT MAX.
-                    signal = twitch_message.original_content.removeprefix('chatbot- ')
+                    signal = cmpc.removeprefix(twitch_message.original_content, 'chatbot- ')
                     payload = {
                         "signal": signal
                     }
@@ -339,7 +339,7 @@ class TwitchPlays(Bot):
                 if twitch_message.content.startswith('modsay '):
                     data = {
                         'username': twitch_message.username,
-                        'content': twitch_message.original_content.removeprefix('modsay '),
+                        'content': cmpc.removeprefix(twitch_message.original_content, 'modsay '),
                     }
                     try:
                         requests.post(CONFIG['discord']['modtalk'],
@@ -362,7 +362,7 @@ class TwitchPlays(Bot):
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
                 if twitch_message.content.startswith('script- suspend '):
-                    duration = twitch_message.content.removeprefix('script- suspend ')
+                    duration = cmpc.removeprefix(twitch_message.content, 'script- suspend ')
                     try:
                         duration = float(duration)
                     except ValueError:
@@ -418,7 +418,7 @@ class TwitchPlays(Bot):
 
                     try:
                         user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
-                                                           CONFIG['twitch']['oauth_token'].removeprefix('oauth:'),
+                                                           cmpc.removeprefix(CONFIG['twitch']['oauth_token'], 'oauth:'),
                                                            user_name=user_name)['id']
                     except requests.RequestException:
                         log.error(f'Unable to unban/ban user {user_name} - user not found!')
@@ -430,7 +430,7 @@ class TwitchPlays(Bot):
                             json.dump(self.user_info_cache, user_info_cache_file)
 
                 if twitch_message.content.startswith('!defcon '):
-                    severity = twitch_message.content.removeprefix('!defcon ')
+                    severity = cmpc.removeprefix(twitch_message.content, '!defcon ')
 
                     if severity == '1':
                         pyautogui.hotkey('win', 'm')

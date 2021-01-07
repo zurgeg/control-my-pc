@@ -17,7 +17,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
+from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 
 
 CONFIG_FOLDER = Path('config/')
@@ -243,7 +243,7 @@ class CommandProcessor:
         else:
             try:
                 api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
-                                                    self.config['twitch']['oauth_token'].removeprefix('oauth:'),
+                                                    removeprefix(self.config['twitch']['oauth_token'], 'oauth:'),
                                                     user_id=user_id)
             except requests.RequestException:
                 # No luck, no allow
@@ -392,7 +392,7 @@ class CommandProcessor:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
                 try:
-                    message_to_type = message.original_content.removeprefix(valid_input)
+                    message_to_type = removeprefix(message.original_content, valid_input)
                     pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -411,7 +411,7 @@ class CommandProcessor:
         for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
                 try:
-                    time_value = float(message.content.removeprefix(valid_input))
+                    time_value = float(removeprefix(message.content, valid_input))
                     log.debug(f"time_value: {time_value}")
                     log.debug(f"key_to_press: {output}")
 
@@ -508,7 +508,7 @@ class CommandProcessor:
 
                 self.log_to_obs(message)
                 import pydirectinput
-                message_to_type = message.content.removeprefix('gtype ')
+                message_to_type = removeprefix(message.content, 'gtype ')
                 pydirectinput.typewrite(message_to_type)
                 return True
             except Exception as error:
@@ -517,7 +517,7 @@ class CommandProcessor:
         # uses copy-paste instead of typing emulation
         if message.content.startswith('ptype '):
             self.log_to_obs(message)
-            message_to_type = message.content.removeprefix('ptype ')
+            message_to_type = removeprefix(message.content, 'ptype ')
 
             try:
                 pyperclip.copy(message_to_type)
