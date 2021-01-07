@@ -18,6 +18,9 @@ config/config.toml
 config/user_info_cache.json
 # Intro video
 intro.mp4
+# Other assets
+time-stop-in.mkv
+time-skip-in.mp4
 # cmpc's stuff
 autorestart.py
 De*Hofnar*-*Zonnestraal.mp4

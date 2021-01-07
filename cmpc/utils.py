@@ -230,9 +230,9 @@ def hold_key(time_value, *args, **kwargs):
     handler.keyUp(*args, **kwargs)
 
 
-def parse_goto_args(command_processor, message, prefix):
+def parse_goto_args(message, prefix):
     """Return the x and y coords. Used in go to and drag to commands."""
-    coord = command_processor.remove_prefix(message.content, prefix)
+    coord = message.content.removeprefix(prefix)
     if coord in ['center', 'centre']:
         xval, yval = tuple(res / 2 for res in pyautogui.size())
     else:

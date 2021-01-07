@@ -1,7 +1,7 @@
 """Processes and executes commands.
 
 Classes:
-    CommandProcessor -- processes commands, includes helper methods like remove_prefix and log_to_obs
+    CommandProcessor -- processes commands, includes helper methods like log_to_obs
 """
 
 # PSL Packages
@@ -248,7 +248,7 @@ class CommandProcessor:
         else:
             try:
                 api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
-                                                    self.remove_prefix(self.config['twitch']['oauth_token'], 'oauth:'),
+                                                    self.config['twitch']['oauth_token'].removeprefix('oauth:'),
                                                     user_id=user_id)
             except requests.RequestException:
                 # No luck, no allow
@@ -397,7 +397,7 @@ class CommandProcessor:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
                 try:
-                    message_to_type = self.remove_prefix(message.original_content, valid_input)
+                    message_to_type = message.original_content.removeprefix(valid_input)
                     pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -416,7 +416,7 @@ class CommandProcessor:
         for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
                 try:
-                    time_value = float(self.remove_prefix(message.content, valid_input))
+                    time_value = float(message.content.removeprefix(valid_input))
                     log.debug(f"time_value: {time_value}")
                     log.debug(f"key_to_press: {output}")
 
@@ -481,7 +481,7 @@ class CommandProcessor:
         # 'go to' command
         if message.content.startswith('go to '):
             try:
-                xval, yval = parse_goto_args(self, message, 'go to ')
+                xval, yval = parse_goto_args(message, 'go to ')
                 self.log_to_obs(message)
                 pyautogui.moveTo(xval, yval, duration=0.11)
 
@@ -496,7 +496,7 @@ class CommandProcessor:
 
         # 'drag to' command
         if message.content.startswith('drag to '):
-            xval, yval = parse_goto_args(self, message, 'drag to ')
+            xval, yval = parse_goto_args(message, 'drag to ')
             self.log_to_obs(message)
             pyautogui.dragTo(xval, yval, duration=0.1)
 
@@ -513,7 +513,7 @@ class CommandProcessor:
 
                 self.log_to_obs(message)
                 import pydirectinput
-                message_to_type = self.remove_prefix(message.content, 'gtype ')
+                message_to_type = message.content.removeprefix('gtype ')
                 pydirectinput.typewrite(message_to_type)
                 return True
             except Exception as error:
@@ -522,7 +522,7 @@ class CommandProcessor:
         # uses copy-paste instead of typing emulation
         if message.content.startswith('ptype '):
             self.log_to_obs(message)
-            message_to_type = self.remove_prefix(message.content, 'ptype ')
+            message_to_type = message.content.removeprefix('ptype ')
 
             try:
                 pyperclip.copy(message_to_type)
