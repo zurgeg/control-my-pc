@@ -1,5 +1,6 @@
 # Python virtualenv directory
 .venv
+.venv-3.8
 # PyCharm project folder
 .idea
 
