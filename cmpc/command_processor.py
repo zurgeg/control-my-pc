@@ -170,11 +170,6 @@ class CommandProcessor:
                 break
         return command_has_run
 
-    @staticmethod
-    def remove_prefix(message, prefix) -> str:
-        """Return the message with the prefix removed."""
-        return message[len(prefix):]
-
     def error_handle(self, error, message):
         """Throw an error to here, and it will be dealt with."""
         # pass
