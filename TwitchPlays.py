@@ -92,6 +92,8 @@ class TwitchPlays(Bot):
             log.fatal('[TWITCH] No channel or oauth token was provided.')
             cmpc.send_webhook(CONFIG['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
             sys.exit(2)
+        if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
+            TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
         if CONFIG['options']['LOGGER_LEVEL'].lower() == "debug" and CONFIG['options']['DEPLOY'] == "Production":
