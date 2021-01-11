@@ -67,11 +67,14 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
+# TODO: remove unnecessary or modified constants
 log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
 CHANNEL_TO_JOIN = CONFIG['twitch']['channel_to_join']
 TWITCH_USERNAME = CONFIG['twitch']['username']
 TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
+    TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
 TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
@@ -92,8 +95,6 @@ class TwitchPlays(Bot):
             log.fatal('[TWITCH] No channel or oauth token was provided.')
             cmpc.send_webhook(CONFIG['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
             sys.exit(2)
-        if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
-            TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
         if CONFIG['options']['LOGGER_LEVEL'].lower() == "debug" and CONFIG['options']['DEPLOY'] == "Production":
