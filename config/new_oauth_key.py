@@ -16,7 +16,7 @@ from pathlib import Path
 import requests
 import toml
 
-CONFIG_FOLDER = Path('config/')
+CONFIG_FOLDER = Path('/')
 
 DEFAULT_SCOPES = [
     'chat:read',
