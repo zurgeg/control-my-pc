@@ -51,8 +51,6 @@ COPYRIGHT_NOTICE = f"""
            by CMPC Developers
 ------------------------------------------
 """
-# Log copyright notice.
-print(COPYRIGHT_NOTICE)
 
 # Load configuration
 # handle logging shit (copyright notice will remain on print)
@@ -473,6 +471,8 @@ class TwitchPlays(Bot):
 
 
 if __name__ == '__main__':
+    # Log copyright notice.
+    print(COPYRIGHT_NOTICE)
     twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
                                 initial_channel=CHANNEL_TO_JOIN)
     twitch_client.run()
