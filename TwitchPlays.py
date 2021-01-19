@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more."
+"""Let a twitch.tv chat room control a pc! Featuring permissions system, discord integration, and a whole lot more.
 
 Files:
     config/apiconfig_static_backup.json -- automatically managed local backup of dev and mod lists from the API
@@ -20,6 +20,7 @@ import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
+import argparse
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -27,12 +28,13 @@ from pathlib import Path  # for best practices filepath handling
 import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
+import twitchio.ext.commands.bot
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
 # Module level dunder names
-__version__ = '3.7.1'
+__version__ = '3.8.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -50,11 +52,8 @@ COPYRIGHT_NOTICE = f"""
            by CMPC Developers
 ------------------------------------------
 """
-# Log copyright notice.
-print(COPYRIGHT_NOTICE)
 
 # Load configuration
-# handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 # noinspection PyArgumentList
@@ -66,22 +65,30 @@ log.basicConfig(
         log.StreamHandler()
     ]
 )
+# TODO: remove unnecessary or modified constants
 log.debug('Stand by me.')
 USER_AGENT = CONFIG['api']['useragent']
-if CONFIG['twitch']['custom_channels_to_join']:
-    CHANNELS_TO_JOIN = CONFIG['twitch']['channels_to_join']
-else:
-    CHANNELS_TO_JOIN = None
-# Configure our vars
-TWITCH_USERNAME = CONFIG['twitch']['channel']
+CHANNEL_TO_JOIN = CONFIG['twitch']['channel_to_join']
+TWITCH_USERNAME = CONFIG['twitch']['username']
 TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
+    TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
+TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
-class TwitchPlays(cmpc.TwitchConnection):
+parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control a pc! Featuring permissions system, '
+                                             'discord integration, and a whole lot more.',
+                                 epilog='For more help check the module docstring, and the readme, which also '
+                                        'features a link to the wiki.')
+parser.add_argument('--version', action='version', version=__version__)
+parser.parse_args()
+
+
+class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id, initial_channels):
+    def __init__(self, user, oauth, client_id, initial_channel, modtools_on=False):
         """Get set up, then call super().__init__.
 
         Args:
@@ -89,6 +96,8 @@ class TwitchPlays(cmpc.TwitchConnection):
         Checks that username and auth are present. Deletes chat log if it exists. Instantiates a command processor
         and permissions handler.
         """
+        self.modtools_on = modtools_on
+
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
@@ -104,12 +113,28 @@ class TwitchPlays(cmpc.TwitchConnection):
         if os.path.exists(LOGS_FOLDER/'chat.log'):
             os.remove(LOGS_FOLDER/'chat.log')
 
+        # Load cache to memory
+        try:
+            if not os.path.isfile(CONFIG_FOLDER/'user_info_cache.json'):
+                raise FileNotFoundError('User info cache does not exist.')
+
+            with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
+                self.user_info_cache = json.load(user_info_cache_file)
+                log.info('Loaded user info cache.')
+        except (FileNotFoundError, json.JSONDecodeError):
+            log.warning('User info cache did not exist or error decoding, initialising a new cache.')
+            self.user_info_cache = {}
+
+            with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
+                json.dump(self.user_info_cache, user_info_cache_file)
+
         self.user_permissions_handler = self.permissions_handler_from_json()
 
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
 
-        super().__init__(user, oauth, client_id, initial_channels)
+        super().__init__(irc_token=oauth, client_id=client_id, nick=user,
+                         prefix='!', initial_channels=[initial_channel])
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
@@ -152,7 +177,7 @@ class TwitchPlays(cmpc.TwitchConnection):
         log.info('[API] Requesting data!')
         try:
             apiconfig = requests.get(url)
-            if apiconfig.status_code != 200:
+            if not apiconfig.ok:
                 raise requests.RequestException
             else:
                 apiconfig_json = apiconfig.json()
@@ -173,8 +198,9 @@ class TwitchPlays(cmpc.TwitchConnection):
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
             try:
                 log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                            f"JSON last updated: {apiconfig_json['last_updated']}\n"
-                            f"Retrieved: {retrieved_time}")
+                            f"    JSON last updated: {apiconfig_json['last_updated']}\n"
+                            f"    Retrieved: {retrieved_time}")
+                # noinspection PyUnboundLocalVariable
                 cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                   'Failed to load data from API\n'
                                   'Loaded dev list from static file instead\n'
@@ -182,7 +208,8 @@ class TwitchPlays(cmpc.TwitchConnection):
                                   f"Last updated: {apiconfig_json['last_updated']}\n"
                                   f"Retrieved: {retrieved_time}\n\n"
                                   f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                                  f"**Environment -** {CONFIG['options']['DEPLOY']}"
+                                  f"**Environment -** {CONFIG['options']['DEPLOY']}\n"
+                                  f"**Response Status Code- ** {apiconfig.status_code}"
                                   )
             except TypeError:
                 log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
@@ -193,6 +220,20 @@ class TwitchPlays(cmpc.TwitchConnection):
             mod_list=apiconfig_json['modlist']
         )
 
+    async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+        user_id = str(message.author.id)
+        if not self.user_info_cache[user_id].get('notified_ignored'):
+            ctx = await self.get_context(message)
+            # TODO: add custom messages depending on why they were ignored
+            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+                           f'your account is under {self.processor.req_account_age_days} days old '
+                           'or because you have been banned/timed out.')
+            log.info('Notified user they were ignored.')
+
+            self.user_info_cache[user_id]['notified_ignored'] = True
+            with open(cache_file_path, 'w') as user_info_cache_file:
+                json.dump(self.user_info_cache, user_info_cache_file)
+
     # TwitchConnection overrides
     async def event_ready(self):
         """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable."""
@@ -201,10 +242,11 @@ class TwitchPlays(cmpc.TwitchConnection):
         if CONFIG['options']['START_MSG']:
             cmpc.send_webhook(CONFIG['discord']['systemlog'],
                               'Script - **Online**\n'
-                              f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
+                              f"[***Stream Link***](<https://twitch.tv/{CONFIG['channel_to_join']}>)\n"
                               f"**Environment -** {CONFIG['options']['DEPLOY']}",
                               )
 
+    # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
         """Override TwitchPlays.event_message - process a message.
 
@@ -229,8 +271,23 @@ class TwitchPlays(cmpc.TwitchConnection):
                     f.write(f'{twitch_message.get_log_string()}\n')
 
             # Ignore bot messages
-            if twitch_message.username == 'controlmybot' or twitch_message.username == 'cmpclive':
+            if twitch_message.username in ['controlmybot', 'cmpclive', 'cmpcserver']:
+                log.info(f'Ignored message from {twitch_message.username} due to exemption.')
                 return
+            # Ignore echo messages
+            if not message.author.id:
+                return
+
+            user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
+
+            if self.modtools_on:
+                # Check if the user is allowed to run commands
+                # Don't bother checking for moderators or developers
+                if not user_permissions.moderator or user_permissions.developer:
+                    if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
+                        await self.notify_ignored_user(message)
+                        log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
+                        return
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
@@ -238,23 +295,21 @@ class TwitchPlays(cmpc.TwitchConnection):
                 self.processor.log_to_obs(None)
                 return
 
-            user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
-
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(CONFIG['discord']['modtalk'],
+                    cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content == 'script- reqdata':
                     context = {
                         'user': twitch_message.username,
-                        'channel': TWITCH_USERNAME,
+                        'channel': CONFIG['twitch']['channel_to_join'],
                         'modlist': [i for i, o in self.user_permissions_handler.items() if o.moderator],
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
                         'options': CONFIG['options'],
                     }
-                    cmpc.send_data(CONFIG['discord']['modtalk'], context)
+                    cmpc.send_data(CONFIG['discord']['systemlog'], context)
 
                 if twitch_message.content == 'script- apirefresh':
                     self.user_permissions_handler = self.permissions_handler_from_json()
@@ -274,7 +329,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                                           'No chatbot api key was provided, skipping command.')
                         return
                     # IF YOU NEED AN API KEY, CONTACT MAX.
-                    signal = self.processor.remove_prefix(twitch_message.original_content, 'chatbot- ')
+                    signal = cmpc.removeprefix(twitch_message.original_content, 'chatbot- ')
                     payload = {
                         "signal": signal
                     }
@@ -296,7 +351,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                 if twitch_message.content.startswith('modsay '):
                     data = {
                         'username': twitch_message.username,
-                        'content': self.processor.remove_prefix(twitch_message.original_content, 'modsay '),
+                        'content': cmpc.removeprefix(twitch_message.original_content, 'modsay '),
                     }
                     try:
                         requests.post(CONFIG['discord']['modtalk'],
@@ -319,7 +374,7 @@ class TwitchPlays(cmpc.TwitchConnection):
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
                 if twitch_message.content.startswith('script- suspend '):
-                    duration = self.processor.remove_prefix(twitch_message.content, 'script- suspend ')
+                    duration = cmpc.removeprefix(twitch_message.content, 'script- suspend ')
                     try:
                         duration = float(duration)
                     except ValueError:
@@ -339,8 +394,55 @@ class TwitchPlays(cmpc.TwitchConnection):
                             log.error(f'Could not suspend for duration: {twitch_message.content}\n'
                                       'Due to too large arg')
 
+                # User allow list handling commands
+                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve',
+                                                      'script- timeout', 'script- untimeout')):
+                    args = twitch_message.content.split()
+                    subcommand = args[1]
+                    if subcommand in ['ban']:
+                        set_states = {
+                            'allow': False,
+                            'notified_ignored': False
+                        }
+                    elif subcommand in ['unban', 'approve']:
+                        set_states = {'allow': True}
+                    elif subcommand in ['timeout']:
+                        try:
+                            timeout_duration = float(args[3])
+                        except (IndexError, TypeError):
+                            log.error('Error in timeout, no or invalid duration given.')
+                            return
+
+                        timeout_end = time.time() + timeout_duration
+                        set_states = {
+                            'allow_after': timeout_end,
+                            'force_wait': True,
+                            'notified_ignored': False
+                        }
+                    elif subcommand in ['untimeout']:
+                        set_states = {'force_wait': False}
+
+                    try:
+                        user_name = args[2]
+                    except IndexError:
+                        log.error('Error in ban/timeout, no username given.')
+                        return
+
+                    try:
+                        user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
+                                                           cmpc.removeprefix(CONFIG['twitch']['oauth_token'], 'oauth:'),
+                                                           user_name=user_name)['id']
+                    except requests.RequestException:
+                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
+                    else:
+                        for key, value in set_states.items():
+                            self.user_info_cache.setdefault(user_id, {})[key] = value
+
+                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
+                            json.dump(self.user_info_cache, user_info_cache_file)
+
                 if twitch_message.content.startswith('!defcon '):
-                    severity = self.processor.remove_prefix(twitch_message.content, '!defcon ')
+                    severity = cmpc.removeprefix(twitch_message.content, '!defcon ')
 
                     if severity == '1':
                         pyautogui.hotkey('win', 'm')
@@ -370,10 +472,18 @@ class TwitchPlays(cmpc.TwitchConnection):
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
             cmpc.send_error(CONFIG['discord']['systemlog'], error,
-                            twitch_message, TWITCH_USERNAME,
+                            twitch_message, CONFIG['twitch']['channel_to_join'],
                             CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+
+    # I don't know why this method is classed as necessary to implement but here it is.
+    async def event_pubsub(self, data):
+        """Override Bot.event_pubsub - do nothing (:."""
+        pass
 
 
 if __name__ == '__main__':
-    twitch_client = TwitchPlays(TWITCH_USERNAME, TWITCH_OAUTH_TOKEN, USER_AGENT, CHANNELS_TO_JOIN)
+    # Log copyright notice.
+    print(COPYRIGHT_NOTICE)
+    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
+                                initial_channel=CHANNEL_TO_JOIN)
     twitch_client.run()

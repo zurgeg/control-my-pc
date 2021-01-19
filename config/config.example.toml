@@ -8,10 +8,11 @@
                           # see https://docs.python.org/3/library/logging.html#levels
 
 [twitch] # production example shown below
-	channel = "cmpcserver" # The channel to log in as
+	username = "cmpcserver" # The channel to log in as
     oauth_token = "" # pretty much password to twitch
-	custom_channels_to_join = true # if false, ignore channels_to_join and just join the channel you're logged in as
-	channels_to_join = ["controlmypc"] # Twitch channels to watch chat for
+    api_client_id = "zvlttmj8jah002ucbqbpt1lkuq4oj3"  # used for getting info about users from the twitch api
+                                                      # client id for the twitch app your got your oauth key from
+	channel_to_join = "controlmypc" # Twitch channel to watch chat for
 
 [api]
 	apiconfig = "https://api.cmpc.live/apiconfig.json" # website to handle the dev and mod lists

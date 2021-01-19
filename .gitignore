@@ -1,5 +1,6 @@
 # Python virtualenv directory
 .venv
+.venv-3.8
 # PyCharm project folder
 .idea
 
@@ -14,8 +15,13 @@ executing.txt
 config/apiconfig_static_backup.json
 # config file with sensitive info, check config.example, DM a dev for production version
 config/config.toml
+# user info cache
+config/user_info_cache.json
 # Intro video
 intro.mp4
+# Other assets
+time-stop-in.mkv
+time-skip-in.mp4
 # cmpc's stuff
 autorestart.py
 De*Hofnar*-*Zonnestraal.mp4
