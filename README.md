@@ -11,27 +11,46 @@ An overhaul update to DougDoug TwitchPlays script.
 
 # Installation:
 
-  1) In order to run you must download python 3.xx (Will suggest latest version from here: https://www.python.org/downloads/).
+  (Note: It is recommended that you know how to use the Terminal of your OS and that you have basic knowledge of the Git CLI.)
 
-  2) After downloading open a cmd and run these commands:
+  1) In order to run you must download Python 3.9 (https://www.python.org/downloads/).
+
+  2) To install you can either do one of 2 things.
+    - Clone using Git
+    - Download the Zip file
+
+  3) After downloading open a terminal of your choice,  and run these commands:
   
   * `python -m pip install --upgrade pip`
   * `python -m pip install -r requirements.txt`
 
-  3)  Edit `config.toml` with your oauth and twitch token. (you can get an oauth token with `new_oauth_key.py`).       
+  4)  Edit `config.toml` with your oauth and twitch token. (you can get an oauth token with `new_oauth_key.py`).       
   Set TWITCH_CHANNEL AND TWITCH_OAUTH_TOKEN environment variables if you want to use env vars, see For more information see [here](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script#how-to-set-environment-variables). 
 
-  4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
+  5) Run `TwitchPlays.py` using `python TwitchPlays.py
 
 ## "I don't have all this fancy stuff, what can i do?"
 
-NO API) If you do not have a api, leave these values blank and edit the manual configuration in `TwitchPlays.py` You mainly need `developer` as a admin, `moderator` is just at the minute for the `modsay ` command.
+- No API ) If you don't have a Webserver or CDN hosting your config, you can modify `TwitchPlays.py (Line 137)` to use a static user list.
 
-NO DISCORD) If you don't have a discord webhook, look at a guide online, if you don't want to do this, most of the dev commands wont be the best option for you, There is no error handling for no config at the minute, so your best bet is just to make a discord server and just use discord, NOTE: These do not need to be separate webhooks, they can all be the same (this is not recommended), but it would help if you don't want to make 6 webhooks.
+Example static user list.
+```
+{
+  "devlist" : [
+    "developers here"
+  ],
+  "modlist" : [
+    "moderators here"
+  ]
+}
 
-NO TWITCH) If you are testing the script offline, you're fucked. There is no good way to do this at the minute, we might add a option in the future to do manual offline testing
+```
 
-# What's New:
+- No Webhooks) If you don't know how to make a discord webhook, there are plenty of guides online. Without a webhook most commands di=o absolutely nothing. If you would like to send webhooks to a different service (I.E: Slack), you can modify some of the webhook code (`./cmpc/utils.py` handles most webhooks.). You can use 1 webhook for the entire script, but it is not recommended.
+
+- Offline / No Twitch) If you are running the script without Twitch and/or you are offline, sadly the script will not function. We are planning on adding a feature to test offline without the use of Twitch and/or Webhooks.
+
+## Script change Highlights:
 
 Massive rewrite with improved code and new features.
 
