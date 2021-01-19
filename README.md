@@ -16,10 +16,9 @@ Note: You can refer to setup.bat for these steps.
   1) In order to run you must download python 3.x.x (Will suggest latest version from here: https://www.python.org/downloads).
      The recommended version is in [runtime.txt](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/runtime.txt) in the [heroku style](https://devcenter.heroku.com/articles/python-runtimes), and most testing is done on 3.9 and 3.8, but all versions of python 3 should be supported in theory - if you find a bug, please report it.
 
-  2) Install the dependencies (using a (virtualenv)[https://docs.python.org/3/tutorial/venv.html] or other virtual environment can be a good idea):
+  2) Install the dependencies (using a [virtualenv](https://docs.python.org/3/tutorial/venv.html) or other virtual environment can be a good idea):
   
-  * `python -m pip install --upgrade pip`
-  * `python -m pip install --upgrade wheel`
+  * `python -m pip install --upgrade pip wheel`
   * `python -m pip install -r requirements.txt`
 
   3) Create `config/config.toml` based on `config/config.example.toml` with your Twitch username, oauth key, and other info and settings. (you can generate a blank config.toml with `config/create_empty_config.py` and get a Twitch oauth token with `new_oauth_key.py`).
