@@ -88,7 +88,7 @@ parser.parse_args()
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id, initial_channel):
+    def __init__(self, user, oauth, client_id, initial_channel, modtools_on=False):
         """Get set up, then call super().__init__.
 
         Args:
@@ -96,6 +96,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         Checks that username and auth are present. Deletes chat log if it exists. Instantiates a command processor
         and permissions handler.
         """
+        self.modtools_on = modtools_on
+
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
@@ -278,13 +280,14 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
-            # Check if the user is allowed to run commands
-            # Don't bother checking for moderators or developers
-            if not user_permissions.moderator or user_permissions.developer:
-                if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
-                    await self.notify_ignored_user(message)
-                    log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
-                    return
+            if self.modtools_on:
+                # Check if the user is allowed to run commands
+                # Don't bother checking for moderators or developers
+                if not user_permissions.moderator or user_permissions.developer:
+                    if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
+                        await self.notify_ignored_user(message)
+                        log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
+                        return
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
