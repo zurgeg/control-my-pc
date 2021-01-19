@@ -17,7 +17,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://gitlab.com/controlmypc/TwitchPlays',
     packages=['cmpc'],
-    py_modules=['TwitchPlays'],
+    py_modules=['TwitchPlays', 'config/create_empty_config', 'config/new_oauth_key'],
     entry_points={
         'console_scripts': [
             'cmpc-twitchplays=twitchplays'
