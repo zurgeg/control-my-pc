@@ -26,7 +26,7 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
 
   4)  Create `config/config.toml` based on `config/config.example.toml` with your Twitch username, oauth key, and other info and settings. (you can generate a blank config.toml with `config/create_empty_config.py` and get a Twitch oauth token with `new_oauth_key.py`).
 
-  5) Run `TwitchPlays.py` using `python TwitchPlays.py` - You can dp this as a command on most environments as `TwitchPlays`.
+  5) Run `TwitchPlays.py` using `python TwitchPlays.py` - You can do this as a command on most environments as `TwitchPlays`.
 
 ## "I don't have all this fancy stuff (Discord webhooks, API for moderator lists, etc.), what can i do?"
 
