@@ -20,6 +20,7 @@ import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
+import argparse
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -27,7 +28,7 @@ from pathlib import Path  # for best practices filepath handling
 import pyautogui  # some mod only commands
 import requests  # api and discord webhooks
 import toml  # configuration
-from twitchio.ext.commands.bot import Bot
+import twitchio.ext.commands.bot
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
@@ -53,7 +54,6 @@ COPYRIGHT_NOTICE = f"""
 """
 
 # Load configuration
-# handle logging shit (copyright notice will remain on print)
 # noinspection PyArgumentList
 CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 # noinspection PyArgumentList
@@ -77,7 +77,15 @@ TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
 
 
-class TwitchPlays(Bot):
+parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control a pc! Featuring permissions system, '
+                                             'discord integration, and a whole lot more.',
+                                 epilog='For more help check the module docstring, and the readme, which also '
+                                        'features a link to the wiki.')
+parser.add_argument('--version', action='version', version=__version__)
+parser.parse_args()
+
+
+class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
     def __init__(self, user, oauth, client_id, initial_channel):
