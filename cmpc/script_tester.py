@@ -2,7 +2,7 @@ import asyncio
 import twitchio
 import twitchio.dataclasses as dataclasses
 
-class MockUser(object):
+class MockUser:
     def __init__(self, name)
         self._name = name
     
@@ -10,7 +10,7 @@ class MockUser(object):
     def name(self) -> str:
         return self._name
 
-class MockMessage(object):
+class MockMessage:
     def __init__(self, author:MockUser, messageContent:str):
         self._content = messageContent
         self._author = author
@@ -34,7 +34,12 @@ class ScriptTester(object):
                 self._author = MockUser(user)
 
             message = input('[Offline Mode] What message would you like to send?')
-            self._lastMessage = MockMessage(self._author)
+            if message = '//switchuser':
+                self._user = None
+            elif message = '//exit':
+                print('[Offline Mode] Use Ctrl-C to exit (Command-C on MacOS)')
+            else:
+                self._lastMessage = MockMessage(self._author)
 
 
     def startTester(self):
