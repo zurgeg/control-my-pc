@@ -51,6 +51,8 @@ class ScriptTester(object):
             pass
 
         print('[Offline Mode] Stopping Asyncio Loop')
+        loop.stop()
+        loop.close()
         
 
 
