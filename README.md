@@ -16,8 +16,8 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
   1) In order to run you must download a 3.X.X version of Python (https://www.python.org/downloads/). The script is normally ran on python version `3.8` - `3.9`. The current recommended python version [runtime.txt](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/runtime.txt) using the [heroku style](https://devcenter.heroku.com/articles/python-runtimes).
 
   2) To install you can either do one of 2 things.
-    - Clone using Git
-    - Download the Zip file
+  - Clone using Git
+  - Download the Zip file
 
   3) After downloading open a terminal of your choice, and run these commands to install the script's dependencies (using a [virtualenv](https://docs.python.org/3/tutorial/venv.html) or other virtual environment can be a good idea)::
   
