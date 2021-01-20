@@ -7,6 +7,7 @@ Modules:
     twitch_message -- custom class for Twitch messages
     permission_handler -- binary approach to hierarchal user permissions
     twitch_connection -- extends twitchio.ext.commands.Bot for our specific usage
+    script_tester -- A custom script tester which works offline!
 """
 
 from .utils import *
@@ -14,3 +15,4 @@ from .keyboard_keycodes import KeyboardKeycodes
 from .command_processor import CommandProcessor
 from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
+from .script_tester import script_tester

@@ -82,7 +82,11 @@ parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control 
                                  epilog='For more help check the module docstring, and the readme, which also '
                                         'features a link to the wiki.')
 parser.add_argument('--version', action='version', version=__version__)
-parser.parse_args()
+parser.add_argument('--offline-mode')
+cliargs = parser.parse_args()
+
+if cliargs.offline_mode:
+    log.info("[Script] Starting script in offline only mode. Cya later internet.")
 
 
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
@@ -132,8 +136,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
-
-        super().__init__(irc_token=oauth, client_id=client_id, nick=user,
+        if args.offline_mode:
+            super().__init__(irc_token=oauth, client_id=client_id, nick=user,
                          prefix='!', initial_channels=[initial_channel])
 
     # TwitchPlays methods - TwitchConnection overrides below
@@ -484,6 +488,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 if __name__ == '__main__':
     # Log copyright notice.
     print(COPYRIGHT_NOTICE)
-    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
-                                initial_channel=CHANNEL_TO_JOIN)
-    twitch_client.run()
+    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID, initial_channel=CHANNEL_TO_JOIN)
+    if args.offline_mode:
+        twitch_client.permissions_handler_from_json()
+        
+    else:
+        twitch_client.run()
