@@ -15,4 +15,4 @@ from .keyboard_keycodes import KeyboardKeycodes
 from .command_processor import CommandProcessor
 from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
-from .script_tester import script_tester
+from .script_tester import ScriptTester

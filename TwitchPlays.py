@@ -22,6 +22,7 @@ import json  # json, duh,
 import time  # for script- suspend command
 import argparse
 import logging as log  # better print()
+import asyncio
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
@@ -75,18 +76,14 @@ if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
     TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
 TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
 PANEL_API_KEY = CONFIG['api']['panelapikey']
-
-
 parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control a pc! Featuring permissions system, '
                                              'discord integration, and a whole lot more.',
                                  epilog='For more help check the module docstring, and the readme, which also '
                                         'features a link to the wiki.')
 parser.add_argument('--version', action='version', version=__version__)
-parser.add_argument('--offline-mode')
+parser.add_argument('--offline-mode', action='store_true')
 cliargs = parser.parse_args()
 
-if cliargs.offline_mode:
-    log.info("[Script] Starting script in offline only mode. Cya later internet.")
 
 
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
@@ -136,9 +133,15 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
-        if args.offline_mode:
+        if cliargs.offline_mode == True:
+            self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
+        else:
             super().__init__(irc_token=oauth, client_id=client_id, nick=user,
                          prefix='!', initial_channels=[initial_channel])
+
+    @property
+    def tester(self):
+        return self.script_tester
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
@@ -489,8 +492,8 @@ if __name__ == '__main__':
     # Log copyright notice.
     print(COPYRIGHT_NOTICE)
     twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID, initial_channel=CHANNEL_TO_JOIN)
-    if args.offline_mode:
-        twitch_client.permissions_handler_from_json()
-        
+    if cliargs.offline_mode == True:
+        log.info("[Script] Starting script in offline only mode. Cya later internet.")
+        twitch_client.tester.startTester()
     else:
         twitch_client.run()
