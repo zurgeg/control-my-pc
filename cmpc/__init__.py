@@ -7,7 +7,7 @@ Modules:
     twitch_message -- custom class for Twitch messages
     permission_handler -- binary approach to hierarchal user permissions
     twitch_connection -- extends twitchio.ext.commands.Bot for our specific usage
-    script_tester -- A custom script tester which works offline!
+    script_tester -- A custom script tester which works offline
 """
 
 from .utils import *
