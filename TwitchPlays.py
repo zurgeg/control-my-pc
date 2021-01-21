@@ -22,7 +22,6 @@ import json  # json, duh,
 import time  # for script- suspend command
 import argparse
 import logging as log  # better print()
-import asyncio
 from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
@@ -34,7 +33,6 @@ import twitchio.ext.commands.bot
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
 
-# Module level dunder names
 __version__ = '3.9.0'
 
 # Folders we use
@@ -85,7 +83,6 @@ parser.add_argument('--offline-mode', action='store_true')
 cliargs = parser.parse_args()
 
 
-
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
@@ -133,11 +130,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
         self.processor.log_to_obs(None)
-        if cliargs.offline_mode == True:
+        if cliargs.offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
         else:
             super().__init__(irc_token=oauth, client_id=client_id, nick=user,
-                         prefix='!', initial_channels=[initial_channel])
+                             prefix='!', initial_channels=[initial_channel])
 
     @property
     def tester(self):
@@ -491,8 +488,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 if __name__ == '__main__':
     # Log copyright notice.
     print(COPYRIGHT_NOTICE)
-    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID, initial_channel=CHANNEL_TO_JOIN)
-    if cliargs.offline_mode == True:
+    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
+                                initial_channel=CHANNEL_TO_JOIN)
+    if cliargs.offline_mode:
         log.info("[Script] Starting script in offline only mode. Cya later internet.")
         twitch_client.tester.startTester()
     else:
