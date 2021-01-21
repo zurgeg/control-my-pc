@@ -82,11 +82,11 @@ parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control 
 
 parser.add_argument('--version', action='version', version=__version__)
 parser.add_argument('--offline-mode', action='store_true')
-parser.add_argument('--gen-key, action='store_true')
+parser.add_argument('--gen-key', action='store_true')
 cliargs = parser.parse_args()
 
 
-if cliargs.gen-key:
+if cliargs.gen_key:
     new_oauth_key = keygen.get_oauth_key()
     print(f'[Keygen] Your new oauth key is {new_oauth_key}')
     keygen.save_oauth_key(new_oauth_key)
