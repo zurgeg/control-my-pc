@@ -147,7 +147,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                              prefix='!', initial_channels=[initial_channel])
 
     @property
-    def tester(self):
+    def tester(self) -> cmpc.ScriptTester:
         return self.script_tester
 
     # TwitchPlays methods - TwitchConnection overrides below
