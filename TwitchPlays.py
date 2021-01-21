@@ -35,7 +35,7 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 
 # Module level dunder names
-__version__ = '3.8.0'
+__version__ = '3.9.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')

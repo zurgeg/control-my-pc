@@ -47,7 +47,7 @@ Example static user list.
 
 - No Webhooks) If you don't know how to make a discord webhook, there are plenty of guides online. Without a webhook most commands do absolutely nothing. If you would like to send webhooks to a different service (I.E: Slack), you can modify some of the webhook code (`./cmpc/utils.py` handles most webhooks.). You can use 1 webhook for the entire script, but it is not recommended.
 
-- Offline / No Twitch) If you are running the script without Twitch and/or you are offline, sadly the script will not function. We are planning on adding a feature to test offline without the use of Twitch and/or Webhooks.
+- Offline / No Twitch) If you are running the script without Twitch and/or you are offline, you can start the script in offline only mode. Do this by adding the `--offline-mode` flag to your start command.
 
 # What's New highlight:
 
@@ -58,6 +58,7 @@ Moderation features to ignore brand-new user accounts and allow banning only for
 
 - **vX.Y.Z YYYY-MM-DD INFO**
 - **Date descending**
+- v3.9.0 2021-1-21 New offline mode feature using the startup flag `--offline-mode`
 - v3.8.0 2020-12-21 Add new moderation features for ignoring brand-new user accounts and script-banning users
 - v3.7.1 2020-12-11 Fix error handling for go to command  
 - v3.7.0 2020-12-04 Remove environment variable support for simplicity's sake, add !modalert ping role ID in config.
