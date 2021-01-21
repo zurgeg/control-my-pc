@@ -32,6 +32,7 @@ import twitchio.ext.commands.bot
 
 # Local Packages;
 import cmpc  # Pretty much all of the custom shit we need.
+import config.new_oauth_key as keygen
 
 __version__ = '3.9.0'
 
@@ -78,10 +79,19 @@ parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control 
                                              'discord integration, and a whole lot more.',
                                  epilog='For more help check the module docstring, and the readme, which also '
                                         'features a link to the wiki.')
+
 parser.add_argument('--version', action='version', version=__version__)
 parser.add_argument('--offline-mode', action='store_true')
+parser.add_argument('--gen-key, action='store_true')
 cliargs = parser.parse_args()
 
+
+if cliargs.gen-key:
+    new_oauth_key = keygen.get_oauth_key()
+    print(f'[Keygen] Your new oauth key is {new_oauth_key}')
+    keygen.save_oauth_key(new_oauth_key)
+    print('[Keygen] Saved oauth key to config.toml successfully.')
+    CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
