@@ -280,7 +280,7 @@ class CommandProcessor:
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
                 if platform.system() == "Darwin":
-                    valid_inputs.replace('ctrl', 'command')
+                    output.replace('ctrl', 'command')
                 self.log_to_obs(message)
                 if 'enter' in valid_inputs:
                     press_key(output)
@@ -300,7 +300,7 @@ class CommandProcessor:
         for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
                 if platform.system() == "Darwin":
-                    valid_inputs.replace('ctrl', 'command')
+                    output.replace('ctrl', 'command')
                 self.log_to_obs(message)
                 pyautogui.hotkey(*output)
                 return True
