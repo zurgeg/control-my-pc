@@ -481,6 +481,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     sys.exit(1)
 
             self.processor.log_to_obs(None)
+            self.processor.log_to_obs(None)
 
         except Exception as error:
             # Send error data to systemlog.
