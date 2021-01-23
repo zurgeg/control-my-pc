@@ -55,10 +55,10 @@ COPYRIGHT_NOTICE = f"""
 
 # Load configuration
 # noinspection PyArgumentList
-CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+config = toml.load(CONFIG_FOLDER / 'config.toml')
 # noinspection PyArgumentList
 log.basicConfig(
-    level=f'{CONFIG["options"]["LOGGER_LEVEL"].upper()}',
+    level=f'{config["options"]["LOGGER_LEVEL"].upper()}',
     format='[%(levelname)s] %(message)s',
     handlers=[
         log.FileHandler(LOGS_FOLDER/'system.log', encoding='utf-8'),
@@ -67,14 +67,13 @@ log.basicConfig(
 )
 # TODO: remove unnecessary or modified constants
 log.debug('Stand by me.')
-USER_AGENT = CONFIG['api']['useragent']
-CHANNEL_TO_JOIN = CONFIG['twitch']['channel_to_join']
-TWITCH_USERNAME = CONFIG['twitch']['username']
-TWITCH_OAUTH_TOKEN = CONFIG['twitch']['oauth_token']
+CHANNEL_TO_JOIN = config['twitch']['channel_to_join']
+TWITCH_USERNAME = config['twitch']['username']
+TWITCH_OAUTH_TOKEN = config['twitch']['oauth_token']
 if not TWITCH_OAUTH_TOKEN.startswith('oauth:'):
     TWITCH_OAUTH_TOKEN = 'oauth:' + TWITCH_OAUTH_TOKEN
-TWITCH_CLIENT_ID = CONFIG['twitch']['api_client_id']
-PANEL_API_KEY = CONFIG['api']['panelapikey']
+TWITCH_CLIENT_ID = config['twitch']['api_client_id']
+PANEL_API_KEY = config['api']['panelapikey']
 parser = argparse.ArgumentParser(description='Let a twitch.tv chat room control a pc! Featuring permissions system, '
                                              'discord integration, and a whole lot more.',
                                  epilog='For more help check the module docstring, and the readme, which also '
@@ -91,12 +90,12 @@ if cliargs.gen_key:
     print(f'[Keygen] Your new oauth key is {new_oauth_key}')
     keygen.save_oauth_key(new_oauth_key)
     print('[Keygen] Saved oauth key to config.toml successfully.')
-    CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
+    config = toml.load(CONFIG_FOLDER / 'config.toml')
 
 
-if CONFIG['options']['DEPLOY'] == 'Debug':
+if config['options']['DEPLOY'] == 'Debug':
     import webbrowser
-    webbrowser.open(f"https://twitch.tv/{CONFIG['twitch']['channel_to_join']}/chat", new=1)
+    webbrowser.open(f"https://twitch.tv/{config['twitch']['channel_to_join']}/chat", new=1)
 
 
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
@@ -115,11 +114,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
-            cmpc.send_webhook(CONFIG['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
+            cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
             sys.exit(2)
         if not PANEL_API_KEY:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
-        if CONFIG['options']['LOGGER_LEVEL'].lower() == "debug" and CONFIG['options']['DEPLOY'] == "Production":
+        if config['options']['LOGGER_LEVEL'].lower() == "debug" and config['options']['DEPLOY'] == "Production":
             log.warning('[LOG] You are enabling debug mode in a production env, '
                         'this will log discord webhook urls to system.log and such. you have been warned.')
 
@@ -144,7 +143,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.user_permissions_handler = self.permissions_handler_from_json()
 
-        self.processor = cmpc.CommandProcessor(CONFIG, 'executing.txt')
+        self.processor = cmpc.CommandProcessor(config, 'executing.txt')
         self.processor.log_to_obs(None)
         if cliargs.offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
@@ -180,7 +179,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         return user_permissions
 
     def permissions_handler_from_json(self,
-                                      url=CONFIG['api']['apiconfig'],
+                                      url=config['api']['apiconfig'],
                                       static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
         """Init a cmpc.Permissions object after retrieving source dev and mod lists.
 
@@ -221,14 +220,14 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                             f"    JSON last updated: {apiconfig_json['last_updated']}\n"
                             f"    Retrieved: {retrieved_time}")
                 # noinspection PyUnboundLocalVariable
-                cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                cmpc.send_webhook(config['discord']['systemlog'],
                                   'Failed to load data from API\n'
                                   'Loaded dev list from static file instead\n'
                                   'One or multiple lists may be unavailable or incomplete/out of date\n'
                                   f"Last updated: {apiconfig_json['last_updated']}\n"
                                   f"Retrieved: {retrieved_time}\n\n"
                                   f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                                  f"**Environment -** {CONFIG['options']['DEPLOY']}\n"
+                                  f"**Environment -** {config['options']['DEPLOY']}\n"
                                   f"**Response Status Code- ** {apiconfig.status_code}"
                                   )
             except TypeError:
@@ -259,11 +258,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable."""
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in CONFIG.
-        if CONFIG['options']['START_MSG']:
-            cmpc.send_webhook(CONFIG['discord']['systemlog'],
+        if config['options']['START_MSG']:
+            cmpc.send_webhook(config['discord']['systemlog'],
                               'Script - **Online**\n'
-                              f"[***Stream Link***](<https://twitch.tv/{CONFIG['channel_to_join']}>)\n"
-                              f"**Environment -** {CONFIG['options']['DEPLOY']}",
+                              f"[***Stream Link***](<https://twitch.tv/{config['channel_to_join']}>)\n"
+                              f"**Environment -** {config['options']['DEPLOY']}",
                               )
 
     # noinspection PyUnboundLocalVariable
@@ -284,9 +283,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         # TODO - remove try-except here
         try:
             # Log the chat if that's something we want to do
-            if CONFIG['options']['LOG_ALL']:
+            if config['options']['LOG_ALL']:
                 log.info(f'CHAT LOG: {twitch_message.get_log_string()}')
-            if CONFIG['options']['LOG_PPR']:
+            if config['options']['LOG_PPR']:
                 with open(LOGS_FOLDER/'chat.log', 'a', encoding='utf-8') as f:
                     f.write(f'{twitch_message.get_log_string()}\n')
 
@@ -318,28 +317,28 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
                 if twitch_message.content == 'script- testconn':
-                    cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                    cmpc.send_webhook(config['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
                 if twitch_message.content in ('script- reqdata', '../script reqdata'):
                     context = {
                         'user': twitch_message.username,
-                        'channel': CONFIG['twitch']['channel_to_join'],
+                        'channel': config['twitch']['channel_to_join'],
                         'modlist': [i for i, o in self.user_permissions_handler.items() if o.moderator],
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
-                        'options': CONFIG['options'],
+                        'options': config['options'],
                     }
-                    cmpc.send_data(CONFIG['discord']['systemlog'], context)
+                    cmpc.send_data(config['discord']['systemlog'], context)
 
                 if twitch_message.content in ('script- apirefresh', '../script apirefresh', '../script api-refresh'):
                     self.user_permissions_handler = self.permissions_handler_from_json()
                     log.info('[API] refreshed user permissions from API')
-                    cmpc.send_webhook(CONFIG['discord']['systemlog'], 'User permissions were refreshed from API.')
+                    cmpc.send_webhook(config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
                 if twitch_message.content in ('script- forceerror', '../script forceerror', '../script force-error'):
-                    cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
+                    cmpc.send_error(config['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
-                                    CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+                                    config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
                 command_invocs = ('chatbot-', '../chatbot', '../chatbot --code', '../chatbot -c')
                 if twitch_message.original_content.startswith(command_invocs):
@@ -347,7 +346,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     if not PANEL_API_KEY:
                         log.error('[CHATBOT] Command ran and no API key, '
                                   'skipping command and sending warning to discord.')
-                        cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                        cmpc.send_webhook(config['discord']['systemlog'],
                                           'No chatbot api key was provided, skipping command.')
                         return
 
@@ -359,13 +358,13 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         "signal": signal
                     }
                     headers = {
-                        'User-Agent': f'{USER_AGENT}',
+                        'User-Agent': f"{config['api']['useragent']}",
                         'Accept': 'application/json',
                         'Authorization': f'Bearer {PANEL_API_KEY}',
                     }
                     try:
-                        x = requests.post(CONFIG['api']['panelapiendpoint'], json=payload, headers=headers)
-                        cmpc.send_webhook(CONFIG['discord']['systemlog'],
+                        x = requests.post(config['api']['panelapiendpoint'], json=payload, headers=headers)
+                        cmpc.send_webhook(config['discord']['systemlog'],
                                           f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
                     except requests.RequestException:
                         log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
@@ -380,8 +379,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                             'content': cmpc.removeprefix(twitch_message.original_content, command_invoc).lstrip(),
                         }
                         try:
-                            requests.post(CONFIG['discord']['modtalk'],
-                                          json=data, headers={'User-Agent': USER_AGENT})
+                            requests.post(config['discord']['modtalk'],
+                                          json=data, headers={'User-Agent': config['api']['useragent']})
                         except requests.RequestException:
                             log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
                                       sys.exc_info())
@@ -464,8 +463,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         return
 
                     try:
-                        user_id = cmpc.twitch_api_get_user(CONFIG['twitch']['api_client_id'],
-                                                           cmpc.removeprefix(CONFIG['twitch']['oauth_token'], 'oauth:'),
+                        user_id = cmpc.twitch_api_get_user(config['twitch']['api_client_id'],
+                                                           cmpc.removeprefix(config['twitch']['oauth_token'], 'oauth:'),
                                                            user_name=user_name)['id']
                     except requests.RequestException:
                         log.error(f'Unable to unban/ban user {user_name} - user not found!')
@@ -507,9 +506,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
-            cmpc.send_error(CONFIG['discord']['systemlog'], error,
-                            twitch_message, CONFIG['twitch']['channel_to_join'],
-                            CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+            cmpc.send_error(config['discord']['systemlog'], error,
+                            twitch_message, config['twitch']['channel_to_join'],
+                            config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
     # I don't know why this method is classed as necessary to implement but here it is.
     async def event_pubsub(self, data):
