@@ -331,7 +331,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     }
                     cmpc.send_data(CONFIG['discord']['systemlog'], context)
 
-                if twitch_message.content in ('script- apirefresh', '../script apirefresh'):
+                if twitch_message.content in ('script- apirefresh', '../script apirefresh', '../script api-refresh'):
                     self.user_permissions_handler = self.permissions_handler_from_json()
                     log.info('[API] refreshed user permissions from API')
                     cmpc.send_webhook(CONFIG['discord']['systemlog'], 'User permissions were refreshed from API.')
@@ -341,7 +341,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
-                command_invocs = ('chatbot', '../chatbot')
+                command_invocs = ('chatbot-', '../chatbot', '../chatbot --code', '../chatbot -c')
                 if twitch_message.original_content.startswith(command_invocs):
                     # IF YOU NEED AN API KEY, CONTACT MAX.
                     if not PANEL_API_KEY:
@@ -526,4 +526,7 @@ if __name__ == '__main__':
         log.info("[Script] Starting script in offline only mode. Cya later internet.")
         twitch_client.tester.startTester()
     else:
-        twitch_client.run()
+        try:
+            twitch_client.run()
+        except KeyError:
+            log.error('Error connecting, please retry.')
