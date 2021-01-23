@@ -93,6 +93,12 @@ if cliargs.gen_key:
     print('[Keygen] Saved oauth key to config.toml successfully.')
     CONFIG = toml.load(CONFIG_FOLDER/'config.toml')
 
+
+if CONFIG['options']['DEPLOY'] == 'Debug':
+    import webbrowser
+    webbrowser.open(f"https://twitch.tv/{CONFIG['twitch']['channel_to_join']}/chat", new=1)
+
+
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
@@ -315,7 +321,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
-                if twitch_message.content in ('script- reqdata', './script reqdata'):
+                if twitch_message.content in ('script- reqdata', '../script reqdata'):
                     context = {
                         'user': twitch_message.username,
                         'channel': CONFIG['twitch']['channel_to_join'],
@@ -325,17 +331,17 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     }
                     cmpc.send_data(CONFIG['discord']['systemlog'], context)
 
-                if twitch_message.content in ('script- apirefresh', './script apirefresh'):
+                if twitch_message.content in ('script- apirefresh', '../script apirefresh'):
                     self.user_permissions_handler = self.permissions_handler_from_json()
                     log.info('[API] refreshed user permissions from API')
                     cmpc.send_webhook(CONFIG['discord']['systemlog'], 'User permissions were refreshed from API.')
 
-                if twitch_message.content in ('script- forceerror', './script forceerror', './script force-error'):
+                if twitch_message.content in ('script- forceerror', '../script forceerror', '../script force-error'):
                     cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
-                command_invocs = ('chatbot', './chatbot')
+                command_invocs = ('chatbot', '../chatbot')
                 if twitch_message.original_content.startswith(command_invocs):
                     # IF YOU NEED AN API KEY, CONTACT MAX.
                     if not PANEL_API_KEY:
@@ -367,7 +373,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
-                for command_invoc in ('modsay', './modsay'):
+                for command_invoc in ('modsay', '../modsay'):
                     if twitch_message.content.startswith(command_invoc):
                         data = {
                             'username': twitch_message.username,
@@ -388,12 +394,12 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
-                if twitch_message.content in ['script- version', 'version', 'version?', './script --version']:
+                if twitch_message.content in ['script- version', 'version', 'version?', '../script --version']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
-                command_invocs = ('script- suspend', './script suspend')
+                command_invocs = ('script- suspend', '../script suspend')
                 if twitch_message.content.startswith(command_invocs):
                     for command_invoc in command_invocs:
                         if twitch_message.content.startswith(command_invoc):
@@ -423,8 +429,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 if twitch_message.content.startswith((
                         'script- ban', 'script- unban', 'script- approve',
                         'script- timeout', 'script- untimeout',
-                        './script ban', './script unban', './script approve',
-                        './script timeout', './script untimeout'
+                        '../script ban', '../script unban', '../script approve',
+                        '../script timeout', '../script untimeout'
                 )):
                     args = twitch_message.content.split()
                     subcommand = args[1]
