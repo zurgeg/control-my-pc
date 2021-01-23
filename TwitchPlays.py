@@ -34,7 +34,7 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
-__version__ = '3.9.0'
+__version__ = '3.10.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -315,7 +315,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
-                if twitch_message.content == 'script- reqdata':
+                if twitch_message.content in ('script- reqdata', './script reqdata'):
                     context = {
                         'user': twitch_message.username,
                         'channel': CONFIG['twitch']['channel_to_join'],
@@ -325,25 +325,30 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     }
                     cmpc.send_data(CONFIG['discord']['systemlog'], context)
 
-                if twitch_message.content == 'script- apirefresh':
+                if twitch_message.content in ('script- apirefresh', './script apirefresh'):
                     self.user_permissions_handler = self.permissions_handler_from_json()
                     log.info('[API] refreshed user permissions from API')
                     cmpc.send_webhook(CONFIG['discord']['systemlog'], 'User permissions were refreshed from API.')
 
-                if twitch_message.content == 'script- forceerror':
+                if twitch_message.content in ('script- forceerror', './script forceerror', './script force-error'):
                     cmpc.send_error(CONFIG['discord']['systemlog'], 'Forced error!',
                                     twitch_message, TWITCH_USERNAME,
                                     CONFIG['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
-                if twitch_message.original_content.startswith('chatbot- '):
+                command_invocs = ('chatbot', './chatbot')
+                if twitch_message.original_content.startswith(command_invocs):
+                    # IF YOU NEED AN API KEY, CONTACT MAX.
                     if not PANEL_API_KEY:
                         log.error('[CHATBOT] Command ran and no API key, '
                                   'skipping command and sending warning to discord.')
                         cmpc.send_webhook(CONFIG['discord']['systemlog'],
                                           'No chatbot api key was provided, skipping command.')
                         return
-                    # IF YOU NEED AN API KEY, CONTACT MAX.
-                    signal = cmpc.removeprefix(twitch_message.original_content, 'chatbot- ')
+
+                    for command_invoc in command_invocs:
+                        if twitch_message.original_content.startswith(command_invoc):
+                            signal = cmpc.removeprefix(twitch_message.original_content, command_invoc).lstrip()
+
                     payload = {
                         "signal": signal
                     }
@@ -362,17 +367,18 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
-                if twitch_message.content.startswith('modsay '):
-                    data = {
-                        'username': twitch_message.username,
-                        'content': cmpc.removeprefix(twitch_message.original_content, 'modsay '),
-                    }
-                    try:
-                        requests.post(CONFIG['discord']['modtalk'],
-                                      json=data, headers={'User-Agent': USER_AGENT})
-                    except requests.RequestException:
-                        log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
-                                  sys.exc_info())
+                for command_invoc in ('modsay', './modsay'):
+                    if twitch_message.content.startswith(command_invoc):
+                        data = {
+                            'username': twitch_message.username,
+                            'content': cmpc.removeprefix(twitch_message.original_content, command_invoc).lstrip(),
+                        }
+                        try:
+                            requests.post(CONFIG['discord']['modtalk'],
+                                          json=data, headers={'User-Agent': USER_AGENT})
+                        except requests.RequestException:
+                            log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
+                                      sys.exc_info())
 
                 if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')
@@ -382,13 +388,17 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 if twitch_message.content in ['shutdownabort']:
                     os.system('shutdown -a')
 
-                if twitch_message.content in ['script- version', 'version', 'version?']:
+                if twitch_message.content in ['script- version', 'version', 'version?', './script --version']:
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
-                if twitch_message.content.startswith('script- suspend '):
-                    duration = cmpc.removeprefix(twitch_message.content, 'script- suspend ')
+                command_invocs = ('script- suspend', './script suspend')
+                if twitch_message.content.startswith(command_invocs):
+                    for command_invoc in command_invocs:
+                        if twitch_message.content.startswith(command_invoc):
+                            duration = cmpc.removeprefix(twitch_message.content, command_invoc).lstrip()
+                            break
                     try:
                         duration = float(duration)
                     except ValueError:
@@ -408,9 +418,14 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                             log.error(f'Could not suspend for duration: {twitch_message.content}\n'
                                       'Due to too large arg')
 
+                # TODO: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
                 # User allow list handling commands
-                if twitch_message.content.startswith(('script- ban ', 'script- unban ', 'script- approve',
-                                                      'script- timeout', 'script- untimeout')):
+                if twitch_message.content.startswith((
+                        'script- ban', 'script- unban', 'script- approve',
+                        'script- timeout', 'script- untimeout',
+                        './script ban', './script unban', './script approve',
+                        './script timeout', './script untimeout'
+                )):
                     args = twitch_message.content.split()
                     subcommand = args[1]
                     if subcommand in ['ban']:
