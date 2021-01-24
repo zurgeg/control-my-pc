@@ -23,6 +23,9 @@ setuptools.setup(
             'cmpc-twitchplays=twitchplays'
         ]
     },
+    data_files=[
+        ('config', 'config/config.example.toml'),
+    ],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: Other/Proprietary License',
