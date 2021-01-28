@@ -152,7 +152,7 @@ def twitch_api_get_user(client_id, oauth_key, user_id=None, user_name=None):
 
     response = requests.get('https://api.twitch.tv/helix/users', params=payload, headers=headers)
     if response.ok:
-        return response.json()['data'][0]
+        return response.json()['data'][0], response
     else:
         raise requests.RequestException('Unable to get info about user.')
 
