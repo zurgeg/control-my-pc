@@ -17,7 +17,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
+from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
 
 
 CONFIG_FOLDER = Path('config/')
@@ -242,11 +242,12 @@ class CommandProcessor:
         # Else, try to get it from the Twitch API
         else:
             try:
-                api_user_info = twitch_api_get_user(self.config['twitch']['api_client_id'],
+                api_user_info, response = twitch_api_get_user(self.config['twitch']['api_client_id'],
                                                     removeprefix(self.config['twitch']['oauth_token'], 'oauth:'),
                                                     user_id=user_id)
             except requests.RequestException:
                 # No luck, no allow
+                send_webhook(self.config['discord']['systemlog'], f"Failed to get info on user from twitch api.\nStatus Code - {response.status_code}")
                 return False
             else:
                 # Check the status from the response info, and save it to the cache
