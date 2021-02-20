@@ -379,15 +379,15 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     await ctx.send(self.script_id)
                     log.info(f'Script instance ID: {self.script_id}')
 
-                for command_invoc in ['script- stop', '../script stop', '../script stop -i', '../script stop --id']:
+                for command_invoc in ['script- stop', '../script stop --id', '../script stop -i', '../script stop']:
                     if twitch_message.content.startswith(command_invoc):
                         args = cmpc.removeprefix(twitch_message.content, command_invoc).lstrip().split()
                         try:
                             id_to_stop = int(args[0])
                         except IndexError:
                             log.error('No id given for script stop command.')
-                        except TypeError:
-                            log.error('Invalid (non-int) id given for script stop command.')
+                        except ValueError:
+                            log.error(f'Invalid (non-int) id given for script stop command: {args[0]}')
                         else:
                             if id_to_stop == self.script_id:
                                 log.info('Given stop by id command, stopping.')
