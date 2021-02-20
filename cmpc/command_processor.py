@@ -5,9 +5,9 @@ Classes:
 """
 
 # PSL Packages
-import time
 import sys
 import json
+import time
 import logging as log
 from pathlib import Path
 
@@ -17,7 +17,8 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
+from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, \
+    parse_goto_args, send_webhook
 
 
 CONFIG_FOLDER = Path('config/')
@@ -83,6 +84,11 @@ class CommandProcessor:
     MOUSE_SCROLL_COMMANDS = {
         ('scroll down',): -60,
         ('scroll up',): 60,
+    }
+
+    MOUSE_HORIZONTAL_SCROLL_COMMANDS = {
+        ('scroll left',): -60,
+        ('scroll right',): 60,
     }
 
     MOUSE_MOVE_COMMANDS = {
@@ -156,6 +162,7 @@ class CommandProcessor:
             self._process_hotkey_commands,
             self._process_mouse_hold_commands,
             self._process_mouse_scroll_commands,
+            self._process_mouse_horizontal_scroll_commands,
             self._process_mouse_drag_commands,
             self._process_misc_commands,
             self._process_type_commands,
@@ -243,11 +250,13 @@ class CommandProcessor:
         else:
             try:
                 api_user_info, response = twitch_api_get_user(self.config['twitch']['api_client_id'],
-                                                    removeprefix(self.config['twitch']['oauth_token'], 'oauth:'),
-                                                    user_id=user_id)
+                                                              removeprefix(self.config['twitch']['oauth_token'],
+                                                                           'oauth:'),
+                                                              user_id=user_id)
             except requests.RequestException:
                 # No luck, no allow
-                send_webhook(self.config['discord']['systemlog'], f"Failed to get info on user from twitch api.\nStatus Code - {response.status_code}")
+                send_webhook(self.config['discord']['systemlog'],
+                             f"Failed to get info on user from twitch api.\nStatus Code - {response.status_code}")
                 return False
             else:
                 # Check the status from the response info, and save it to the cache
@@ -349,6 +358,28 @@ class CommandProcessor:
                 self.log_to_obs(message)
                 for i in range(5):
                     pyautogui.scroll(output)
+                return True
+        return False
+
+    def _process_mouse_horizontal_scroll_commands(self, message) -> bool:
+        """Check message for horizontal mouse scroll commands and run any applicable command.
+
+        Scrolls the mouse wheel five times by the amount associated with the command.
+        Uses pyautogui.hscroll on compatible platforms. On windows it holds shift then vscrolls.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_inputs, output in self.MOUSE_HORIZONTAL_SCROLL_COMMANDS.items():
+            if message.content in valid_inputs:
+                self.log_to_obs(message)
+                if sys.platform in ['darwin', 'linux']:
+                    for i in range(5):
+                        pyautogui.hscroll(output)
+                else:
+                    pyautogui.keyDown('shift')
+                    pyautogui.scroll(output)
+                    pyautogui.keyUp('shift')
                 return True
         return False
 
