@@ -478,25 +478,33 @@ class CommandProcessor:
         if message.content.startswith('go to '):
             try:
                 xval, yval = parse_goto_args(message, 'go to ')
-                self.log_to_obs(message)
-                pyautogui.moveTo(xval, yval, duration=0.11)
-
-                return True
-
             except ValueError:
                 log.error(f'Could not move mouse to location: {message.content} due to non-numeric or not enough args')
             except pyautogui.PyAutoGUIException:
                 log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
             except Exception as error:
                 self.error_handle(error, message)
+            else:
+                self.log_to_obs(message)
+                pyautogui.moveTo(xval, yval, duration=0.11)
+
+                return True
 
         # 'drag to' command
         if message.content.startswith('drag to '):
-            xval, yval = parse_goto_args(message, 'drag to ')
-            self.log_to_obs(message)
-            pyautogui.dragTo(xval, yval, duration=0.1)
+            try:
+                xval, yval = parse_goto_args(message, 'drag to ')
+            except ValueError:
+                log.error(f'Could not drag mouse to location: {message.content} due to non-numeric or not enough args')
+            except pyautogui.PyAutoGUIException:
+                log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
+            except Exception as error:
+                self.error_handle(error, message)
+            else:
+                self.log_to_obs(message)
+                pyautogui.dragTo(xval, yval, duration=0.11)
 
-            return True
+                return True
 
         # gtype command
         # you don't say?
