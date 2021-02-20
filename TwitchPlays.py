@@ -20,6 +20,7 @@ import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
 import json  # json, duh,
 import time  # for script- suspend command
+import random
 import argparse
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
@@ -110,6 +111,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         and permissions handler.
         """
         self.modtools_on = modtools_on
+        self.script_id = random.randint(0, 1000000)
 
         # Check essential constants are not empty.
         if not TWITCH_USERNAME or not TWITCH_OAUTH_TOKEN:
@@ -372,7 +374,30 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
-                for command_invoc in ('modsay', '../modsay'):
+                if twitch_message.content in ['script- id', '../script id']:
+                    ctx = await self.get_context(message)
+                    await ctx.send(self.script_id)
+                    log.info(f'Script instance ID: {self.script_id}')
+
+                for command_invoc in ['script- stop', '../script stop', '../script stop -i', '../script stop --id']:
+                    if twitch_message.content.startswith(command_invoc):
+                        args = cmpc.removeprefix(twitch_message.content, command_invoc).lstrip().split()
+                        try:
+                            id_to_stop = int(args[0])
+                        except IndexError:
+                            log.error('No id given for script stop command.')
+                        except TypeError:
+                            log.error('Invalid (non-int) id given for script stop command.')
+                        else:
+                            if id_to_stop == self.script_id:
+                                log.info('Given stop by id command, stopping.')
+                                sys.exit()
+                            else:
+                                log.info('id for stop by id command does not match, ignoring.')
+
+                        break
+
+                for command_invoc in ['modsay', '!modsay']:
                     if twitch_message.content.startswith(command_invoc):
                         data = {
                             'username': twitch_message.username,
@@ -384,6 +409,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         except requests.RequestException:
                             log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
                                       sys.exc_info())
+
+                        break
 
                 if twitch_message.content in ['hideall']:
                     pyautogui.hotkey('win', 'm')
@@ -516,11 +543,14 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         pass
 
 
+twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
+                            initial_channel=CHANNEL_TO_JOIN)
+
+
 if __name__ == '__main__':
     # Log copyright notice.
     print(COPYRIGHT_NOTICE)
-    twitch_client = TwitchPlays(user=TWITCH_USERNAME, oauth=TWITCH_OAUTH_TOKEN, client_id=TWITCH_CLIENT_ID,
-                                initial_channel=CHANNEL_TO_JOIN)
+
     if cliargs.offline_mode:
         log.info("[Script] Starting script in offline only mode. Cya later internet.")
         twitch_client.tester.startTester()
