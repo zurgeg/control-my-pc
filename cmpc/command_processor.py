@@ -87,8 +87,8 @@ class CommandProcessor:
     }
 
     MOUSE_HORIZONTAL_SCROLL_COMMANDS = {
-        ('scroll left',): -60,
-        ('scroll right',): 60,
+        ('scroll left',): 60,
+        ('scroll right',): -60,
     }
 
     MOUSE_MOVE_COMMANDS = {
@@ -378,7 +378,8 @@ class CommandProcessor:
                         pyautogui.hscroll(output)
                 else:
                     pyautogui.keyDown('shift')
-                    pyautogui.scroll(output)
+                    for i in range(5):
+                        pyautogui.scroll(output)
                     pyautogui.keyUp('shift')
                 return True
         return False
