@@ -13,7 +13,7 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
 
   (Note: It is recommended that you know how to use the Terminal of your OS and that you have basic knowledge of the Git CLI.)
 
-  1) In order to run you must download a 3.X.X version of Python (https://www.python.org/downloads/). The script is normally ran on python version `3.8` - `3.9`. The current recommended python version [runtime.txt](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/runtime.txt) using the [heroku style](https://devcenter.heroku.com/articles/python-runtimes).
+  1) In order to run you must download a 3.X.X version of Python (https://www.python.org/downloads/). The script is normally run on python version `3.8` - `3.9`. The current recommended python version [runtime.txt](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/runtime.txt) using the [heroku style](https://devcenter.heroku.com/articles/python-runtimes).
 
   2) To install you can either do one of 2 things.
   - Clone using Git
@@ -28,7 +28,7 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
 
   5) Run `TwitchPlays.py` using `python TwitchPlays.py` - You can do this as a command on most environments as `TwitchPlays`.
 
-## "I don't have all this fancy stuff (Discord webhooks, API for moderator lists, etc.), what can i do?"
+## "I don't have all this fancy stuff (Discord webhooks, API for moderator lists, etc.), what can I do?"
 
 - No API ) If you don't have a Webserver or CDN hosting your config, you can modify `TwitchPlays.py (Line 137)` to use a static user list. Leaving out config values is a wanted feature and may be added in the future
 
@@ -51,28 +51,6 @@ Example static user list.
 
 # What's New highlight:
 
-Moderation features to ignore brand-new user accounts and allow banning only for the script, without banning from Twitch chat.
+Close individual instances if multiple are running by accident, using the new `../script id` and `../script stop <id>` commands.
 
-## Full changelog:
-*This will likely be moved to its own file.*
-
-- **vX.Y.Z YYYY-MM-DD INFO**
-- **Date descending**
-- v3.9.0 2021-1-21 New offline mode feature using the startup flag `--offline-mode`
-- v3.8.0 2020-12-21 Add new moderation features for ignoring brand-new user accounts and script-banning users
-- v3.7.1 2020-12-11 Fix error handling for go to command  
-- v3.7.0 2020-12-04 Remove environment variable support for simplicity's sake, add !modalert ping role ID in config.
-- v3.6.0 2020-11-22 Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring, and some minor changes like new commands.
-- v3.5.1 2020-11-14 Make hold key functionality work in more games (was broken in rewrite).
-- v3.5.0 2020-11-10 Add 'ptype' command, types by pasting to support unicode
-- v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
-- v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
-- v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
-- *Changelog created 2020-11-09*
-- *Following entries are retroactive*
-- v3.1.1 2020-10-31 Stable rewrite
-- v3.0.0 2020-10-27 Rewrite
-- v2.0.0 2020-07-25 Season 2
-- v1.0.0 2020-07-17 Add new commands and obs logging
-- v0.1.1 2020-06-11 Preserve capitalisation on type command
-- v0.1.0 2020-06-10 First version on GitHub
+For more, see the [changelog](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/CHANGELOG.md).

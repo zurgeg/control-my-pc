@@ -35,7 +35,6 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
-# todo: bump version number
 __version__ = '3.10.0'
 
 # Folders we use
