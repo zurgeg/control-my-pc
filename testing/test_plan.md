@@ -35,7 +35,7 @@
 |--------------------------------|------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------|----------|-------|
 | testconn command               | valid      | script- testconn                                               | Correct message appears in #mod-chat discord channel                                    |          |       |
 | reqdata command                | valid      | script- reqdata                                                | Correct active information appears in #mod-chat                                         |          |       |
-| apirefresh command             | valid      | script- apirefresh                                             | permissions_handler_from_json is run correctly, success message appears in #system-logs |          |       |
+| apirefresh command             | valid      | script- apirefresh                                             | get_json_from_api is run correctly, success message appears in #system-logs |          |       |
 | forceerror command             | valid      | script- forceerror                                             | dummy error embed with correct info appears in #system-logs                             |          |       |
 | chatbot control                | valid      | chatbot- start                                                 | Message appears in #system-logs with command, status code 204                           |          |       |
 |                                | valid      | chatbot- stop                                                  | \--                                                                                     |          |       |

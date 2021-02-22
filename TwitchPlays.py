@@ -143,7 +143,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
                 json.dump(self.user_info_cache, user_info_cache_file)
 
-        self.user_permissions_handler = self.permissions_handler_from_json()
+        self.user_permissions_handler = self.permissions_handler_from_api()
 
         self.processor = cmpc.CommandProcessor(config, 'executing.txt')
         self.processor.log_to_obs(None)
@@ -180,9 +180,17 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         return user_permissions
 
-    def permissions_handler_from_json(self,
-                                      url=config['api']['apiconfig'],
-                                      static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
+    def permissions_handler_from_api(self, url=config['api']['apiconfig'],
+                                     static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
+        apiconfig_json = self.get_json_from_api(url, static_backup_path)
+        # Init and return user permissions handler from dev and mod lists
+        return self.load_user_permissions(
+            dev_list=apiconfig_json['devlist'],
+            mod_list=apiconfig_json['modlist']
+        )
+
+    @staticmethod
+    def get_json_from_api(url, static_backup_path):
         """Init a cmpc.Permissions object after retrieving source dev and mod lists.
 
         Args:
@@ -197,49 +205,45 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         # Attempt get dev and mod lists from API.
         log.info('[API] Requesting data!')
         try:
-            apiconfig = requests.get(url)
-            if not apiconfig.ok:
+            api_response = requests.get(url)
+            if not api_response.ok:
                 raise requests.RequestException
             else:
-                apiconfig_json = apiconfig.json()
+                api_json = api_response.json()
                 log.info('[API] Data here, and parsed!')
 
                 # Save retrieved JSON to backup
                 with open(static_backup_path, 'w') as static_backup_file:
-                    json.dump(apiconfig_json, static_backup_file)
+                    json.dump(api_json, static_backup_file)
                 log.info('[API] Backed up to static backup file')
 
         # If the request errored or response status code wasn't 200 'ok', use backup
         except (requests.RequestException, json.JSONDecodeError):
             log.warning('[API] Failed to load data from API')
             with open(static_backup_path, 'r') as static_backup_file:
-                apiconfig_json = json.load(static_backup_file)
+                api_json = json.load(static_backup_file)
 
             log.info('[API] Loaded lists from static file instead')
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
             try:
                 log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                            f"    JSON last updated: {apiconfig_json['last_updated']}\n"
+                            f"    JSON last updated: {api_json['last_updated']}\n"
                             f"    Retrieved: {retrieved_time}")
                 # noinspection PyUnboundLocalVariable
                 cmpc.send_webhook(config['discord']['systemlog'],
                                   'Failed to load data from API\n'
                                   'Loaded dev list from static file instead\n'
                                   'One or multiple lists may be unavailable or incomplete/out of date\n'
-                                  f"Last updated: {apiconfig_json['last_updated']}\n"
+                                  f"Last updated: {api_json['last_updated']}\n"
                                   f"Retrieved: {retrieved_time}\n\n"
                                   f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
                                   f"**Environment -** {config['options']['DEPLOY']}\n"
-                                  f"**Response Status Code- ** {apiconfig.status_code}"
+                                  f"**Response Status Code- ** {api_response.status_code}"
                                   )
             except TypeError:
                 log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
 
-        # Init and return user permissions handler from dev and mod lists
-        return self.load_user_permissions(
-            dev_list=apiconfig_json['devlist'],
-            mod_list=apiconfig_json['modlist']
-        )
+        return api_json
 
     async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
         user_id = str(message.author.id)
@@ -333,7 +337,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_data(config['discord']['systemlog'], context)
 
                 if twitch_message.content in ('script- apirefresh', '../script apirefresh', '../script api-refresh'):
-                    self.user_permissions_handler = self.permissions_handler_from_json()
+                    self.user_permissions_handler = self.get_json_from_api()
                     log.info('[API] refreshed user permissions from API')
                     cmpc.send_webhook(config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
