@@ -17,3 +17,4 @@ from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
 from .script_tester import ScriptTester
 from .mod_rota import ModRota
+from.api_requests import CmpcApi

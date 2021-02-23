@@ -143,6 +143,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
                 json.dump(self.user_info_cache, user_info_cache_file)
 
+        self.api_requests = cmpc.CmpcApi(config)
         self.user_permissions_handler = self.permissions_handler_from_api()
 
         self.processor = cmpc.CommandProcessor(config, 'executing.txt')
@@ -182,69 +183,12 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
     def permissions_handler_from_api(self, url=config['api']['apiconfig'],
                                      static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
-        apiconfig_json = self.get_json_from_api(url, static_backup_path)
+        apiconfig_json = self.api_requests.get_json_from_api(url, static_backup_path)
         # Init and return user permissions handler from dev and mod lists
         return self.load_user_permissions(
             dev_list=apiconfig_json['devlist'],
             mod_list=apiconfig_json['modlist']
         )
-
-    @staticmethod
-    # todo: update docstrings
-    def get_json_from_api(url, static_backup_path):
-        """Init a cmpc.Permissions object after retrieving source dev and mod lists.
-
-        Args:
-            url -- the url to attempt to retrieve JSON from
-            static_backup_path -- path to the static backup local JSON file
-        Returns:
-            a cmpc.Permissions object generated with load_user_permissions
-        If retrieval from the url is successful, it will be backed up to the local file.
-        Otherwise, if retrieval is unsuccessful, the local file will be used instead, and warnings will be logged.
-        The warnings include information about when the local file was updated and retrieved.
-        """
-        # Attempt get dev and mod lists from API.
-        log.info('[API] Requesting data!')
-        try:
-            api_response = requests.get(url)
-            if not api_response.ok:
-                raise requests.RequestException
-            else:
-                api_json = api_response.json()
-                log.info('[API] Data here, and parsed!')
-
-                # Save retrieved JSON to backup
-                with open(static_backup_path, 'w') as static_backup_file:
-                    json.dump(api_json, static_backup_file)
-                log.info('[API] Backed up to static backup file')
-
-        # If the request errored or response status code wasn't 200 'ok', use backup
-        except (requests.RequestException, json.JSONDecodeError):
-            log.warning('[API] Failed to load data from API')
-            with open(static_backup_path, 'r') as static_backup_file:
-                api_json = json.load(static_backup_file)
-
-            log.info('[API] Loaded lists from static file instead')
-            retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))
-            try:
-                log.warning('[API] One or multiple lists may be unavailable or incomplete/out of date\n'
-                            f"    JSON last updated: {api_json['last_updated']}\n"
-                            f"    Retrieved: {retrieved_time}")
-                # noinspection PyUnboundLocalVariable
-                cmpc.send_webhook(config['discord']['systemlog'],
-                                  'Failed to load data from API\n'
-                                  'Loaded dev list from static file instead\n'
-                                  'One or multiple lists may be unavailable or incomplete/out of date\n'
-                                  f"Last updated: {api_json['last_updated']}\n"
-                                  f"Retrieved: {retrieved_time}\n\n"
-                                  f'[***Stream Link***](<https://twitch.tv/{TWITCH_USERNAME}>)\n'
-                                  f"**Environment -** {config['options']['DEPLOY']}\n"
-                                  f"**Response Status Code- ** {api_response.status_code}"
-                                  )
-            except TypeError:
-                log.warning('Your apiconfig backup is out of date and missing some fields. Trying to run anyway.')
-
-        return api_json
 
     async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
         user_id = str(message.author.id)

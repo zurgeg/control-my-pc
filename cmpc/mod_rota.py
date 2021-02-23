@@ -10,7 +10,9 @@ ONE_DAY_DELTA = datetime.timedelta(days=1)
 
 
 class ModRota:
-    def __init__(self):
+    def __init__(self, webhook_url, rota=None, discord_ids=None):
+        self.webhook_url = webhook_url
+
         self.keep_running = False
         self.rota = {}
         self.download_rota()
@@ -73,9 +75,9 @@ class ModRota:
         except KeyError:
             log.error(f"[ROTA] It's this mod's turn on the rota, but their discord id was not found: {twitch_mod}")
         else:
-            # todo: get url from config
-            send_webhook("https://discord.com/api/webhooks/788498633833316393/aioKFFlU2cRw-gpmBVkaK99wPZSv4QQ9inOYNdXMZR2hW85HR87xtmOU4QqkAlWVf9Cb",
-                         f"The moderation rota says it's your turn <@{mod_discord_id}>")
+            send_webhook(self.webhook_url,
+                         f"<@{mod_discord_id}> it's your turn to moderate the stream."
+                         "If you can't, please ping another mod to get them to do it.")
 
     async def run(self):
         self.keep_running = True
@@ -89,8 +91,8 @@ class ModRota:
 
             time_till_next = (next_datetime - datetime.datetime.utcnow()).total_seconds()
             next_datetime_strf = next_datetime.strftime('%A %d %b %H:%M')
-            log.info(f'Next mod on duty: {next_mod} at {next_datetime_strf}.')
-            log.info(f'Rota pausing for {int(time_till_next)} seconds.')
+            log.info(f'[ROTA] Next mod on duty: {next_mod} at {next_datetime_strf}.')
+            log.info(f'[ROTA] Rota pausing for {int(time_till_next)} seconds.')
 
             await asyncio.sleep(time_till_next)
             self.send_reminder_ping(next_mod)
