@@ -13,8 +13,6 @@ class ModRota:
         self.download_rota()
         self.discord_ids = {}
 
-        self.datetime_dict = {}
-
     @staticmethod
     def _day_name(day):
         return day.strftime('%A')
@@ -51,3 +49,5 @@ class ModRota:
                 else:
                     next_datetime_strf = next_datetime.strftime('%H:%M')
                     return rota_for_day[next_datetime_strf]
+
+        return None
