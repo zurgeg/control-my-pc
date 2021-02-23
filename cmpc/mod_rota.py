@@ -1,29 +1,45 @@
 import asyncio
 import datetime
 import logging as log
+from pathlib import Path
 
+import cmpc.api_requests
 from cmpc.utils import send_webhook
 
 
 # todo: add docstrings
 ONE_DAY_DELTA = datetime.timedelta(days=1)
+CONFIG_FOLDER = Path('config/')
 
 
 class ModRota:
-    def __init__(self, webhook_url, rota=None, discord_ids=None):
-        self.webhook_url = webhook_url
+    def __init__(self, config, rota=None, discord_ids=None):
+        self.webhook_url = config['discord']['modtalk']
+        self.rota_url = config['api']['mod_rota']
+        self.discord_ids_url = config['api']['discord_ids']
 
         self.keep_running = False
-        self.rota = {}
-        self.download_rota()
-        self.discord_ids = {}
+        self.api_requests = cmpc.api_requests.CmpcApi(config)
+        if rota is None:
+            self.rota = {}
+            self.download_rota()
+        if discord_ids is None:
+            self.discord_ids = {}
+            self.download_discord_ids()
 
     @staticmethod
     def _day_name(day):
         return day.strftime('%A')
 
     def download_rota(self):
-        self.rota = {}
+        json_response = self.api_requests.get_json_from_api(url=self.rota_url,
+                                                            static_backup_path=CONFIG_FOLDER/'rota.json')
+        self.rota = json_response['rota']
+
+    def download_discord_ids(self):
+        json_response = self.api_requests.get_json_from_api(url=self.discord_ids_url,
+                                                            static_backup_path=CONFIG_FOLDER / 'discord.json')
+        self.rota = json_response['discord_ids']
 
     def next_on_duty(self, rota=None, last=False):
         if rota is None:

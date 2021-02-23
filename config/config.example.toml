@@ -16,6 +16,8 @@
 
 [api]
 	apiconfig = "https://api.cmpc.live/apiconfig.json" # website to handle the dev and mod lists
+	discord_ids = "https://api.cmpc.live/discord.json" # website to handle the dict of moderator discord ids
+	mod_rota = "https://api.cmpc.live/rota.json" # website to handle the moderator reminder schedule
 	useragent = "CMPCscript (+https://cmpc.live/)" # "who are we" - this also sends in the discord webhooks
 	panelapikey = "" # Panel API key for chatbot control
     panelapiendpoint = "https://panel.dukthosting.net/api/client/servers/xxxxx/power"

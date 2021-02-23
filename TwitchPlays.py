@@ -282,7 +282,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_data(config['discord']['systemlog'], context)
 
                 if twitch_message.content in ('script- apirefresh', '../script apirefresh', '../script api-refresh'):
-                    self.user_permissions_handler = self.get_json_from_api()
+                    self.user_permissions_handler = self.permissions_handler_from_api()
                     log.info('[API] refreshed user permissions from API')
                     cmpc.send_webhook(config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
