@@ -15,9 +15,12 @@ import webbrowser
 import requests
 import toml
 
+# todo: set scope on runtime
 DEFAULT_SCOPES = [
     'chat:read',
     'chat:edit',
+    'user:read:email',
+    'moderation:read',
 ]
 
 
