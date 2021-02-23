@@ -16,3 +16,4 @@ from .command_processor import CommandProcessor
 from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
 from .script_tester import ScriptTester
+from.mod_rota import ModRota
