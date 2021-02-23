@@ -11,12 +11,9 @@ Files:
 """
 
 import webbrowser
-from pathlib import Path
 
 import requests
 import toml
-
-CONFIG_FOLDER = Path('/')
 
 DEFAULT_SCOPES = [
     'chat:read',
@@ -49,9 +46,9 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=' '.join(DE
 def save_oauth_key(oauth_key):
     """Save an oauth key to the config.toml."""
     # Edit config.toml
-    config = toml.load(CONFIG_FOLDER/'config.toml')
+    config = toml.load('config.toml')
     config['twitch']['oauth_token'] = oauth_key
-    with open(CONFIG_FOLDER / 'config.toml', 'w') as config_file:
+    with open('config.toml', 'w') as config_file:
         toml.dump(config, config_file)
 
     return True
