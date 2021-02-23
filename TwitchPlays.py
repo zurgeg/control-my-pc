@@ -190,6 +190,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         )
 
     @staticmethod
+    # todo: update docstrings
     def get_json_from_api(url, static_backup_path):
         """Init a cmpc.Permissions object after retrieving source dev and mod lists.
 
