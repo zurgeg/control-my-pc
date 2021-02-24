@@ -103,7 +103,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
     def __init__(self, user, oauth, client_id, initial_channel,
-                 modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False):
+                 modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False,
+                 mod_rota_on=True):
         """Get set up, then call super().__init__.
 
         Args:
@@ -114,6 +115,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         self.modtools_on = modtools_on
         self.modtools_timeout_on = modtools_timeout_on
         self.modtools_ban_on = modtools_ban_on
+
+        self.mod_rota_on = mod_rota_on
+        if self.mod_rota_on:
+            self.mod_rota = cmpc.ModRota(config)
+
         self.script_id = random.randint(0, 1000000)
 
         # Check essential constants are not empty.
@@ -209,7 +215,10 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
     # TwitchConnection overrides
     async def event_ready(self):
-        """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable."""
+        """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable.
+
+        Also start the mod rota running on the bot's asyncio loop.
+        """
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
         # Send starting up message with webhook if in CONFIG.
         if config['options']['START_MSG']:
@@ -218,6 +227,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                               f"[***Stream Link***](<https://twitch.tv/{config['channel_to_join']}>)\n"
                               f"**Environment -** {config['options']['DEPLOY']}",
                               )
+
+        if self.mod_rota_on:
+            self.loop.create_task(self.mod_rota.run())
 
     # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
