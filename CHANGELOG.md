@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.11.0] - 2021-02-24
+### added
+- Moderation rota reminder system
+### fixed
+- Use twitchio's twitch api endpoint access, delete our old function
+
 ## [3.10.0] - 2021-02-20
 ### added
 - Give the `TwitchPlays` class a random ID which you can get using the `../script id` command, and use to stop a specific instance using the `../script stop <id>` command.

@@ -35,7 +35,7 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
-__version__ = '3.10.0'
+__version__ = '3.11.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -160,8 +160,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         if cliargs.offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
         else:
-            super().__init__(irc_token=oauth, client_id=client_id, nick=user,
-                             prefix='!', initial_channels=[initial_channel])
+            super().__init__(irc_token=oauth, api_token=cmpc.removeprefix(oauth, 'oauth:'), client_id=client_id,
+                             nick=user, prefix='!', initial_channels=[initial_channel])
 
     @property
     def tester(self) -> cmpc.ScriptTester:
