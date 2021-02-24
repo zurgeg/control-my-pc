@@ -18,8 +18,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, \
-    parse_goto_args, send_webhook
+from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
 
 
 CONFIG_FOLDER = Path('config/')
@@ -130,8 +129,9 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
+    def __init__(self, bot, config, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
+        self.bot = bot
         self.config = config
         self.obs_file_name = obs_file_name
         if req_account_age_days is None:

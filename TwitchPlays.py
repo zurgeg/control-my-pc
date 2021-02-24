@@ -145,7 +145,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.user_permissions_handler = self.permissions_handler_from_api()
 
-        self.processor = cmpc.CommandProcessor(config, 'executing.txt')
+        self.processor = cmpc.CommandProcessor(self, config, 'executing.txt')
         self.processor.log_to_obs(None)
         if cliargs.offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
