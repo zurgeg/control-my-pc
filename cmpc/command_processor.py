@@ -12,12 +12,13 @@ import logging as log
 from pathlib import Path
 
 # PIP Packages;
+import twitchio
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import removeprefix, twitch_api_get_user, move_mouse, hold_mouse, press_key, hold_key, \
+from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, \
     parse_goto_args, send_webhook
 
 
@@ -249,18 +250,18 @@ class CommandProcessor:
         # Else, try to get it from the Twitch API
         else:
             try:
-                api_user_info, response = twitch_api_get_user(self.config['twitch']['api_client_id'],
-                                                              removeprefix(self.config['twitch']['oauth_token'],
-                                                                           'oauth:'),
-                                                              user_id=user_id)
+                twitch_api_response = await self.get_users(user_id)
+                if not twitch_api_response:
+                    raise twitchio.errors.HTTPException
+                api_user_info = twitch_api_response[0]
             except requests.RequestException:
                 # No luck, no allow
                 send_webhook(self.config['discord']['systemlog'],
-                             f"Failed to get info on user from twitch api.\nStatus Code - {response.status_code}")
+                             f"Failed to get info on user from twitch api.")
                 return False
             else:
                 # Check the status from the response info, and save it to the cache
-                account_created_string = api_user_info['created_at']
+                account_created_string = api_user_info.created_at
                 account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
                 # allow_after should be the time in seconds since the epoch after which the user is allowed
                 allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)

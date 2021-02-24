@@ -495,10 +495,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         return
 
                     try:
-                        user_id = cmpc.twitch_api_get_user(config['twitch']['api_client_id'],
-                                                           cmpc.removeprefix(config['twitch']['oauth_token'], 'oauth:'),
-                                                           user_name=user_name)['id']
-                    except requests.RequestException:
+                        twitch_api_response = await self.get_users(user_name)
+                        if not twitch_api_response:
+                            raise twitchio.errors.HTTPException
+                        user_id = twitch_api_response[0].id
+                    except twitchio.errors.HTTPException:
                         log.error(f'Unable to unban/ban user {user_name} - user not found!')
                     else:
                         for key, value in set_states.items():

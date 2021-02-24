@@ -6,7 +6,6 @@ Functions:
     removeprefix -- self explanatory, builtin as of 3.9 but here for compatibility with prior versions
     get_size -- for encoding large numbers into SI prefixes
     direct_or_auto -- returns 'auto' or 'direct' based on platform
-    twitch_api_get_user -- get info about a Twitch account from their API using requests
     send_webhook -- simplifies sending of basic messages to discord webhooks
     send_error -- sends info on an unexpected exception to a discord webhook in embed form
     input_handler -- returns pyautogui or pydirectinput based on platform
@@ -39,7 +38,6 @@ __all__ = (
     'removeprefix',
     'get_size',
     'direct_or_auto',
-    'twitch_api_get_user',
     'send_webhook',
     'send_error',
     'input_handler',
@@ -133,28 +131,6 @@ def direct_or_auto():
     else:
         # Default
         return 'auto'
-
-
-def twitch_api_get_user(client_id, oauth_key, user_id=None, user_name=None):
-    """Return the JSON response containing info about the specified Twitch user, or raise a RequestException."""
-    if user_id:
-        payload = {'id': user_id}
-    elif user_name:
-        if user_name.startswith('@'):
-            user_name = user_name[1:]
-        payload = {'login': user_name}
-    else:
-        raise NameError('No user ID or login given!')
-    headers = {
-        'Client-Id': client_id,
-        'Authorization': f'Bearer {oauth_key}',
-    }
-
-    response = requests.get('https://api.twitch.tv/helix/users', params=payload, headers=headers)
-    if response.ok:
-        return response.json()['data'][0], response
-    else:
-        raise requests.RequestException('Unable to get info about user.')
 
 
 def send_webhook(url: str, content: str):
