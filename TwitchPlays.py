@@ -102,7 +102,8 @@ if config['options']['DEPLOY'] == 'Debug':
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id, initial_channel, modtools_on=False):
+    def __init__(self, user, oauth, client_id, initial_channel,
+                 modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False):
         """Get set up, then call super().__init__.
 
         Args:
@@ -111,6 +112,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         and permissions handler.
         """
         self.modtools_on = modtools_on
+        self.modtools_timeout_on = modtools_timeout_on
+        self.modtools_ban_on = modtools_ban_on
         self.script_id = random.randint(0, 1000000)
 
         # Check essential constants are not empty.
@@ -146,7 +149,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         self.api_requests = cmpc.CmpcApi(config)
         self.user_permissions_handler = self.permissions_handler_from_api()
 
-        self.processor = cmpc.CommandProcessor(config, 'executing.txt')
+        self.processor = cmpc.CommandProcessor(self, config, 'executing.txt')
         self.processor.log_to_obs(None)
         if cliargs.offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
@@ -410,6 +413,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     args = twitch_message.content.split()
                     subcommand = args[1]
                     if subcommand in ['ban']:
+                        if not self.modtools_ban_on:
+                            return
+
                         set_states = {
                             'allow': False,
                             'notified_ignored': False
@@ -417,6 +423,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     elif subcommand in ['unban', 'approve']:
                         set_states = {'allow': True}
                     elif subcommand in ['timeout']:
+                        if not self.modtools_timeout_on:
+                            return
+
                         try:
                             timeout_duration = float(args[3])
                         except (IndexError, TypeError):
@@ -439,10 +448,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         return
 
                     try:
-                        user_id = cmpc.twitch_api_get_user(config['twitch']['api_client_id'],
-                                                           cmpc.removeprefix(config['twitch']['oauth_token'], 'oauth:'),
-                                                           user_name=user_name)['id']
-                    except requests.RequestException:
+                        twitch_api_response = await self.get_users(user_name)
+                        if not twitch_api_response:
+                            raise twitchio.errors.HTTPException
+                        user_id = twitch_api_response[0].id
+                    except twitchio.errors.HTTPException:
                         log.error(f'Unable to unban/ban user {user_name} - user not found!')
                     else:
                         for key, value in set_states.items():
