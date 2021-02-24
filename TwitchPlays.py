@@ -102,7 +102,8 @@ if config['options']['DEPLOY'] == 'Debug':
 class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
-    def __init__(self, user, oauth, client_id, initial_channel, modtools_on=False):
+    def __init__(self, user, oauth, client_id, initial_channel,
+                 modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False):
         """Get set up, then call super().__init__.
 
         Args:
@@ -111,6 +112,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         and permissions handler.
         """
         self.modtools_on = modtools_on
+        self.modtools_timeout_on = modtools_timeout_on
+        self.modtools_ban_on = modtools_ban_on
         self.script_id = random.randint(0, 1000000)
 
         # Check essential constants are not empty.
@@ -466,6 +469,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     args = twitch_message.content.split()
                     subcommand = args[1]
                     if subcommand in ['ban']:
+                        if not self.modtools_ban_on:
+                            return
+
                         set_states = {
                             'allow': False,
                             'notified_ignored': False
@@ -473,6 +479,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     elif subcommand in ['unban', 'approve']:
                         set_states = {'allow': True}
                     elif subcommand in ['timeout']:
+                        if not self.modtools_timeout_on:
+                            return
+
                         try:
                             timeout_duration = float(args[3])
                         except (IndexError, TypeError):

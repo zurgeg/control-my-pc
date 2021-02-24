@@ -250,7 +250,7 @@ class CommandProcessor:
         # Else, try to get it from the Twitch API
         else:
             try:
-                twitch_api_response = await self.get_users(user_id)
+                twitch_api_response = await self.bot.get_users(user_id)
                 if not twitch_api_response:
                     raise twitchio.errors.HTTPException
                 api_user_info = twitch_api_response[0]
