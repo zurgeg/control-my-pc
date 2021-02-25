@@ -3,7 +3,9 @@ import datetime
 import logging as log
 from pathlib import Path
 
+import twitchio
 import cmpc.api_requests
+import cmpc.permission_handler
 from cmpc.utils import send_webhook
 
 
@@ -13,12 +15,17 @@ CONFIG_FOLDER = Path('config/')
 
 
 class ModRota:
-    def __init__(self, config, rota=None, discord_ids=None):
-        self.webhook_url = config['discord']['modtalk']
+    def __init__(self, bot, config, mod_presence_check_interval_minutes=10, rota=None, discord_ids=None):
+        self.bot = bot
+        self.config = config
+        self.mod_presence_check_interval_seconds = mod_presence_check_interval_minutes * 60
+        self.channel_to_check = self.config['twitch']['channel_to_join']
+        self.webhook_url = config['discord']['rota_reminders']
         self.rota_url = config['api']['mod_rota']
         self.discord_ids_url = config['api']['discord_ids']
 
         self.keep_running = False
+        self.keep_running_mod_presence_checks = False
         self.api_requests = cmpc.api_requests.CmpcApi(config)
         if rota is None:
             self.rota = {}
@@ -94,6 +101,32 @@ class ModRota:
             send_webhook(self.webhook_url,
                          f"<@{mod_discord_id}> it's your turn to moderate the stream."
                          "If you can't, please ping another mod to get them to do it.")
+
+    async def mod_presence_check(self):
+        try:
+            chatters = await self.bot.get_chatters(self.channel_to_check)
+        except twitchio.errors.HTTPException:
+            log.error('Unable to get chatters list for channel in mod presence check.')
+            return False
+
+        for user in chatters.moderators:
+            user_permissions = self.bot.user_permissions_handler.get(user, cmpc.Permissions())
+            if user_permissions.moderator or user_permissions.developer:
+                return True
+
+        return False
+
+    async def run_mod_presence_checks(self):
+        self.keep_running_mod_presence_checks = True
+        while self.keep_running_mod_presence_checks:
+            mods_present = await self.mod_presence_check()
+            if not mods_present:
+                cmpc.send_webhook(self.webhook_url,
+                                  f"{self.config['discord']['modalertping']} "
+                                  'there are currently no mods on the stream! '
+                                  f'<https://www.twitch.tv/{self.channel_to_check}>')
+
+            await asyncio.sleep(self.mod_presence_check_interval_seconds)
 
     async def run(self):
         self.keep_running = True

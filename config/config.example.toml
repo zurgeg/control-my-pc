@@ -26,6 +26,7 @@
 	chatalerts = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	chatrelay = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	modtalk = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
+	rota_reminders = "https://discord.com/api/webhooks/xxxxx/xxxxx"
 	devtalk = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	botstat = "https://discordapp.com/api/webhooks/xxxxx/xxxxx"
 	systemlog = "https://discord.com/api/webhooks/xxxxx/xxxxx"

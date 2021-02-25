@@ -213,7 +213,7 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+    async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.
 
         Args:

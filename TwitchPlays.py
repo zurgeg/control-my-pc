@@ -118,7 +118,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         self.mod_rota_on = mod_rota_on
         if self.mod_rota_on:
-            self.mod_rota = cmpc.ModRota(config)
+            self.mod_rota = cmpc.ModRota(self, config)
 
         self.script_id = random.randint(0, 1000000)
 
@@ -230,6 +230,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         if self.mod_rota_on:
             self.loop.create_task(self.mod_rota.run())
+            self.loop.create_task(self.mod_rota.run_mod_presence_checks())
 
     # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
@@ -269,7 +270,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
                 if not user_permissions.moderator or user_permissions.developer:
-                    if not self.processor.check_user_allowed(message.author.id, self.user_info_cache):
+                    if not await self.processor.check_user_allowed(message.author.id, self.user_info_cache):
                         await self.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
                         return
