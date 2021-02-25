@@ -46,7 +46,7 @@ class ModRota:
     def download_discord_ids(self):
         json_response = self.api_requests.get_json_from_api(url=self.discord_ids_url,
                                                             static_backup_path=CONFIG_FOLDER / 'discord.json')
-        self.rota = json_response['discord_ids']
+        self.discord_ids = json_response['discord_ids']
 
     def next_on_duty(self, rota=None, last=False):
         if rota is None:
