@@ -11,7 +11,7 @@ class CmpcApi:
         self.config = config
 
     # todo: update docstrings
-    def get_json_from_api(self, url, static_backup_path):
+    def get_json_from_api(self, url, static_backup_path, force_static=False):
         """Init a cmpc.Permissions object after retrieving source dev and mod lists.
 
         Args:
@@ -26,6 +26,10 @@ class CmpcApi:
         # Attempt get dev and mod lists from API.
         log.info('[API] Requesting data!')
         try:
+            if force_static:
+                log.warning('Forcing getting from static backup instead of api.')
+                raise requests.RequestException
+
             api_response = requests.get(url)
             if not api_response.ok:
                 raise requests.RequestException
