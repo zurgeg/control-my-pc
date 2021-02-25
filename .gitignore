@@ -17,11 +17,7 @@ executing.txt
 config/
 !config/config.example.toml
 !config/*.py
-# Intro video
-intro.mp4
-# Other assets
-time-stop-in.mkv
-time-skip-in.mp4
+# Intro video, other assets
+assets/
 # cmpc's stuff
 autorestart.py
-De*Hofnar*-*Zonnestraal.mp4
