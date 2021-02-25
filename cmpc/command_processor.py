@@ -7,6 +7,7 @@ Classes:
 # PSL Packages
 import sys
 import json
+import re
 import time
 import logging as log
 from pathlib import Path
@@ -213,7 +214,7 @@ class CommandProcessor:
                           json=message.get_log_webhook_payload(),
                           headers={'User-Agent': self.config['api']['useragent']})
 
-    async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
+    async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.
 
         Args:
@@ -569,6 +570,17 @@ class CommandProcessor:
                 pyautogui.hotkey('ctrl', 'v')
 
             return True
+
+        # multi alt tab for easier app switching
+        multi_alt_tab_match = re.match('alt ([0-9]{1,2}) tab', message.content)
+        if multi_alt_tab_match:
+            self.log_to_obs(message)
+
+            alt_tabs = int(multi_alt_tab_match.group(1))
+            pyautogui.keyDown('altleft')
+            for i in range(alt_tabs):
+                pyautogui.press('tab')
+            pyautogui.keyUp('altleft')
 
         # No commands run, sad cat hours
         return False

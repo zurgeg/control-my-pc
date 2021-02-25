@@ -35,7 +35,7 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
-__version__ = '3.11.0'
+__version__ = '4.0.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -95,6 +95,8 @@ if cliargs.gen_key:
 
 
 if config['options']['DEPLOY'] == 'Debug':
+    # not sure about this
+    # todo: remove or make more conditional
     import webbrowser
     webbrowser.open(f"https://twitch.tv/{config['twitch']['channel_to_join']}/chat", new=1)
 

@@ -1,8 +1,9 @@
 # Changelog
 
-## [3.11.0] - 2021-02-24
+## [4.0.0] - 2021-02-25
 ### added
 - Moderation rota reminder system
+- Multi alt-tab
 ### fixed
 - Use twitchio's twitch api endpoint access, delete our old function
 
