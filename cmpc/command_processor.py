@@ -130,10 +130,9 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, bot, config, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
+    def __init__(self, bot, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
         self.bot = bot
-        self.config = config
         self.obs_file_name = obs_file_name
         if req_account_age_days is None:
             self.req_account_age_days = 7
@@ -210,9 +209,9 @@ class CommandProcessor:
 
             time.sleep(sleep_duration)
             log.info(message.get_log_string())
-            requests.post(self.config['discord']['chatrelay'],
+            requests.post(self.bot.config['discord']['chatrelay'],
                           json=message.get_log_webhook_payload(),
-                          headers={'User-Agent': self.config['api']['useragent']})
+                          headers={'User-Agent': self.bot.config['api']['useragent']})
 
     async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.
@@ -257,7 +256,7 @@ class CommandProcessor:
                 api_user_info = twitch_api_response[0]
             except requests.RequestException:
                 # No luck, no allow
-                send_webhook(self.config['discord']['systemlog'],
+                send_webhook(self.bot.config['discord']['systemlog'],
                              f"Failed to get info on user from twitch api.")
                 return False
             else:
@@ -494,15 +493,15 @@ class CommandProcessor:
                         }
                     ],
                     'username': message.username,
-                    'content': f"{self.config['discord']['modalertping']} "
-                               f"https://twitch.tv/{self.config['twitch']['channel_to_join']}",
+                    'content': f"{self.bot.config['discord']['modalertping']} "
+                               f"https://twitch.tv/{self.bot.config['twitch']['channel_to_join']}",
                 }
                 log.info('[MODALERT] Sending request...')
                 # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
                 #  set if not, then log what should have been sent to console.
-                requests.post(self.config['discord']['chatalerts'],
+                requests.post(self.bot.config['discord']['chatalerts'],
                               json=data,
-                              headers={'User-Agent': self.config['api']['useragent']})
+                              headers={'User-Agent': self.bot.config['api']['useragent']})
                 log.info('[MODALERT] Request sent')
                 return True
             else:

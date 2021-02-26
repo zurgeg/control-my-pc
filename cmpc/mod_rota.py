@@ -15,18 +15,17 @@ CONFIG_FOLDER = Path('config/')
 
 
 class ModRota:
-    def __init__(self, bot, config, mod_presence_check_interval_minutes=10, rota=None, discord_ids=None):
+    def __init__(self, bot, mod_presence_check_interval_minutes=10, rota=None, discord_ids=None):
         self.bot = bot
-        self.config = config
         self.mod_presence_check_interval_seconds = mod_presence_check_interval_minutes * 60
-        self.channel_to_check = self.config['twitch']['channel_to_join']
-        self.webhook_url = config['discord']['rota_reminders']
-        self.rota_url = config['api']['mod_rota']
-        self.discord_ids_url = config['api']['discord_ids']
+        self.channel_to_check = self.bot.config['twitch']['channel_to_join']
+        self.webhook_url = self.bot.config['discord']['rota_reminders']
+        self.rota_url = self.bot.config['api']['mod_rota']
+        self.discord_ids_url = self.bot.config['api']['discord_ids']
 
         self.keep_running = False
         self.keep_running_mod_presence_checks = False
-        self.api_requests = cmpc.api_requests.CmpcApi(config)
+        self.api_requests = cmpc.api_requests.CmpcApi(self.bot.config)
         if rota is None:
             self.rota = {}
             self.download_rota()
@@ -122,7 +121,7 @@ class ModRota:
             mods_present = await self.mod_presence_check()
             if not mods_present:
                 cmpc.send_webhook(self.webhook_url,
-                                  f"{self.config['discord']['modalertping']} "
+                                  f"{self.bot.config['discord']['modalertping']} "
                                   'there are currently no mods on the stream! '
                                   f'<https://www.twitch.tv/{self.channel_to_check}>')
 
