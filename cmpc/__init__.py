@@ -7,11 +7,14 @@ Modules:
     twitch_message -- custom class for Twitch messages
     permission_handler -- binary approach to hierarchal user permissions
     twitch_connection -- extends twitchio.ext.commands.Bot for our specific usage
+    script_tester -- A custom script tester which works offline
 """
 
-from cmpc.utils import *
-from cmpc.keyboard_keycodes import KeyboardKeycodes
-from cmpc.command_processor import CommandProcessor
-from cmpc.twitch_message import TwitchMessage
-from cmpc.permission_handler import Permissions
-from cmpc.twitch_connection import TwitchConnection
+from .utils import *
+from .keyboard_keycodes import KeyboardKeycodes
+from .command_processor import CommandProcessor
+from .twitch_message import TwitchMessage
+from .permission_handler import Permissions
+from .script_tester import ScriptTester
+from .mod_rota import ModRota
+from.api_requests import CmpcApi

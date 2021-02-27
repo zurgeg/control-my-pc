@@ -2,56 +2,56 @@
 
 # TwitchPlays
 
-An overhaul update to DougDoug TwitchPlays script.
+The script that allows controlling of a pc remotely through a Twitch chat. Started as an overhaul update to DougDoug TwitchPlays script.
 
-**This script is meant for twitch.tv/controlmypc / https://cmpc.live, you must have authentication from controlmypc to run this script.**
+
+**This script is meant for twitch.tv/controlmypc / https://cmpc.live, you must have authorisation from controlmypc to run this script.**
 
 
 # NOTICE: Any forks of this repo MUST be private. thank you.
 
 # Installation:
 
-  1) In order to run you must download python 3.xx (Will suggest latest version from here: https://www.python.org/downloads/).
+  (Note: It is recommended that you know how to use the Terminal of your OS and that you have basic knowledge of the Git CLI.)
 
-  2) After downloading open a cmd and run these commands:
+  1) In order to run you must download a 3.X.X version of Python (https://www.python.org/downloads/). The script is normally run on python version `3.8` - `3.9`. The current recommended python version [runtime.txt](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/runtime.txt) using the [heroku style](https://devcenter.heroku.com/articles/python-runtimes).
+
+  2) To install you can either do one of 2 things.
+  - Clone using Git
+  - Download the Zip file
+
+  3) After downloading open a terminal of your choice, and run these commands to install the script's dependencies (using a [virtualenv](https://docs.python.org/3/tutorial/venv.html) or other virtual environment can be a good idea)::
   
-  * `python -m pip install --upgrade pip`
+  * `python -m pip install --upgrade pip wheel`
   * `python -m pip install -r requirements.txt`
 
-  3)  Edit `config.toml` with your oauth and twitch token. (you can get an oauth token with `new_oauth_key.py`).       
-  Set TWITCH_CHANNEL AND TWITCH_OAUTH_TOKEN environment variables if you want to use env vars, see For more information see [here](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script#how-to-set-environment-variables). 
+  4)  Create `config/config.toml` based on `config/config.example.toml` with your Twitch username, oauth key, and other info and settings. (you can generate a blank config.toml with `config/create_empty_config.py` and get a Twitch oauth token with `new_oauth_key.py`).
 
-  4)Run start.bat (And hope it doesn't crash cause it can't send data or can't authenticate account.)
+  5) Run `TwitchPlays.py` using `python TwitchPlays.py` - You can do this as a command on most environments as `TwitchPlays`.
 
-## "I don't have all this fancy stuff, what can i do?"
+## "I don't have all this fancy stuff (Discord webhooks, API for moderator lists, etc.), what can I do?"
 
-NO API) If you do not have a api, leave these values blank and edit the manual configuration in `TwitchPlays.py` You mainly need `developer` as a admin, `moderator` is just at the minute for the `modsay ` command.
+- No API ) If you don't have a Webserver or CDN hosting your config, you can modify `TwitchPlays.py (Line 137)` to use a static user list. Leaving out config values is a wanted feature and may be added in the future
 
-NO DISCORD) If you don't have a discord webhook, look at a guide online, if you don't want to do this, most of the dev commands wont be the best option for you, There is no error handling for no config at the minute, so your best bet is just to make a discord server and just use discord, NOTE: These do not need to be separate webhooks, they can all be the same (this is not recommended), but it would help if you don't want to make 6 webhooks.
+Example static user list.
+```
+{
+  "devlist" : [
+    "developers here"
+  ],
+  "modlist" : [
+    "moderators here"
+  ]
+}
 
-NO TWITCH) If you are testing the script offline, you're fucked. There is no good way to do this at the minute, we might add a option in the future to do manual offline testing
+```
 
-# What's New:
+- No Webhooks) If you don't know how to make a discord webhook, there are plenty of guides online. Without a webhook most commands do absolutely nothing. If you would like to send webhooks to a different service (I.E: Slack), you can modify some of the webhook code (`./cmpc/utils.py` handles most webhooks.). You can use 1 webhook for the entire script, but it is not recommended.
 
-Massive rewrite with improved code and new features.
+- Offline / No Twitch) If you are running the script without Twitch and/or you are offline, you can start the script in offline only mode. Do this by adding the `--offline-mode` flag to your start command.
 
-## Full changelog:
+# What's New highlight:
 
-- **vX.Y.Z YYYY-MM-DD INFO**
-- **Date descending**
-- v3.7.1 2020-12-11 Fix error handling for go to command  
-- v3.7.0 2020-12-04 Remove environment variable support for simplicity's sake, add !modalert ping role ID in config.
-- v3.6.0 2020-11-22 Refactor connection to use `twitchio`, event-driven. Also improve a ton of code with refactoring, and some minor changes like new commands.
-- v3.5.1 2020-11-14 Make hold key functionality work in more games (was broken in rewrite).
-- v3.5.0 2020-11-10 Add 'ptype' command, types by pasting to support unicode
-- v3.4.2 2020-11-09 Fix some mod commands that used the run dialog
-- v3.4.1 2020-11-09 Fix unicode encode error in obs logging (type commands)
-- v3.4.0 2020-11-09 Add backup static dev list. Add more info to 'script online' discord webhook message.
-- *Changelog created 2020-11-09*
-- *Following entries are retroactive*
-- v3.1.1 2020-10-31 Stable rewrite
-- v3.0.0 2020-10-27 Rewrite
-- v2.0.0 2020-07-25 Season 2
-- v1.0.0 2020-07-17 Add new commands and obs logging
-- v0.1.1 2020-06-11 Preserve capitalisation on type command
-- v0.1.0 2020-06-10 First version on GitHub
+Close individual instances if multiple are running by accident, using the new `../script id` and `../script stop <id>` commands.
+
+For more, see the [changelog](https://gitlab.com/controlmypc/TwitchPlays/-/blob/master/CHANGELOG.md).

@@ -1,23 +1,28 @@
 """Processes and executes commands.
 
 Classes:
-    CommandProcessor -- processes commands, includes helper methods like remove_prefix and log_to_obs
+    CommandProcessor -- processes commands, includes helper methods like log_to_obs
 """
 
 # PSL Packages
-import time
 import sys
+import json
+import re
+import time
 import logging as log
+from pathlib import Path
 
 # PIP Packages;
+import twitchio
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
-# import cmpc  # custom stuff we need
-# from cmpc.keyboard_keycodes import KeyboardKeycodes
+from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
+
+
+CONFIG_FOLDER = Path('config/')
 
 
 class CommandProcessor:
@@ -82,26 +87,31 @@ class CommandProcessor:
         ('scroll up',): 60,
     }
 
+    MOUSE_HORIZONTAL_SCROLL_COMMANDS = {
+        ('scroll left',): 60,
+        ('scroll right',): -60,
+    }
+
     MOUSE_MOVE_COMMANDS = {
         ('left',): (-100, 0,),
-        ('light left', 'little left',): (-25, 0,),
-        ('super light left', 'super little left',): (-10, 0,),
+        ('light left', 'little left', 'slight left',): (-25, 0,),
+        ('super light left', 'super little left', 'super slight left',): (-10, 0,),
         ('right',): (100, 0,),
-        ('light right', 'little right',): (25, 0,),
-        ('super light right', 'super little right',): (10, 0,),
+        ('light right', 'little right', 'slight right',): (25, 0,),
+        ('super light right', 'super little right', 'super slight right',): (10, 0,),
         ('up',): (0, -100,),
-        ('light up', 'little up',): (0, -25,),
-        ('super light up', 'super little up',): (0, -10,),
+        ('light up', 'little up', 'slight up',): (0, -25,),
+        ('super light up', 'super little up', 'super slight up',): (0, -10,),
         ('down',): (0, 100,),
-        ('light down', 'little down',): (0, 25,),
-        ('super light down', 'super little down',): (0, 10,),
+        ('light down', 'little down', 'slight down',): (0, 25,),
+        ('super light down', 'super little down', 'super slight down',): (0, 10,),
     }
 
     MOUSE_DRAG_COMMANDS = {
-        ('drag up', 'drag mouse up',): (0, -50, 0.25,),
-        ('drag down', 'drag mouse down',): (0, 50, 0.25,),
-        ('drag right', 'drag mouse right',): (50, 0, 0.25,),
-        ('drag left', 'drag mouse left',): (-50, 0, 0.25,),
+        ('drag up', 'drag mouse up',): (0, -50, 0.75,),
+        ('drag down', 'drag mouse down',): (0, 50, 0.75,),
+        ('drag right', 'drag mouse right',): (50, 0, 0.75,),
+        ('drag left', 'drag mouse left',): (-50, 0, 0.75,),
     }
 
     TYPE_COMMANDS = (
@@ -120,10 +130,14 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, config, obs_file_name, obs_log_sleep_duration=None):
+    def __init__(self, bot, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
-        self.config = config
+        self.bot = bot
         self.obs_file_name = obs_file_name
+        if req_account_age_days is None:
+            self.req_account_age_days = 7
+        else:
+            self.req_account_age_days = req_account_age_days
         if obs_log_sleep_duration is None:
             self.obs_log_sleep_duration = 0.5
         else:
@@ -149,6 +163,7 @@ class CommandProcessor:
             self._process_hotkey_commands,
             self._process_mouse_hold_commands,
             self._process_mouse_scroll_commands,
+            self._process_mouse_horizontal_scroll_commands,
             self._process_mouse_drag_commands,
             self._process_misc_commands,
             self._process_type_commands,
@@ -162,11 +177,6 @@ class CommandProcessor:
                 command_has_run = True
                 break
         return command_has_run
-
-    @staticmethod
-    def remove_prefix(message, prefix) -> str:
-        """Return the message with the prefix removed."""
-        return message[len(prefix):]
 
     def error_handle(self, error, message):
         """Throw an error to here, and it will be dealt with."""
@@ -199,9 +209,76 @@ class CommandProcessor:
 
             time.sleep(sleep_duration)
             log.info(message.get_log_string())
-            requests.post(self.config['discord']['chatrelay'],
+            requests.post(self.bot.config['discord']['chatrelay'],
                           json=message.get_log_webhook_payload(),
-                          headers={'User-Agent': self.config['api']['useragent']})
+                          headers={'User-Agent': self.bot.config['api']['useragent']})
+
+    async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
+        """Check whether a Twitch user account is old enough to run commands.
+
+        Args:
+            user_id -- Twitch account ID to get info on from their API
+            cache_file_path -- JSON file to store info about users in. May be modified by this function.
+        Returns a boolean which will be True if the user's account age was verified.
+
+        Account age is checked against self.req_account_age_days.
+        Also checks if the user has been manually banned or allowed.
+        """
+        # TODO: split into smaller functions e.g. check_user_cache and check_user_twitch_api?
+        # TODO: for performance, backup the cache occasionally, instead of every write?
+        user_id = str(user_id)
+
+        # If the user is in the cache get their info from the cache
+        if user_id in user_info_cache:
+            cached_user_info = user_info_cache[user_id]
+
+            force_wait = cached_user_info.get('force_wait')
+            # If they're marked as allow or block, return that
+            if 'allow' in cached_user_info and not force_wait:
+                return cached_user_info['allow']
+            # If they're not marked, check the cached allow time
+            elif time.time() > cached_user_info['allow_after']:
+                user_info_cache[user_id]['allow'] = True
+                if cached_user_info.get('force_wait'):
+                    cached_user_info['force_wait'] = False
+                with open(cache_file_path, 'w') as user_info_cache_file:
+                    json.dump(user_info_cache, user_info_cache_file)
+
+                return True
+            else:
+                return False
+        # Else, try to get it from the Twitch API
+        else:
+            try:
+                twitch_api_response = await self.bot.get_users(user_id)
+                if not twitch_api_response:
+                    raise twitchio.errors.HTTPException
+                api_user_info = twitch_api_response[0]
+            except requests.RequestException:
+                # No luck, no allow
+                send_webhook(self.bot.config['discord']['systemlog'],
+                             f"Failed to get info on user from twitch api.")
+                return False
+            else:
+                # Check the status from the response info, and save it to the cache
+                account_created_string = api_user_info.created_at
+                account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
+                # allow_after should be the time in seconds since the epoch after which the user is allowed
+                allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
+
+                user_info_cache[user_id] = {}
+                if allow_after_time < time.time():
+                    user_info_cache[user_id]['allow'] = True
+                    return_value = True
+                else:
+                    user_info_cache[user_id]['allow_after'] = allow_after_time
+                    return_value = False
+
+                # Update the cache file
+                with open(cache_file_path, 'w') as user_info_cache_file:
+                    json.dump(user_info_cache, user_info_cache_file)
+
+                return return_value
 
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
@@ -285,6 +362,29 @@ class CommandProcessor:
                 return True
         return False
 
+    def _process_mouse_horizontal_scroll_commands(self, message) -> bool:
+        """Check message for horizontal mouse scroll commands and run any applicable command.
+
+        Scrolls the mouse wheel five times by the amount associated with the command.
+        Uses pyautogui.hscroll on compatible platforms. On windows it holds shift then vscrolls.
+        Also calls log_to_obs.
+        Takes a cmpc.TwitchMessage instance.
+        Returns True if a command has been run and False otherwise.
+        """
+        for valid_inputs, output in self.MOUSE_HORIZONTAL_SCROLL_COMMANDS.items():
+            if message.content in valid_inputs:
+                self.log_to_obs(message)
+                if sys.platform in ['darwin', 'linux']:
+                    for i in range(5):
+                        pyautogui.hscroll(output)
+                else:
+                    pyautogui.keyDown('shift')
+                    for i in range(5):
+                        pyautogui.scroll(output)
+                    pyautogui.keyUp('shift')
+                return True
+        return False
+
     def _process_mouse_move_commands(self, message) -> bool:
         """Check message for mouse move commands and run any applicable command.
 
@@ -326,7 +426,7 @@ class CommandProcessor:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
                 try:
-                    message_to_type = self.remove_prefix(message.original_content, valid_input)
+                    message_to_type = removeprefix(message.original_content, valid_input)
                     pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -345,7 +445,7 @@ class CommandProcessor:
         for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
                 try:
-                    time_value = float(self.remove_prefix(message.content, valid_input))
+                    time_value = float(removeprefix(message.content, valid_input))
                     log.debug(f"time_value: {time_value}")
                     log.debug(f"key_to_press: {output}")
 
@@ -393,14 +493,15 @@ class CommandProcessor:
                         }
                     ],
                     'username': message.username,
-                    'content': f"{self.config['discord']['modalertping']} https://twitch.tv/controlmypc",
+                    'content': f"{self.bot.config['discord']['modalertping']} "
+                               f"https://twitch.tv/{self.bot.config['twitch']['channel_to_join']}",
                 }
                 log.info('[MODALERT] Sending request...')
                 # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
                 #  set if not, then log what should have been sent to console.
-                requests.post(self.config['discord']['chatalerts'],
+                requests.post(self.bot.config['discord']['chatalerts'],
                               json=data,
-                              headers={'User-Agent': self.config['api']['useragent']})
+                              headers={'User-Agent': self.bot.config['api']['useragent']})
                 log.info('[MODALERT] Request sent')
                 return True
             else:
@@ -409,26 +510,34 @@ class CommandProcessor:
         # 'go to' command
         if message.content.startswith('go to '):
             try:
-                xval, yval = parse_goto_args(self, message, 'go to ')
-                self.log_to_obs(message)
-                pyautogui.moveTo(xval, yval, duration=0.11)
-
-                return True
-
+                xval, yval = parse_goto_args(message, 'go to ')
             except ValueError:
                 log.error(f'Could not move mouse to location: {message.content} due to non-numeric or not enough args')
             except pyautogui.PyAutoGUIException:
                 log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
             except Exception as error:
                 self.error_handle(error, message)
+            else:
+                self.log_to_obs(message)
+                pyautogui.moveTo(xval, yval, duration=0.11)
+
+                return True
 
         # 'drag to' command
         if message.content.startswith('drag to '):
-            xval, yval = parse_goto_args(self, message, 'drag to ')
-            self.log_to_obs(message)
-            pyautogui.dragTo(xval, yval, duration=0.1)
+            try:
+                xval, yval = parse_goto_args(message, 'drag to ')
+            except ValueError:
+                log.error(f'Could not drag mouse to location: {message.content} due to non-numeric or not enough args')
+            except pyautogui.PyAutoGUIException:
+                log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
+            except Exception as error:
+                self.error_handle(error, message)
+            else:
+                self.log_to_obs(message)
+                pyautogui.dragTo(xval, yval, duration=0.11)
 
-            return True
+                return True
 
         # gtype command
         # you don't say?
@@ -441,7 +550,7 @@ class CommandProcessor:
 
                 self.log_to_obs(message)
                 import pydirectinput
-                message_to_type = self.remove_prefix(message.content, 'gtype ')
+                message_to_type = removeprefix(message.content, 'gtype ')
                 pydirectinput.typewrite(message_to_type)
                 return True
             except Exception as error:
@@ -450,7 +559,7 @@ class CommandProcessor:
         # uses copy-paste instead of typing emulation
         if message.content.startswith('ptype '):
             self.log_to_obs(message)
-            message_to_type = self.remove_prefix(message.content, 'ptype ')
+            message_to_type = removeprefix(message.content, 'ptype ')
 
             try:
                 pyperclip.copy(message_to_type)
@@ -458,6 +567,19 @@ class CommandProcessor:
                 log.error(f'Could not ptype: {message.content}', sys.exc_info())
             else:
                 pyautogui.hotkey('ctrl', 'v')
+
+            return True
+
+        # multi alt tab for easier app switching
+        multi_alt_tab_match = re.match('alt ([0-9]{1,2}) tab', message.content)
+        if multi_alt_tab_match:
+            self.log_to_obs(message)
+
+            alt_tabs = int(multi_alt_tab_match.group(1))
+            pyautogui.keyDown('altleft')
+            for i in range(alt_tabs):
+                pyautogui.press('tab')
+            pyautogui.keyUp('altleft')
 
         # No commands run, sad cat hours
         return False

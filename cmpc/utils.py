@@ -3,9 +3,12 @@
 Functions:
     mode_testing -- take a number of things into account to see if script is in testing mode
     get_get_repo_info -- self explanatory
+    removeprefix -- self explanatory, builtin as of 3.9 but here for compatibility with prior versions
     get_size -- for encoding large numbers into SI prefixes
+    direct_or_auto -- returns 'auto' or 'direct' based on platform
     send_webhook -- simplifies sending of basic messages to discord webhooks
     send_error -- sends info on an unexpected exception to a discord webhook in embed form
+    input_handler -- returns pyautogui or pydirectinput based on platform
     move_mouse -- moves the mouse with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds the mouse with either pyautogui or pydirectinput situtationally
     press_key -- presses a key with either pyautogui or pydirectinput situtationally
@@ -32,9 +35,12 @@ if sys.platform == 'win32':
 __all__ = (
     'mode_testing',
     'get_git_repo_info',
+    'removeprefix',
     'get_size',
+    'direct_or_auto',
     'send_webhook',
     'send_error',
+    'input_handler',
     'move_mouse',
     'hold_mouse',
     'press_key',
@@ -85,6 +91,24 @@ def get_git_repo_info(default_branch_name='master'):
     return branch_name, branch_name_assumed
 
 
+def removeprefix(string: str, prefix: str):
+    """Remove a prefix from a string.
+
+    For compatibility with pre-3.9.
+    See here: https://docs.python.org/3/library/stdtypes.html#str.removeprefix
+    From that link:
+    If the string starts with the prefix string, return string[len(prefix):]. Otherwise, return a copy of the original
+    string.
+    """
+    if sys.version_info.major >= 9:
+        return string.removeprefix(prefix)
+    else:
+        if string.startswith(prefix):
+            return string[len(prefix):]
+        else:
+            return string
+
+
 def get_size(value, suffix='B'):
     """Scale bytes to its proper format.
 
@@ -129,7 +153,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
 
     data = {
-        'content': '<@&779783726196064323>',
+        'content': '' if environment == 'Debug' else '<@&779783726196064323>',
         'embeds': [
             {
                 'title': 'Script - Exception Occurred',
@@ -146,6 +170,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
 
 
 def input_handler():
+    """Return pyautogui or pydirectinput based on platform."""
     dor = direct_or_auto()
 
     handler = pyautogui
@@ -201,9 +226,9 @@ def hold_key(time_value, *args, **kwargs):
     handler.keyUp(*args, **kwargs)
 
 
-def parse_goto_args(command_processor, message, prefix):
+def parse_goto_args(message, prefix):
     """Return the x and y coords. Used in go to and drag to commands."""
-    coord = command_processor.remove_prefix(message.content, prefix)
+    coord = removeprefix(message.content, prefix)
     if coord in ['center', 'centre']:
         xval, yval = tuple(res / 2 for res in pyautogui.size())
     else:

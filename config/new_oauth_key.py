@@ -10,24 +10,28 @@ Files:
     config/config.toml -- where the new key will be assigned to
 """
 
-import os
 import webbrowser
-from pathlib import Path
 
 import requests
 import toml
 
-CONFIG_FOLDER = Path('config/')
+# todo: set scope on runtime
+DEFAULT_SCOPES = [
+    'chat:read',
+    'chat:edit',
+    'user:read:email',
+    'moderation:read',
+]
 
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read'):
+def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=' '.join(DEFAULT_SCOPES)):
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
         'redirect_uri': 'https://cmpc.live/oauthdisplay',
         'response_type': 'token',
-        'scope': scope
+        'scope': scopes
     }
 
     url = requests.Request('GET', 'https://id.twitch.tv/oauth2/authorize', params=payload).prepare().url
@@ -44,22 +48,17 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scope='chat:read')
 
 def save_oauth_key(oauth_key):
     """Save an oauth key to the config.toml."""
-
     # Edit config.toml
-    config = toml.load(CONFIG_FOLDER/'config.toml')
+    config = toml.load('config.toml')
     config['twitch']['oauth_token'] = oauth_key
-    with open(CONFIG_FOLDER / 'config.toml', 'w') as config_file:
+    with open('config.toml', 'w') as config_file:
         toml.dump(config, config_file)
 
-    # Ask them if they want to set a env var
-    cheese = input("[Y/N] Save as a env var?")
-    if cheese.lower() == "y":
-        print("Cheese.")
-        os.system(f'setx TWITCH_OAUTH_TOKEN "{oauth_key}"')
-    if cheese.lower() == "n":
-        pass  # do nothing
     return True
 
 
 if __name__ == '__main__':
-    save_oauth_key(get_oauth_key())
+    new_oauth_key = get_oauth_key()
+    print(f'Your new oauth key is {new_oauth_key}')
+    save_oauth_key(new_oauth_key)
+    print('Saved oauth key to config.toml successfully.')
