@@ -6,7 +6,7 @@ class MockUser:
     def __init__(self, name, id: int = 0):
         self._name = name
         self._id = id
-    
+
     @property
     def name(self) -> str:
         return self._name
@@ -19,7 +19,7 @@ class MockMessage:
     def __init__(self, author: MockUser, messageContent: str):
         self._content = messageContent
         self._author = author
-    
+
     @property
     def content(self) -> str:
         return self._content
@@ -68,6 +68,4 @@ class ScriptTester(object):
         print('[Offline Mode] Stopping Asyncio Loop')
         loop.stop()
         loop.close()
-        
-
 

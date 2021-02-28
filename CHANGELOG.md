@@ -38,7 +38,7 @@
 ### added
 - Some minor changes like new commands.
 ### changed
-- Refactor connection to use `twitchio`, event-driven. 
+- Refactor connection to use `twitchio`, event-driven.
 - Also improve a ton of code with refactoring.
 ### fixed
 - Make hold key functionality work in more games (was broken in rewrite).
@@ -52,7 +52,7 @@
 
 ## [3.4.0] - 2020-11-09
 ### added
-- Add backup static dev list.    
+- Add backup static dev list.
 - Create changelog in readme.
 ### changed
 - Add more info to 'script online' discord webhook message.
