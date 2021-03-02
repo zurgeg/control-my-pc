@@ -528,7 +528,7 @@ def main():
 
     if cliargs.offline_mode:
         log.info("[Script] Starting script in offline only mode. Cya later internet.")
-        twitch_client.tester.startTester()
+        twitch_client.tester.run()
     else:
         try:
             twitch_client.run()
