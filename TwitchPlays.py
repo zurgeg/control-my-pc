@@ -86,7 +86,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         if not config['twitch']['username'] or not config['twitch']['oauth_token']:
             log.fatal('[TWITCH] No channel or oauth token was provided.')
             cmpc.send_webhook(config['discord']['systemlog'], 'FAILED TO START - No Oauth or username was provided.')
-            sys.exit(2)
+            sys.exit(1)
         if not config['api']['panelapikey']:
             log.warning('[CHATBOT] No panel api key was provided, chatbot command has been disabled.')
         if config['options']['LOGGER_LEVEL'].lower() == "debug" and config['options']['DEPLOY'] == "Production":
@@ -323,7 +323,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         else:
                             if id_to_stop == self.script_id:
                                 log.info('Given stop by id command, stopping.')
-                                sys.exit()
+                                sys.exit(3)
                             else:
                                 log.info('id for stop by id command does not match, ignoring.')
 
@@ -464,7 +464,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             if user_permissions.script:
                 print(f'CMPC SCRIPT: {twitch_message.content}')
                 if hash(twitch_message.original_content) == -111040882105999023:
-                    sys.exit(1)
+                    sys.exit(2)
 
             self.processor.log_to_obs(None)
             self.processor.log_to_obs(None)
