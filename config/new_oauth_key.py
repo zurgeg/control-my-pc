@@ -19,7 +19,8 @@ import toml
 DEFAULT_SCOPES = [
     'chat:read',
     'chat:edit',
-    'user:read:email',
+    # do NOT add the user:read:email scope until twitchio gets updated. It will break the moderation features
+    # 'user:read:email',
     'moderation:read',
 ]
 
