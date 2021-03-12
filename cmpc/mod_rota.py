@@ -98,7 +98,7 @@ class ModRota:
             log.error(f"[ROTA] It's this mod's turn on the rota, but their discord id was not found: {twitch_mod}")
         else:
             send_webhook(self.webhook_url,
-                         f"<@{mod_discord_id}> it's your turn to moderate the stream."
+                         f"<@{mod_discord_id}> it's your turn to moderate the stream.\n"
                          "If you can't, please ping another mod to get them to do it.")
 
     async def mod_presence_check(self):

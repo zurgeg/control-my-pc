@@ -19,6 +19,7 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
+import cmpc.command_logging
 from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
 
 
@@ -133,15 +134,13 @@ class CommandProcessor:
     def __init__(self, bot, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
         self.bot = bot
-        self.obs_file_name = obs_file_name
         if req_account_age_days is None:
             self.req_account_age_days = 7
         else:
             self.req_account_age_days = req_account_age_days
-        if obs_log_sleep_duration is None:
-            self.obs_log_sleep_duration = 0.5
-        else:
-            self.obs_log_sleep_duration = obs_log_sleep_duration
+
+        self.command_logging = cmpc.command_logging.CommandLogging(self.bot, obs_file_name, obs_log_sleep_duration)
+        self.log_to_obs = self.command_logging.log_to_obs
 
         self.cooldowns = {
             '!modalert': {'required': 30.0, 'last_called': 0.0},
@@ -190,28 +189,6 @@ class CommandProcessor:
         #     raise error
         # else:
         #     pass
-
-    # TODO: separate log_to_obs and logging commands to the systemlog somewhat
-    def log_to_obs(self, message, none_log_msg='nothing', sleep_duration=None, none_sleep=False):
-        """Log a message to the file shown on-screen for the stream."""
-        # Default log duration
-        if sleep_duration is None:
-            sleep_duration = self.obs_log_sleep_duration
-
-        if message is None:
-            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                obs_file_handle.write(none_log_msg)
-            if none_sleep:
-                time.sleep(sleep_duration)
-        else:
-            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                obs_file_handle.write(message.get_log_string())
-
-            time.sleep(sleep_duration)
-            log.info(message.get_log_string())
-            requests.post(self.bot.config['discord']['chatrelay'],
-                          json=message.get_log_webhook_payload(),
-                          headers={'User-Agent': self.bot.config['api']['useragent']})
 
     async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
         """Check whether a Twitch user account is old enough to run commands.

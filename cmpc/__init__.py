@@ -7,7 +7,10 @@ Modules:
     twitch_message -- custom class for Twitch messages
     permission_handler -- binary approach to hierarchal user permissions
     twitch_connection -- extends twitchio.ext.commands.Bot for our specific usage
-    script_tester -- A custom script tester which works offline
+    script_tester -- a custom script tester which works offline
+    mod_rota -- handles automated reminders for moderators
+    api_requests -- handles requests and caching for the cmpc api
+    command_logging -- handles logging commands to obs, discord, and the local log
 """
 
 from .utils import *
@@ -17,4 +20,5 @@ from .twitch_message import TwitchMessage
 from .permission_handler import Permissions
 from .script_tester import ScriptTester
 from .mod_rota import ModRota
-from.api_requests import CmpcApi
+from .api_requests import CmpcApi
+from .command_logging import CommandLogging
