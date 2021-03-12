@@ -9,9 +9,16 @@ import cmpc.twitch_message
 
 
 class CommandLogging:
-    def __init__(self, bot, obs_file_name, obs_log_sleep_duration=None, obs_none_log_msg=None, use_websockets=True):
+    def __init__(
+            self, bot, obs_file_name, obs_source_name=None,
+            obs_log_sleep_duration=None, obs_none_log_msg=None, use_websockets=True
+    ):
         self.bot = bot
         self.obs_file_name = obs_file_name
+        if obs_source_name is None:
+            obs_source_name = 'Executing'
+        self.obs_source_name = obs_source_name
+
         if obs_log_sleep_duration is None:
             obs_log_sleep_duration = 0.5
         self.obs_log_sleep_duration = obs_log_sleep_duration
@@ -23,12 +30,13 @@ class CommandLogging:
         if use_websockets:
             try:
                 self._socket.connect()
-                text_source = self._socket.call(obswebsocket.requests.GetTextGDIPlusProperties('Executing'))
+                text_source = self._socket.call(obswebsocket.requests.GetTextGDIPlusProperties(self.obs_source_name))
                 if not text_source.status:
-                    log.error("Couldn't get obs text source: Executing. Defaulting to executing.txt")
+                    log.error(f"Couldn't get obs text source: {self.obs_source_name}. Defaulting to executing.txt")
                     raise obswebsocket.exceptions.ConnectionFailure
                 if text_source.datain['read_from_file']:
-                    log.error("Text source: is set to read from file. Defaulting to executing.txt")
+                    log.error(f'Text source: {self.obs_source_name} is set to read from file. '
+                              'Defaulting to executing.txt')
                     raise obswebsocket.exceptions.ConnectionFailure
             except obswebsocket.exceptions.ConnectionFailure:
                 log.error('Could not connect to obs websocket, defaulting to executing.txt')
@@ -49,7 +57,7 @@ class CommandLogging:
 
     def _obs_log_ws(self, obs_log_text):
         try:
-            self._socket.call(obswebsocket.requests.SetTextGDIPlusProperties('Executing', text=obs_log_text))
+            self._socket.call(obswebsocket.requests.SetTextGDIPlusProperties({self.obs_source_name}, text=obs_log_text))
         except obswebsocket.exceptions.ConnectionFailure:
             log.error('Could not connect to obs websocket, defaulting to executing.txt')
             self._socket.disconnect()
