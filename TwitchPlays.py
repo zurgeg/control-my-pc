@@ -18,7 +18,6 @@ Files:
 # PSL Packages;
 import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
-import json  # json, duh,
 import time  # for script- suspend command
 import random
 import argparse
@@ -60,7 +59,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
     def __init__(
             self, config,
-            offline_mode=False, modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False, mod_rota_on=True
+            offline_mode=False,
+            modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False,
+            mod_rota_on=True
     ):
         """Get set up, then call super().__init__.
 
@@ -97,26 +98,15 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         if os.path.exists(LOGS_FOLDER/'chat.log'):
             os.remove(LOGS_FOLDER/'chat.log')
 
-        # Load cache to memory
-        try:
-            if not os.path.isfile(CONFIG_FOLDER/'user_info_cache.json'):
-                raise FileNotFoundError('User info cache does not exist.')
-
-            with open(CONFIG_FOLDER/'user_info_cache.json', 'r') as user_info_cache_file:
-                self.user_info_cache = json.load(user_info_cache_file)
-                log.info('Loaded user info cache.')
-        except (FileNotFoundError, json.JSONDecodeError):
-            log.warning('User info cache did not exist or error decoding, initialising a new cache.')
-            self.user_info_cache = {}
-
-            with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                json.dump(self.user_info_cache, user_info_cache_file)
-
         self.api_requests = cmpc.CmpcApi(config)
         self.user_permissions_handler = self.permissions_handler_from_api()
 
         self.processor = cmpc.CommandProcessor(self, 'executing.txt')
         self.processor.log_to_obs(None)
+
+        if modtools_on:
+            self.modtools = cmpc.ModTools(self)
+
         if offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
         else:
@@ -165,20 +155,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             dev_list=apiconfig_json['devlist'],
             mod_list=apiconfig_json['modlist']
         )
-
-    async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
-        user_id = str(message.author.id)
-        if not self.user_info_cache[user_id].get('notified_ignored'):
-            ctx = await self.get_context(message)
-            # TODO: add custom messages depending on why they were ignored
-            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
-                           f'your account is under {self.processor.req_account_age_days} days old '
-                           'or because you have been banned/timed out.')
-            log.info('Notified user they were ignored.')
-
-            self.user_info_cache[user_id]['notified_ignored'] = True
-            with open(cache_file_path, 'w') as user_info_cache_file:
-                json.dump(self.user_info_cache, user_info_cache_file)
 
     # TwitchConnection overrides
     async def event_ready(self):
@@ -237,8 +213,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
                 if not user_permissions.moderator or user_permissions.developer:
-                    if not await self.processor.check_user_allowed(message.author.id, self.user_info_cache):
-                        await self.notify_ignored_user(message)
+                    if not await self.modtools.check_user_allowed(message.author.id):
+                        await self.modtools.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
                         return
 
@@ -383,63 +359,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                                       'Due to too large arg')
 
                 # TODO: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
-                # User allow list handling commands
-                if twitch_message.content.startswith((
-                        'script- ban', 'script- unban', 'script- approve',
-                        'script- timeout', 'script- untimeout',
-                        '../script ban', '../script unban', '../script approve',
-                        '../script timeout', '../script untimeout'
-                )):
-                    args = twitch_message.content.split()
-                    subcommand = args[1]
-                    if subcommand in ['ban']:
-                        if not self.modtools_ban_on:
-                            return
-
-                        set_states = {
-                            'allow': False,
-                            'notified_ignored': False
-                        }
-                    elif subcommand in ['unban', 'approve']:
-                        set_states = {'allow': True}
-                    elif subcommand in ['timeout']:
-                        if not self.modtools_timeout_on:
-                            return
-
-                        try:
-                            timeout_duration = float(args[3])
-                        except (IndexError, TypeError):
-                            log.error('Error in timeout, no or invalid duration given.')
-                            return
-
-                        timeout_end = time.time() + timeout_duration
-                        set_states = {
-                            'allow_after': timeout_end,
-                            'force_wait': True,
-                            'notified_ignored': False
-                        }
-                    elif subcommand in ['untimeout']:
-                        set_states = {'force_wait': False}
-
-                    try:
-                        user_name = args[2]
-                    except IndexError:
-                        log.error('Error in ban/timeout, no username given.')
-                        return
-
-                    try:
-                        twitch_api_response = await self.get_users(user_name)
-                        if not twitch_api_response:
-                            raise twitchio.errors.HTTPException
-                        user_id = twitch_api_response[0].id
-                    except twitchio.errors.HTTPException:
-                        log.error(f'Unable to unban/ban user {user_name} - user not found!')
-                    else:
-                        for key, value in set_states.items():
-                            self.user_info_cache.setdefault(user_id, {})[key] = value
-
-                        with open(CONFIG_FOLDER/'user_info_cache.json', 'w') as user_info_cache_file:
-                            json.dump(self.user_info_cache, user_info_cache_file)
+                self.modtools.process_commands(twitch_message)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = cmpc.removeprefix(twitch_message.content, '!defcon ')
