@@ -9,7 +9,6 @@ import cmpc.twitch_message
 
 
 class CommandLogging:
-    # todo: check if source exists or if read from file is on
     def __init__(self, bot, obs_file_name, obs_log_sleep_duration=None, obs_none_log_msg=None, use_websockets=True):
         self.bot = bot
         self.obs_file_name = obs_file_name
@@ -27,8 +26,10 @@ class CommandLogging:
                 text_source = self._socket.call(obswebsocket.requests.GetTextGDIPlusProperties('Executing'))
                 if not text_source.status:
                     log.error("Couldn't get obs text source: Executing. Defaulting to executing.txt")
+                    raise obswebsocket.exceptions.ConnectionFailure
                 if text_source.datain['read_from_file']:
-                    log.error('')
+                    log.error("Text source: is set to read from file. Defaulting to executing.txt")
+                    raise obswebsocket.exceptions.ConnectionFailure
             except obswebsocket.exceptions.ConnectionFailure:
                 log.error('Could not connect to obs websocket, defaulting to executing.txt')
                 self.obs_log_handler = self._obs_log_executing_txt
