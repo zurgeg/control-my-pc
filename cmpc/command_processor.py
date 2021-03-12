@@ -278,7 +278,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
-                if sys.platform == "darwin":
+                if sys.platform == 'darwin':
                     output.replace('ctrl', 'command')
                 self.log_to_obs(message)
                 if 'enter' in valid_inputs:
@@ -506,7 +506,7 @@ class CommandProcessor:
         if message.content.startswith('gtype '):
             try:
                 if sys.platform == 'darwin':
-                    log.error(f'COULD NOT GTYPE: {message.content}\n'
+                    log.error(f'COULD NOT GTYPE: {message.content} '
                               'DUE TO PLATFORM: darwin')
                     return True
 
