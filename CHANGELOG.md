@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.0] - 2021-03-12
+### added
+- Connect to OBS with websockets, as an alternative to executing.txt
+### changed
+- Small refactor to make command logging its own file
+
 ## [4.0.0] - 2021-02-25
 ### added
 - Moderation rota reminder system
