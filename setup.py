@@ -40,6 +40,7 @@ setuptools.setup(
     install_requires=[
         'PyAutoGUI',
         'PyDirectInput',
-        'twitchio'
+        'twitchio',
+        'GitPython',
     ]
 )
