@@ -16,7 +16,7 @@ class CommandLogging:
         self.bot = bot
         self.obs_file_name = obs_file_name
         if obs_source_name is None:
-            obs_source_name = 'Executing'
+            obs_source_name = 'executing'
         self.obs_source_name = obs_source_name
 
         if obs_log_sleep_duration is None:
