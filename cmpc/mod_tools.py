@@ -132,6 +132,7 @@ class ModTools:
         )):
             args = twitch_message.content.split()
             subcommand = args[1]
+            set_states = {}
             if subcommand in ['ban']:
                 if not self.ban_tools_on:
                     return
