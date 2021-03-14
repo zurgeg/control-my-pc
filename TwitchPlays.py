@@ -359,7 +359,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                                       'Due to too large arg')
 
                 # TODO: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
-                self.modtools.process_commands(twitch_message)
+                await self.modtools.process_commands(twitch_message)
 
                 if twitch_message.content.startswith('!defcon '):
                     severity = cmpc.removeprefix(twitch_message.content, '!defcon ')

@@ -122,7 +122,7 @@ class ModTools:
 
                 return return_value
 
-    def process_commands(self, twitch_message):
+    async def process_commands(self, twitch_message):
         # User allow list handling commands
         if twitch_message.content.startswith((
                 'script- ban', 'script- unban', 'script- approve',
