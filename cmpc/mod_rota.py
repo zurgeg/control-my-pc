@@ -108,7 +108,7 @@ class ModRota:
             log.error('Unable to get chatters list for channel in mod presence check.')
             return False
 
-        for user in chatters.moderators:
+        for user in chatters.moderators+chatters.broadcaster:
             user_permissions = self.bot.user_permissions_handler.get(user, cmpc.Permissions())
             if user_permissions.moderator or user_permissions.developer:
                 return True
