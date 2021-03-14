@@ -96,8 +96,7 @@ class ModTools:
                 if not twitch_api_response:
                     raise twitchio.errors.HTTPException
                 api_user_info = twitch_api_response[0]
-                # todo: change to debug
-                log.info(api_user_info.created_at)
+                log.debug(f'User ID {user_id} created at {api_user_info.created_at}')
             except requests.RequestException:
                 # No luck, no allow
                 send_webhook(self.bot.config['discord']['systemlog'],
@@ -165,7 +164,7 @@ class ModTools:
                 set_states = {'force_wait': False}
 
             try:
-                user_name = args[2]
+                user_name = args[2].lstrip('@')
             except IndexError:
                 log.error('Error in ban/timeout, no username given.')
                 return
