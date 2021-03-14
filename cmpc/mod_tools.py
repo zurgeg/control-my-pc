@@ -35,7 +35,7 @@ class ModTools:
             log.warning('User info cache did not exist or error decoding, initialising a new cache.')
             self.user_info_cache = {}
 
-            with open(self.cache_path) as user_info_cache_file:
+            with open(self.cache_path, 'w') as user_info_cache_file:
                 json.dump(self.user_info_cache, user_info_cache_file)
 
     async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
