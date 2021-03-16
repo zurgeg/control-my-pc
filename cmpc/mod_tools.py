@@ -1,8 +1,8 @@
-import json
 import time
 import sqlite3
 import logging as log
 from pathlib import Path
+from typing import Union
 
 import twitchio.errors
 from cmpc.utils import send_webhook
@@ -110,41 +110,10 @@ class ModTools:
             self.write_to_dbs('UPDATE users SET notified_ignored=true WHERE user_id=?', user_id)
 
     async def check_user_allowed(self, user_id):
-        # # If the user is in the cache get their info from the cache
-        # if user_id in user_info_cache:
-        #     cached_user_info = user_info_cache[user_id]
-        #
-        #     force_wait = cached_user_info.get('force_wait')
-        #     # If they're marked as allow or block, return that
-        #     if 'allow' in cached_user_info and not force_wait:
-        #         return cached_user_info['allow']
-        #     # If they're not marked, check the cached allow time
-        #     elif time.time() > cached_user_info['allow_after']:
-        #         user_info_cache[user_id]['allow'] = True
-        #         if cached_user_info.get('force_wait'):
-        #             cached_user_info['force_wait'] = False
-        #         with open(cache_file_path, 'w') as user_info_cache_file:
-        #             json.dump(user_info_cache, user_info_cache_file)
-        #
-        #         return True
-        #     else:
-        #         return False
-        # # Else, try to get it from the Twitch API
-        # else:
-        #         if allow_after_time < time.time():
-        #             user_info_cache[user_id]['allow'] = True
-        #             return_value = True
-        #         else:
-        #             user_info_cache[user_id]['allow_after'] = allow_after_time
-        #             return_value = False
-        #
-        #         # Update the cache file
-        #         with open(cache_file_path, 'w') as user_info_cache_file:
-        #             json.dump(user_info_cache, user_info_cache_file)
-        #
-        #         return return_value
-        user_info = self.get_user_info(user_id)
-        if user_info[1] is not None:
+        user_info: Union[bool, tuple] = self.get_user_info(user_id)
+        if not user_info:
+            return user_info
+        elif user_info[1] is not None:
             return user_info[1]
         else:
             return user_info[2] < time.time()
