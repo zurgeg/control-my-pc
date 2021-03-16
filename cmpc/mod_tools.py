@@ -38,7 +38,7 @@ class ModTools:
 
             if create_table:
                 cur.execute("""CREATE TABLE users
-(id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL);""")
+(id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL)""")
                 conn.commit()
                 log.info(f'Initialised user info cache {db_path}')
             else:
@@ -48,12 +48,15 @@ class ModTools:
 
         return conn_cur_pairs
 
-    def write_to_dbs(self, sql, data, db_pairs=None):
+    def write_to_dbs(self, sql, data, db_pairs=None, many=False):
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
         for conn, cur in db_pairs:
-            cur.execute(sql, data)
+            if many:
+                cur.executemany(sql, data)
+            else:
+                cur.execute(sql, data)
             conn.commit()
 
     def read_from_dbs(self, user_id, db_pairs=None):
@@ -65,7 +68,10 @@ class ModTools:
             cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
             response = cur.fetchone()
             if response:
-                self.write_to_dbs('INSERT INTO users VALUES ?', response, db_pairs=self.cache_db_pairs[:index])
+                self.write_to_dbs(
+                    'INSERT INTO users(id, allow, allow_after, notified_ignored) VALUES (?,?,?,?)',
+                    response, db_pairs=self.cache_db_pairs[:index]
+                )
                 return response
 
         return None
@@ -121,7 +127,7 @@ class ModTools:
 
     async def process_commands(self, twitch_message):
         # User allow list handling commands
-        if twitch_message.content.startswith(['script- ', '../script ']):
+        if twitch_message.content.startswith(('script- ', '../script ')):
             args = twitch_message.content.split()
             try:
                 subcommand = args[1]
@@ -134,11 +140,11 @@ class ModTools:
                     return
 
                 set_states = [
-                    ('allow', False),
-                    ('notified_ignored', False),
+                    ['allow', False],
+                    ['notified_ignored', False],
                 ]
             elif subcommand in ['unban', 'approve']:
-                set_states = [('allow', True)]
+                set_states = [['allow', True]]
             elif subcommand in ['timeout']:
                 if not self.timeout_tools_on:
                     return
@@ -151,12 +157,12 @@ class ModTools:
 
                 timeout_end = time.time() + timeout_duration
                 set_states = [
-                    ('allow', None),
-                    ('allow_after', timeout_end),
-                    ('notified_ignored', False),
+                    ['allow', None],
+                    ['allow_after', timeout_end],
+                    ['notified_ignored', False],
                 ]
             elif subcommand in ['untimeout']:
-                set_states = [('allow_after', 0)]
+                set_states = [['allow_after', 0]]
 
             try:
                 user_name = args[2].lstrip('@')
@@ -168,9 +174,9 @@ class ModTools:
                 twitch_api_response = await self.bot.get_users(user_name)
                 if not twitch_api_response:
                     raise twitchio.errors.HTTPException
-                user_id = twitch_api_response[0].id
+                user_id = int(twitch_api_response[0].id)
             except twitchio.errors.HTTPException:
                 log.error(f'Unable to unban/ban user {user_name} - user not found!')
             else:
-                set_states = [t+user_id for t in set_states]
-                self.write_to_dbs('UPDATE users SET ?=? WHERE id=?', set_states)
+                set_states = [s+[user_id] for s in set_states]
+                self.write_to_dbs('UPDATE users SET ?=? WHERE id=?', set_states, many=True)
