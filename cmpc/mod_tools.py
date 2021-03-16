@@ -62,14 +62,15 @@ class ModTools:
 
         for index, pair in enumerate(db_pairs):
             conn, cur = pair
-            response = cur.execute('SELECT * FROM users WHERE id=?', user_id)
+            cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
+            response = cur.fetchone()
             if response:
                 self.write_to_dbs('INSERT INTO users VALUES ?', response, db_pairs=self.cache_db_pairs[:index])
                 return response
 
         return None
 
-    def get_user_info(self, user_id):
+    async def get_user_info(self, user_id):
         cache_hit = self.read_from_dbs(user_id)
         if cache_hit is not None:
             return cache_hit
@@ -92,7 +93,7 @@ class ModTools:
                 # allow_after should be the time in seconds since the epoch after which the user is allowed
                 allow_after_time = account_created_seconds + (self.req_age_days * 24 * 60 ** 2)
 
-                self.write_to_dbs('INSERT INTO users(id, allow_after), VALUES (?, ?)', (user_id, allow_after_time))
+                self.write_to_dbs('INSERT INTO users(id, allow_after) VALUES (?, ?)', (user_id, allow_after_time))
                 return self.read_from_dbs(user_id)
 
     async def notify_ignored_user(self, message):
@@ -107,10 +108,10 @@ class ModTools:
                            'or because you have been banned/timed out.')
             log.info('Notified user they were ignored.')
 
-            self.write_to_dbs('UPDATE users SET notified_ignored=true WHERE user_id=?', user_id)
+            self.write_to_dbs('UPDATE users SET notified_ignored=true WHERE user_id=?', (user_id,))
 
     async def check_user_allowed(self, user_id):
-        user_info: Union[bool, tuple] = self.get_user_info(user_id)
+        user_info: Union[bool, tuple] = await self.get_user_info(user_id)
         if not user_info:
             return user_info
         elif user_info[1] is not None:
