@@ -151,14 +151,13 @@ class ModTools:
 
     async def process_commands(self, twitch_message):
         # User allow list handling commands
-        if twitch_message.content.startswith((
-                'script- ban', 'script- unban', 'script- approve',
-                'script- timeout', 'script- untimeout',
-                '../script ban', '../script unban', '../script approve',
-                '../script timeout', '../script untimeout'
-        )):
+        if twitch_message.content.startswith(['script- ', '../script ']):
             args = twitch_message.content.split()
-            subcommand = args[1]
+            try:
+                subcommand = args[1]
+            except IndexError:
+                return
+
             set_states = []
             if subcommand in ['ban']:
                 if not self.ban_tools_on:
