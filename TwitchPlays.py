@@ -145,7 +145,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         return user_permissions
 
     def permissions_handler_from_api(self, url=None,
-                                     static_backup_path=CONFIG_FOLDER / 'apiconfig_static_backup.json'):
+                                     static_backup_path=CONFIG_FOLDER / 'apiconfig.json'):
         if url is None:
             url = self.config['api']['apiconfig']
 
@@ -403,6 +403,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
 
 def main():
+    # Log copyright notice.
+    print(COPYRIGHT_NOTICE)
+
     # Load configuration
     # noinspection PyArgumentList
     config = toml.load(CONFIG_FOLDER / 'config.toml')
@@ -442,9 +445,6 @@ def main():
         webbrowser.open(f"https://twitch.tv/{config['twitch']['channel_to_join']}/chat", new=1)
 
     twitch_client = TwitchPlays(config=config, offline_mode=cliargs.offline_mode)
-
-    # Log copyright notice.
-    print(COPYRIGHT_NOTICE)
 
     if cliargs.offline_mode:
         log.info("[Script] Starting script in offline only mode. Cya later internet.")

@@ -24,7 +24,7 @@ class CmpcApi:
         The warnings include information about when the local file was updated and retrieved.
         """
         # Attempt get dev and mod lists from API.
-        log.info('[API] Requesting data!')
+        log.info(f'[API] Requesting data! ({url})')
         try:
             if force_static:
                 log.warning('Forcing getting from static backup instead of api.')
@@ -35,12 +35,12 @@ class CmpcApi:
                 raise requests.RequestException
             else:
                 api_json = api_response.json()
-                log.info('[API] Data here, and parsed!')
+                log.debug('[API] Data here, and parsed!')
 
                 # Save retrieved JSON to backup
                 with open(static_backup_path, 'w') as static_backup_file:
                     json.dump(api_json, static_backup_file)
-                log.info('[API] Backed up to static backup file')
+                log.debug('[API] Backed up to static backup file')
 
         # If the request errored or response status code wasn't 200 'ok', use backup
         except (requests.RequestException, json.JSONDecodeError):
