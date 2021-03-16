@@ -1,9 +1,9 @@
 import json
 import time
+import sqlite3
 import logging as log
 from pathlib import Path
 
-import requests
 import twitchio.errors
 from cmpc.utils import send_webhook
 
@@ -12,9 +12,7 @@ CONFIG_FOLDER = Path('config')
 
 
 class ModTools:
-    def __init__(
-            self, bot, ban_tools_on=True, timeout_tools_on=True, req_account_age_days=None, user_info_cache_path=None
-    ):
+    def __init__(self, bot, ban_tools_on=True, timeout_tools_on=True, req_account_age_days=None):
         self.bot = bot
         self.ban_tools_on = ban_tools_on
         self.timeout_tools_on = timeout_tools_on
@@ -22,74 +20,59 @@ class ModTools:
         if req_account_age_days is None:
             req_account_age_days = 7
         self.req_age_days = req_account_age_days
-        if user_info_cache_path is None:
-            user_info_cache_path = CONFIG_FOLDER / 'user_info_cache.json'
-        self.cache_path = user_info_cache_path
 
-        # Load cache to memory
-        try:
-            with open(self.cache_path) as user_info_cache_file:
-                self.user_info_cache = json.load(user_info_cache_file)
-            log.info('Loaded user info cache.')
-        except (FileNotFoundError, json.JSONDecodeError):
-            log.warning('User info cache did not exist or error decoding, initialising a new cache.')
-            self.user_info_cache = {}
+        self.cache_db_paths = [':memory:', CONFIG_FOLDER / 'user_info_cache.db']
+        self.cache_db_pairs = self.init_dbs()
 
-            with open(self.cache_path, 'w') as user_info_cache_file:
-                json.dump(self.user_info_cache, user_info_cache_file)
+    def init_dbs(self):
+        conn_cur_pairs = []
+        for db_path in self.cache_db_paths:
+            create_table = False
+            if db_path == ':memory:':
+                create_table = True
+            elif not db_path.is_file():
+                create_table = True
 
-    async def notify_ignored_user(self, message, cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
-        user_id = str(message.author.id)
-        if not self.user_info_cache[user_id].get('notified_ignored'):
-            ctx = await self.bot.get_context(message)
-            # TODO: add custom messages depending on why they were ignored
-            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
-                           f'your account is under {self.req_age_days} days old '
-                           'or because you have been banned/timed out.')
-            log.info('Notified user they were ignored.')
+            conn = sqlite3.connect(db_path)
+            cur = conn.cursor()
 
-            self.user_info_cache[user_id]['notified_ignored'] = True
-            with open(cache_file_path, 'w') as user_info_cache_file:
-                json.dump(self.user_info_cache, user_info_cache_file)
-
-    async def check_user_allowed(self, user_id, user_info_cache=None,
-                                 cache_file_path=CONFIG_FOLDER / 'user_info_cache.json'):
-        """Check whether a Twitch user account is old enough to run commands.
-
-        Args:
-            user_id -- Twitch account ID to get info on from their API
-            cache_file_path -- JSON file to store info about users in. May be modified by this function.
-        Returns a boolean which will be True if the user's account age was verified.
-
-        Account age is checked against self.req_account_age_days.
-        Also checks if the user has been manually banned or allowed.
-        """
-        # TODO: split into smaller functions e.g. check_user_cache and check_user_twitch_api?
-        # TODO: for performance, backup the cache occasionally, instead of every write?
-        if user_info_cache is None:
-            user_info_cache = self.user_info_cache
-        user_id = str(user_id)
-
-        # If the user is in the cache get their info from the cache
-        if user_id in user_info_cache:
-            cached_user_info = user_info_cache[user_id]
-
-            force_wait = cached_user_info.get('force_wait')
-            # If they're marked as allow or block, return that
-            if 'allow' in cached_user_info and not force_wait:
-                return cached_user_info['allow']
-            # If they're not marked, check the cached allow time
-            elif time.time() > cached_user_info['allow_after']:
-                user_info_cache[user_id]['allow'] = True
-                if cached_user_info.get('force_wait'):
-                    cached_user_info['force_wait'] = False
-                with open(cache_file_path, 'w') as user_info_cache_file:
-                    json.dump(user_info_cache, user_info_cache_file)
-
-                return True
+            if create_table:
+                cur.execute("""CREATE TABLE users
+(id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL);""")
+                conn.commit()
+                log.info(f'Initialised user info cache {db_path}')
             else:
-                return False
-        # Else, try to get it from the Twitch API
+                log.info(f'Connected to user info cache {db_path}')
+
+            conn_cur_pairs.append((conn, cur))
+
+        return conn_cur_pairs
+
+    def write_to_dbs(self, sql, data, db_pairs=None):
+        if db_pairs is None:
+            db_pairs = self.cache_db_pairs
+
+        for conn, cur in db_pairs:
+            cur.execute(sql, data)
+            conn.commit()
+
+    def read_from_dbs(self, user_id, db_pairs=None):
+        if db_pairs is None:
+            db_pairs = self.cache_db_pairs
+
+        for index, pair in enumerate(db_pairs):
+            conn, cur = pair
+            response = cur.execute('SELECT * FROM users WHERE id=?', user_id)
+            if response:
+                self.write_to_dbs('INSERT INTO users VALUES ?', response, db_pairs=self.cache_db_pairs[:index])
+                return response
+
+        return None
+
+    def get_user_info(self, user_id):
+        cache_hit = self.read_from_dbs(user_id)
+        if cache_hit is not None:
+            return cache_hit
         else:
             try:
                 twitch_api_response = await self.bot.get_users(user_id)
@@ -97,7 +80,7 @@ class ModTools:
                     raise twitchio.errors.HTTPException
                 api_user_info = twitch_api_response[0]
                 log.debug(f'User ID {user_id} created at {api_user_info.created_at}')
-            except requests.RequestException:
+            except twitchio.errors.HTTPException:
                 # No luck, no allow
                 send_webhook(self.bot.config['discord']['systemlog'],
                              f"Failed to get info on user from twitch api.")
@@ -109,19 +92,62 @@ class ModTools:
                 # allow_after should be the time in seconds since the epoch after which the user is allowed
                 allow_after_time = account_created_seconds + (self.req_age_days * 24 * 60 ** 2)
 
-                user_info_cache[user_id] = {}
-                if allow_after_time < time.time():
-                    user_info_cache[user_id]['allow'] = True
-                    return_value = True
-                else:
-                    user_info_cache[user_id]['allow_after'] = allow_after_time
-                    return_value = False
+                self.write_to_dbs('INSERT INTO users(id, allow_after), VALUES (?, ?)', (user_id, allow_after_time))
+                return self.read_from_dbs(user_id)
 
-                # Update the cache file
-                with open(cache_file_path, 'w') as user_info_cache_file:
-                    json.dump(user_info_cache, user_info_cache_file)
+    async def notify_ignored_user(self, message):
+        user_id = message.author.id
+        user_info = self.read_from_dbs(user_id)
+        # user_info [3] = notified_ignored
+        if not user_info[3]:
+            ctx = await self.bot.get_context(message)
+            # TODO: add custom messages depending on why they were ignored
+            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+                           f'your account is under {self.req_age_days} days old '
+                           'or because you have been banned/timed out.')
+            log.info('Notified user they were ignored.')
 
-                return return_value
+            self.write_to_dbs('UPDATE users SET notified_ignored=true WHERE user_id=?', user_id)
+
+    async def check_user_allowed(self, user_id):
+        # # If the user is in the cache get their info from the cache
+        # if user_id in user_info_cache:
+        #     cached_user_info = user_info_cache[user_id]
+        #
+        #     force_wait = cached_user_info.get('force_wait')
+        #     # If they're marked as allow or block, return that
+        #     if 'allow' in cached_user_info and not force_wait:
+        #         return cached_user_info['allow']
+        #     # If they're not marked, check the cached allow time
+        #     elif time.time() > cached_user_info['allow_after']:
+        #         user_info_cache[user_id]['allow'] = True
+        #         if cached_user_info.get('force_wait'):
+        #             cached_user_info['force_wait'] = False
+        #         with open(cache_file_path, 'w') as user_info_cache_file:
+        #             json.dump(user_info_cache, user_info_cache_file)
+        #
+        #         return True
+        #     else:
+        #         return False
+        # # Else, try to get it from the Twitch API
+        # else:
+        #         if allow_after_time < time.time():
+        #             user_info_cache[user_id]['allow'] = True
+        #             return_value = True
+        #         else:
+        #             user_info_cache[user_id]['allow_after'] = allow_after_time
+        #             return_value = False
+        #
+        #         # Update the cache file
+        #         with open(cache_file_path, 'w') as user_info_cache_file:
+        #             json.dump(user_info_cache, user_info_cache_file)
+        #
+        #         return return_value
+        user_info = self.get_user_info(user_id)
+        if user_info[1] is not None:
+            return user_info[1]
+        else:
+            return user_info[2] < time.time()
 
     async def process_commands(self, twitch_message):
         # User allow list handling commands
@@ -133,17 +159,17 @@ class ModTools:
         )):
             args = twitch_message.content.split()
             subcommand = args[1]
-            set_states = {}
+            set_states = []
             if subcommand in ['ban']:
                 if not self.ban_tools_on:
                     return
 
-                set_states = {
-                    'allow': False,
-                    'notified_ignored': False
-                }
+                set_states = [
+                    ('allow', False),
+                    ('notified_ignored', False),
+                ]
             elif subcommand in ['unban', 'approve']:
-                set_states = {'allow': True}
+                set_states = [('allow', True)]
             elif subcommand in ['timeout']:
                 if not self.timeout_tools_on:
                     return
@@ -155,13 +181,13 @@ class ModTools:
                     return
 
                 timeout_end = time.time() + timeout_duration
-                set_states = {
-                    'allow_after': timeout_end,
-                    'force_wait': True,
-                    'notified_ignored': False
-                }
+                set_states = [
+                    ('allow', None),
+                    ('allow_after', timeout_end),
+                    ('notified_ignored', False),
+                ]
             elif subcommand in ['untimeout']:
-                set_states = {'force_wait': False}
+                set_states = [('allow_after', 0)]
 
             try:
                 user_name = args[2].lstrip('@')
@@ -177,8 +203,5 @@ class ModTools:
             except twitchio.errors.HTTPException:
                 log.error(f'Unable to unban/ban user {user_name} - user not found!')
             else:
-                for key, value in set_states.items():
-                    self.user_info_cache.setdefault(user_id, {})[key] = value
-
-                with open(CONFIG_FOLDER / 'user_info_cache.json', 'w') as user_info_cache_file:
-                    json.dump(self.user_info_cache, user_info_cache_file)
+                set_states = [t+user_id for t in set_states]
+                self.write_to_dbs('UPDATE users SET ?=? WHERE id=?', set_states)
