@@ -120,7 +120,7 @@ class ModTools:
                            'or because you have been banned/timed out.')
             log.info('Notified user they were ignored.')
 
-            self.write_to_dbs('UPDATE users SET notified_ignored=true WHERE user_id=?', (user_id,))
+            self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
 
     async def check_user_allowed(self, user_id):
         user_info: Union[bool, tuple] = await self.get_user_info(user_id)
@@ -192,6 +192,6 @@ class ModTools:
                 new_user_info.pop(0)
 
                 self.write_to_dbs(
-                    'UPDATE users SET allow=?, allow_after=?, notified_ignored=? WHERE user_id=?',
+                    'UPDATE users SET allow=?, allow_after=?, notified_ignored=? WHERE id=?',
                     new_user_info
                 )
