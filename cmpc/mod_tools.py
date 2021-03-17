@@ -3,6 +3,7 @@ import sqlite3
 import logging as log
 from pathlib import Path
 from typing import Union
+from asyncio import Lock
 
 import twitchio.errors
 from cmpc.utils import send_webhook
@@ -29,6 +30,7 @@ class ModTools:
 
         self.cache_db_paths = [':memory:', CONFIG_FOLDER / 'user_info_cache.db']
         self.cache_db_pairs = self.init_dbs()
+        self.db_access_lock = Lock(loop=self.bot.loop)
 
     def init_dbs(self):
         conn_cur_pairs = []
@@ -54,36 +56,38 @@ class ModTools:
 
         return conn_cur_pairs
 
-    def write_to_dbs(self, sql, data, db_pairs=None, many=False):
+    async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
         for conn, cur in db_pairs:
-            if many:
-                cur.executemany(sql, data)
-            else:
-                cur.execute(sql, data)
-            conn.commit()
+            async with self.db_access_lock:
+                if many:
+                    cur.executemany(sql, data)
+                else:
+                    cur.execute(sql, data)
+                conn.commit()
 
-    def read_from_dbs(self, user_id, db_pairs=None):
+    async def read_from_dbs(self, user_id, db_pairs=None):
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
         for index, pair in enumerate(db_pairs):
             conn, cur = pair
-            cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
-            response = cur.fetchone()
-            if response:
-                self.write_to_dbs(
-                    'INSERT INTO users VALUES (?,?,?,?)',
-                    response, db_pairs=self.cache_db_pairs[:index]
-                )
-                return response
+            async with self.db_access_lock:
+                cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
+                response = cur.fetchone()
+                if response:
+                    await self.write_to_dbs(
+                        'INSERT INTO users VALUES (?,?,?,?)',
+                        response, db_pairs=self.cache_db_pairs[:index]
+                    )
+                    return response
 
         return None
 
     async def get_user_info(self, user_id):
-        cache_hit = self.read_from_dbs(user_id)
+        cache_hit = await self.read_from_dbs(user_id)
         if cache_hit is not None:
             return cache_hit
         else:
@@ -105,12 +109,12 @@ class ModTools:
                 # allow_after should be the time in seconds since the epoch after which the user is allowed
                 allow_after_time = account_created_seconds + (self.req_age_days * 24 * 60 ** 2)
 
-                self.write_to_dbs('INSERT INTO users(id, allow_after) VALUES (?, ?)', (user_id, allow_after_time))
-                return self.read_from_dbs(user_id)
+                await self.write_to_dbs('INSERT INTO users(id, allow_after) VALUES (?, ?)', (user_id, allow_after_time))
+                return await self.read_from_dbs(user_id)
 
     async def notify_ignored_user(self, message):
         user_id = message.author.id
-        user_info = self.read_from_dbs(user_id)
+        user_info = await self.read_from_dbs(user_id)
         # user_info [3] = notified_ignored
         if not user_info[3]:
             ctx = await self.bot.get_context(message)
@@ -120,7 +124,7 @@ class ModTools:
                            'or because you have been banned/timed out.')
             log.info('Notified user they were ignored.')
 
-            self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
+            await self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
 
     async def check_user_allowed(self, user_id):
         user_info: Union[bool, tuple] = await self.get_user_info(user_id)
@@ -191,7 +195,7 @@ class ModTools:
                 new_user_info.append(user_id)
                 new_user_info.pop(0)
 
-                self.write_to_dbs(
+                await self.write_to_dbs(
                     'UPDATE users SET allow=?, allow_after=?, notified_ignored=? WHERE id=?',
                     new_user_info
                 )

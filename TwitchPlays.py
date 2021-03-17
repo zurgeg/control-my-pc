@@ -104,9 +104,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         self.processor = cmpc.CommandProcessor(self, 'executing.txt')
         self.processor.log_to_obs(None)
 
-        if modtools_on:
-            self.modtools = cmpc.ModTools(self)
-
         if offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
         else:
@@ -116,6 +113,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 client_id=self.config['twitch']['api_client_id'],
                 api_token=cmpc.removeprefix(config['twitch']['oauth_token'], 'oauth:')
             )
+            if modtools_on:
+                self.modtools = cmpc.ModTools(self)
 
     @property
     def tester(self) -> cmpc.ScriptTester:
