@@ -9,6 +9,12 @@ from cmpc.utils import send_webhook
 
 
 CONFIG_FOLDER = Path('config')
+SCHEMA = {
+    'id': 0,
+    'allow': 1,
+    'allow_after': 2,
+    'notified_ignored': 3,
+}
 
 
 class ModTools:
@@ -69,7 +75,7 @@ class ModTools:
             response = cur.fetchone()
             if response:
                 self.write_to_dbs(
-                    'INSERT INTO users(id, allow, allow_after, notified_ignored) VALUES (?,?,?,?)',
+                    'INSERT INTO users VALUES (?,?,?,?)',
                     response, db_pairs=self.cache_db_pairs[:index]
                 )
                 return response
@@ -178,5 +184,14 @@ class ModTools:
             except twitchio.errors.HTTPException:
                 log.error(f'Unable to unban/ban user {user_name} - user not found!')
             else:
-                set_states = [s+[user_id] for s in set_states]
-                self.write_to_dbs('UPDATE users SET ?=? WHERE id=?', set_states, many=True)
+                current_user_info = await self.get_user_info(user_id)
+                new_user_info = list(current_user_info)
+                for key, value in set_states:
+                    new_user_info[SCHEMA[key]] = value
+                new_user_info.append(user_id)
+                new_user_info.pop(0)
+
+                self.write_to_dbs(
+                    'UPDATE users SET allow=?, allow_after=?, notified_ignored=? WHERE user_id=?',
+                    new_user_info
+                )
