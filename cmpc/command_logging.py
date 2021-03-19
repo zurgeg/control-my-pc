@@ -47,6 +47,7 @@ class CommandLogging:
             self.obs_log_handler = self._obs_log_executing_txt
 
     def log_to_discord(self, message: cmpc.twitch_message.TwitchMessage):
+        """Send a command to the discord webhook."""
         requests.post(self.bot.config['discord']['chatrelay'],
                       json=message.get_log_webhook_payload(),
                       headers={'User-Agent': self.bot.config['api']['useragent']})

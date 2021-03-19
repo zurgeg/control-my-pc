@@ -1,5 +1,6 @@
-import setuptools
+"""Build using setuptools, allows pip install - WIP."""
 
+import setuptools
 import TwitchPlays
 
 

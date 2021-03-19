@@ -33,6 +33,7 @@ class ModTools:
         self.db_access_lock = Lock(loop=self.bot.loop)
 
     def init_dbs(self):
+        """Return a list of (conn, cur) tuples based off self.cache_db_paths."""
         conn_cur_pairs = []
         for db_path in self.cache_db_paths:
             create_table = False
@@ -57,6 +58,7 @@ class ModTools:
         return conn_cur_pairs
 
     async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
+        """Execute some sql on every cache database."""
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
@@ -69,6 +71,11 @@ class ModTools:
                 conn.commit()
 
     async def read_from_dbs(self, user_id, db_pairs=None):
+        """Iterate through the databases for a result.
+
+        If we get a result, it's then written to every database on which it wasn't found, to speed up getting
+        that result next time.
+        """
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
@@ -87,6 +94,11 @@ class ModTools:
         return None
 
     async def get_user_info(self, user_id):
+        """Get info on a twitch user from their user id.
+
+        First searches the cache databases, and if no result is found it gets the account age from the twitch api
+        and creates a new entry in the databases, then returns that.
+        """
         cache_hit = await self.read_from_dbs(user_id)
         if cache_hit is not None:
             return cache_hit
@@ -113,6 +125,11 @@ class ModTools:
                 return await self.read_from_dbs(user_id)
 
     async def notify_ignored_user(self, message):
+        """Check if a user has been notified they're banned, if they haven't then do it.
+
+        Args:
+            message -- the twitchio message to get the user id from and to reply to if necessary
+        """
         user_id = message.author.id
         user_info = await self.read_from_dbs(user_id)
         # user_info [3] = notified_ignored
@@ -127,15 +144,21 @@ class ModTools:
             await self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
 
     async def check_user_allowed(self, user_id):
+        """Return True if a user can run commands and False otherwise.
+
+        Gets their info, then checks whether they've been manually allowed or denied first.
+        If they haven't been manually allowed or denied, checks the time they're allowed.
+        """
         user_info: Union[bool, tuple] = await self.get_user_info(user_id)
         if not user_info:
             return user_info
-        elif user_info[1] is not None:
-            return user_info[1]
+        elif user_info[SCHEMA['allow']] is not None:
+            return user_info[SCHEMA['allow']]
         else:
-            return user_info[2] < time.time()
+            return user_info[SCHEMA['allow_after']] < time.time()
 
     async def process_commands(self, twitch_message):
+        """Process ban/unban and timeout/untimeout commands."""
         # User allow list handling commands
         if twitch_message.content.startswith(('script- ', '../script ')):
             args = twitch_message.content.split()
