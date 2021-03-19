@@ -11,6 +11,7 @@ Modules:
     mod_rota -- handles automated reminders for moderators
     api_requests -- handles requests and caching for the cmpc api
     command_logging -- handles logging commands to obs, discord, and the local log
+    mod_tools - module for checking user account age, and blocking users
 """
 
 from .utils import *
@@ -22,3 +23,4 @@ from .script_tester import ScriptTester
 from .mod_rota import ModRota
 from .api_requests import CmpcApi
 from .command_logging import CommandLogging
+from .mod_tools import ModTools

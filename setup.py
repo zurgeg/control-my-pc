@@ -42,5 +42,6 @@ setuptools.setup(
         'PyDirectInput',
         'twitchio',
         'GitPython',
+        'toml',
     ]
 )
