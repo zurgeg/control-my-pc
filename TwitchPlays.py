@@ -483,7 +483,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
 
 def main():
-    print('#givebibivip')
     # Load configuration
     # noinspection PyArgumentList
     config = toml.load(CONFIG_FOLDER / 'config.toml')
