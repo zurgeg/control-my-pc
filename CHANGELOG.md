@@ -1,6 +1,8 @@
 # Changelog
 
-## [4.0.0] - 2021-02-25
+## [3.30.0] - 2021-02-25
+### versioning change
+The version number jumped to 3.30 to indicate the start of Season 3. This version was formerly v4.0.0 but we chose this instead so the version number would match the season number.
 ### added
 - Moderation rota reminder system
 - Multi alt-tab
