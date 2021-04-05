@@ -21,6 +21,7 @@ import cmpc.command_logging
 from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 
 
+MULTI_ALT_TAB_REGEX = re.compile('alt ([0-9]{1,2}) tab')
 CONFIG_FOLDER = Path('config/')
 
 
@@ -479,7 +480,7 @@ class CommandProcessor:
             return True
 
         # multi alt tab for easier app switching
-        multi_alt_tab_match = re.match('alt ([0-9]{1,2}) tab', message.content)
+        multi_alt_tab_match = re.fullmatch(MULTI_ALT_TAB_REGEX, message.content)
         if multi_alt_tab_match:
             self.log_to_obs(message)
 
