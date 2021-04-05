@@ -1,12 +1,15 @@
 # Changelog
 
-## [4.1.0] - 2021-03-12
+## [3.31.0] - 2021-03-12
 ### added
 - Connect to OBS with websockets, as an alternative to executing.txt
 ### changed
 - Small refactor to make command logging its own file
+- Major refactor to make moderation features its own file, then switch the cache to an sqlite db.
 
-## [4.0.0] - 2021-02-25
+## [3.30.0] - 2021-02-25
+### versioning change
+The version number jumped to 3.30 to indicate the start of Season 3. This version was formerly v4.0.0, but we chose this instead, so the version number would match the season number.
 ### added
 - Moderation rota reminder system
 - Multi alt-tab
