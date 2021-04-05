@@ -50,7 +50,7 @@ class CommandProcessor:
         ('arrow up',): 'up',
         ('arrow left',): 'left',
         ('arrow right',): 'right',
-        ('refresh', 'F5'): 'f5',
+        ('refresh', 'reload', 'f5'): 'f5',
         ('where', 'where?'): 'ctrl',
     }
 
