@@ -332,6 +332,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     os.system('shutdown -a')
 
                 if twitch_message.content in ['script- version', 'version', 'version?', '../script --version']:
+                    # todo: send a message in twitch chat instead of logging to obs?
                     self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
