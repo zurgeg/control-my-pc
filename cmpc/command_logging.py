@@ -2,6 +2,7 @@ import time
 import logging as log
 
 import requests
+# https://obsproject.com/forum/resources/obs-websocket-remote-control-obs-studio-from-websockets.466/
 import obswebsocket
 import obswebsocket.exceptions
 import obswebsocket.requests

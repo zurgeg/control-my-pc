@@ -22,6 +22,7 @@ from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key
 
 
 MULTI_ALT_TAB_REGEX = re.compile('alt ([0-9]{1,2}) tab')
+MULTI_BACKSPACE_REGEX = re.compile('back ?space ([0-9]{1,3})')
 CONFIG_FOLDER = Path('config/')
 
 
@@ -491,6 +492,15 @@ class CommandProcessor:
             for i in range(alt_tabs):
                 pyautogui.press('tab')
             pyautogui.keyUp('altleft')
+
+        # multi backspace command
+        multi_backspace_match = re.fullmatch(MULTI_BACKSPACE_REGEX, message.content)
+        if multi_backspace_match:
+            self.log_to_obs(message)
+
+            backspaces = int(multi_backspace_match.group(1))
+            for i in range(backspaces):
+                pyautogui.press('backspace')
 
         # No commands run, sad cat hours
         return False

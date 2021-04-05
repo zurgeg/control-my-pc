@@ -4,6 +4,7 @@
 ### added
 - back and forwards commands
 - reload as an alias of refresh
+- backspace {n} command presses backspace n times
 ### fixed
 - alt {n} tab will no longer work if you write anything after tab
 
