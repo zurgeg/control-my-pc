@@ -192,8 +192,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
-        # NO, BAD
-        # TODO - remove try-except here
+        # TODO - remove try-except here?
         try:
             # Log the chat if that's something we want to do
             if self.config['options']['LOG_ALL']:
@@ -215,7 +214,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             if self.modtools_on:
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
-                if not user_permissions.moderator or user_permissions.developer:
+                if not (user_permissions.moderator or user_permissions.developer):
                     if not await self.modtools.check_user_allowed(message.author.id):
                         await self.modtools.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')

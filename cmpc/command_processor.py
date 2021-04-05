@@ -21,8 +21,8 @@ import cmpc.command_logging
 from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 
 
-MULTI_ALT_TAB_REGEX = re.compile('alt ([0-9]{1,2}) tab')
-MULTI_BACKSPACE_REGEX = re.compile('back ?space ([0-9]{1,3})')
+MULTI_ALT_TAB_REGEX = re.compile('alt ([0-9]{1,2})x? tab')
+MULTI_BACKSPACE_REGEX = re.compile('back ?space(?:x | | x)([0-9]{1,2})')
 CONFIG_FOLDER = Path('config/')
 
 

@@ -57,6 +57,7 @@ class ModTools:
 
         return conn_cur_pairs
 
+    # todo: make the lock only apply to commits?
     async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
         """Execute some sql on every cache database."""
         if db_pairs is None:
