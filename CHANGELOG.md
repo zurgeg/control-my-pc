@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.32.0] - 2021-04-05
+### added
+- back and forwards commands
+- reload as an alias of refresh
+### fixed
+- alt {n} tab will no longer work if you write anything after tab
+
 ## [3.31.0] - 2021-03-12
 ### added
 - Connect to OBS with websockets, as an alternative to executing.txt
