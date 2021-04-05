@@ -52,6 +52,8 @@ class CommandProcessor:
         ('arrow right',): 'right',
         ('refresh', 'reload', 'f5'): 'f5',
         ('where', 'where?'): 'ctrl',
+        ('forward', 'forwards', 'browserforward', 'browser forward'): 'browserforward',
+        ('back', 'backward', 'backwards', 'browserback', 'browser back'): 'browserback',
     }
 
     HOTKEY_COMMANDS = {
