@@ -265,7 +265,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
                     for command_invoc in command_invocs:
                         if twitch_message.original_content.startswith(command_invoc):
-                            signal = cmpc.removeprefix(twitch_message.original_content, command_invoc).lstrip()
+                            signal = cmpc.removeprefix(
+                                twitch_message.original_content, command_invoc, case_sensitive=False
+                            ).lstrip()
 
                     payload = {
                         "signal": signal
@@ -312,7 +314,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     if twitch_message.content.startswith(command_invoc):
                         data = {
                             'username': twitch_message.username,
-                            'content': cmpc.removeprefix(twitch_message.original_content, command_invoc).lstrip(),
+                            'content': cmpc.removeprefix(
+                                twitch_message.original_content, command_invoc, case_sensitive=False
+                            ).lstrip(),
                         }
                         try:
                             requests.post(self.config['discord']['modtalk'],

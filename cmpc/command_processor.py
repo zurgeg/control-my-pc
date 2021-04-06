@@ -338,7 +338,7 @@ class CommandProcessor:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
                 try:
-                    message_to_type = removeprefix(message.original_content, valid_input)
+                    message_to_type = removeprefix(message.original_content, valid_input, case_sensitive=False)
                     pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
