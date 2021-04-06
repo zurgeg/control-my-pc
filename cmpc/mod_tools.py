@@ -31,6 +31,7 @@ class ModTools:
         self.cache_db_paths = [':memory:', CONFIG_FOLDER / 'user_info_cache.db']
         self.cache_db_pairs = self.init_dbs()
         self.db_access_lock = Lock()
+        log.debug('Initialised ModTools object.')
 
     def init_dbs(self):
         """Return a list of (conn, cur) tuples based off self.cache_db_paths."""
@@ -61,6 +62,7 @@ class ModTools:
 
     async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
         """Execute some sql on every cache database."""
+        log.debug(f'Writing to some dbs {sql} {data} {db_pairs if db_pairs is None else len(db_pairs)}')
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
@@ -78,6 +80,7 @@ class ModTools:
         If we get a result, it's then written to every database on which it wasn't found, to speed up getting
         that result next time.
         """
+        log.debug(f'Reading from some dbs {user_id} {db_pairs if db_pairs is None else len(db_pairs)}')
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
@@ -86,12 +89,14 @@ class ModTools:
             cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
             response = cur.fetchone()
             if response:
+                log.debug(f'Cache hit from {conn}')
                 await self.write_to_dbs(
                     'INSERT INTO users VALUES (?,?,?,?)',
                     response, db_pairs=self.cache_db_pairs[:index]
                 )
                 return response
 
+        log.debug('No cache hit')
         return None
 
     async def get_user_info(self, user_id):
@@ -100,6 +105,7 @@ class ModTools:
         First searches the cache databases, and if no result is found it gets the account age from the twitch api
         and creates a new entry in the databases, then returns that.
         """
+        log.debug(f'Getting user info {user_id}')
         cache_hit = await self.read_from_dbs(user_id)
         if cache_hit is not None:
             return cache_hit

@@ -115,6 +115,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             )
             if modtools_on:
                 self.modtools = cmpc.ModTools(self)
+        log.debug('Finished intialising TwitchPlays object.')
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
@@ -177,6 +178,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         if self.mod_rota_on:
             self.loop.create_task(self.mod_rota.run())
             self.loop.create_task(self.mod_rota.run_mod_presence_checks())
+        log.info('Finished initialising, ready!')
 
     # noinspection PyUnboundLocalVariable
     async def event_message(self, message):
@@ -214,11 +216,13 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             if self.modtools_on:
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
-                if not (user_permissions.moderator or user_permissions.developer):
+                # if not (user_permissions.moderator or user_permissions.developer):
+                if True:
                     if not await self.modtools.check_user_allowed(message.author.id):
                         await self.modtools.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
                         return
+                    log.debug(f'User {message.author.name} {message.author.id} was allowed')
 
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
