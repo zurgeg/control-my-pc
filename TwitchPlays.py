@@ -104,7 +104,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         self.user_permissions_handler = self.permissions_handler_from_api()
 
         self.processor = cmpc.CommandProcessor(self, 'executing.txt')
-        await self.processor.log_to_obs(None)
 
         if offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
@@ -169,6 +168,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         Also start the mod rota running on the bot's asyncio loop.
         """
         log.info("[TWITCH] Auth accepted and we are connected to twitch")
+        await self.processor.log_to_obs(None)
         # Send starting up message with webhook if in CONFIG.
         if self.config['options']['START_MSG']:
             cmpc.send_webhook(self.config['discord']['systemlog'],
@@ -347,8 +347,10 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
                 if twitch_message.content in ['script- version', 'version', 'version?', '../script --version']:
                     # todo: send a message in twitch chat instead of logging to obs?
-                    await self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
-                                              sleep_duration=3.0, none_sleep=True)
+                    await self.processor.log_to_obs(
+                        None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
+                        sleep_duration=3.0, none_sleep=True
+                    )
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
                 command_invocs = ('script- suspend', '../script suspend')
@@ -368,7 +370,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                                 log_message = '[Suspend script for 1 second]'
                             else:
                                 log_message = f'[Suspend script for {int(duration)} seconds]'
-                            await self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
+                            await self.processor.log_to_obs(
+                                None, none_log_msg=f'{log_message} ({twitch_message.username})'
+                            )
                             time.sleep(duration)
                         except ValueError:
                             log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
@@ -395,7 +399,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         pyautogui.press('volumemute')
                         # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
                         await self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
-                                                                     f' ({twitch_message.username})')
+                                                        f' ({twitch_message.username})')
                         time.sleep(600)
 
             # Commands for cmpcscript only.
