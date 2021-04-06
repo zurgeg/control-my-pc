@@ -26,7 +26,7 @@ from pathlib import Path  # for best practices filepath handling
 
 # PIP Packages;
 import pyautogui  # some mod only commands
-import requests  # api and discord webhooks
+import aiohttp  # api and discord webhooks
 import toml  # configuration
 import twitchio.ext.commands.bot
 
@@ -35,6 +35,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
 # todo: switch from requests to aiohttp
+# todo: add pyinstaller build file
 __version__ = '3.32.0'
 
 # Folders we use
@@ -103,7 +104,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         self.user_permissions_handler = self.permissions_handler_from_api()
 
         self.processor = cmpc.CommandProcessor(self, 'executing.txt')
-        self.processor.log_to_obs(None)
+        await self.processor.log_to_obs(None)
 
         if offline_mode:
             self.script_tester = cmpc.ScriptTester(TwitchPlays.event_message, self)
@@ -228,7 +229,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             # Process this beef
             command_has_run = self.processor.process_commands(twitch_message)
             if command_has_run:
-                self.processor.log_to_obs(None)
+                await self.processor.log_to_obs(None)
                 return
 
             # Commands for authorised developers in dev list only.
@@ -282,12 +283,16 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         'Authorization': f"Bearer {self.config['api']['panelapikey']}",
                     }
                     try:
-                        x = requests.post(self.config['api']['panelapiendpoint'], json=payload, headers=headers)
-                        cmpc.send_webhook(self.config['discord']['systemlog'],
-                                          f'Chatbot control ran({signal}) and returned with a code of {x.status_code}')
-                    except requests.RequestException:
-                        log.error(f'Could not execute chatbot control: {twitch_message.original_content}',
-                                  sys.exc_info())
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(
+                                    self.config['api']['panelapiendpoint'], json=payload, headers=headers
+                            ) as r:
+                                cmpc.send_webhook(
+                                    self.config['discord']['systemlog'],
+                                    f'Chatbot control ran({signal}) and returned with a code of {r.status}'
+                                )
+                    except aiohttp.ClientError:
+                        log.exception(f'Could not execute chatbot control: {twitch_message.original_content}')
 
             # Commands for authorized moderators in mod list only.
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
@@ -323,9 +328,10 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                             ).lstrip(),
                         }
                         try:
-                            requests.post(self.config['discord']['modtalk'],
-                                          json=data, headers={'User-Agent': self.config['api']['useragent']})
-                        except requests.RequestException:
+                            async with aiohttp.ClientSession() as session:
+                                await session.post(self.config['discord']['modtalk'],
+                                                   json=data, headers={'User-Agent': self.config['api']['useragent']})
+                        except aiohttp.ClientError:
                             log.error(f"Could not modsay this moderator's message: {twitch_message.original_content}",
                                       sys.exc_info())
 
@@ -341,7 +347,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
                 if twitch_message.content in ['script- version', 'version', 'version?', '../script --version']:
                     # todo: send a message in twitch chat instead of logging to obs?
-                    self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
+                    await self.processor.log_to_obs(None, none_log_msg=f'Version {__version__} ({twitch_message.username})',
                                               sleep_duration=3.0, none_sleep=True)
                     log.info(f'Version {__version__} ({twitch_message.username})')
 
@@ -362,7 +368,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                                 log_message = '[Suspend script for 1 second]'
                             else:
                                 log_message = f'[Suspend script for {int(duration)} seconds]'
-                            self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
+                            await self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
                             time.sleep(duration)
                         except ValueError:
                             log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
@@ -381,14 +387,14 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         pyautogui.press('volumemute')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
                         # custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
-                        self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
+                        await self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
                         time.sleep(999999)
                     # todo: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
                         # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
-                        self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
+                        await self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
                                                                      f' ({twitch_message.username})')
                         time.sleep(600)
 
@@ -398,8 +404,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 if hash(twitch_message.original_content) == -111040882105999023:
                     sys.exit(2)
 
-            self.processor.log_to_obs(None)
-            self.processor.log_to_obs(None)
+            await self.processor.log_to_obs(None)
 
         except Exception as error:
             # Send error data to systemlog.

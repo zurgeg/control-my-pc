@@ -1,7 +1,7 @@
 import time
 import logging as log
 
-import requests
+import aiohttp
 # https://obsproject.com/forum/resources/obs-websocket-remote-control-obs-studio-from-websockets.466/
 import obswebsocket
 import obswebsocket.exceptions
@@ -47,11 +47,12 @@ class CommandLogging:
         else:
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_discord(self, message: cmpc.twitch_message.TwitchMessage):
+    async def log_to_discord(self, message: cmpc.twitch_message.TwitchMessage):
         """Send a command to the discord webhook."""
-        requests.post(self.bot.config['discord']['chatrelay'],
-                      json=message.get_log_webhook_payload(),
-                      headers={'User-Agent': self.bot.config['api']['useragent']})
+        async with aiohttp.ClientSession() as session:
+            await session.post(self.bot.config['discord']['chatrelay'],
+                               json=message.get_log_webhook_payload(),
+                               headers={'User-Agent': self.bot.config['api']['useragent']})
 
     def _obs_log_executing_txt(self, obs_log_text):
         with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
@@ -66,7 +67,7 @@ class CommandLogging:
             self._obs_log_executing_txt(obs_log_text)
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_obs(
+    async def log_to_obs(
             self, message: cmpc.twitch_message.TwitchMessage, none_log_msg=None, sleep_duration=None, none_sleep=False
     ):
         """Log a message to the file shown on-screen for the stream."""
@@ -84,4 +85,4 @@ class CommandLogging:
 
             time.sleep(sleep_duration)
             log.info(message.get_log_string())
-            self.log_to_discord(message)
+            await self.log_to_discord(message)

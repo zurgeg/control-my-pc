@@ -12,7 +12,7 @@ import logging as log
 from pathlib import Path
 
 # PIP Packages;
-import requests  # !modalert and chatrelay
+import aiohttp  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
 
@@ -199,7 +199,7 @@ class CommandProcessor:
             if message.content in valid_inputs:
                 if sys.platform == 'darwin':
                     output.replace('ctrl', 'command')
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 if 'enter' in valid_inputs:
                     press_key(output)
                 else:
@@ -219,7 +219,7 @@ class CommandProcessor:
             if message.content in valid_inputs:
                 if sys.platform == 'darwin':
                     output.replace('ctrl', 'command')
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 pyautogui.hotkey(*output)
                 return True
         return False
@@ -234,7 +234,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.CLICK_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 click_count = 1
                 if output == 'doubleclick':
                     click_count = 2
@@ -253,7 +253,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.MOUSE_HOLD_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 hold_mouse(time_value=output, button='left')
                 return True
         return False
@@ -268,7 +268,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.MOUSE_SCROLL_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 for i in range(5):
                     pyautogui.scroll(output)
                 return True
@@ -285,7 +285,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.MOUSE_HORIZONTAL_SCROLL_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 if sys.platform in ['darwin', 'linux']:
                     for i in range(5):
                         pyautogui.hscroll(output)
@@ -306,7 +306,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.MOUSE_MOVE_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 move_mouse(*output)
                 return True
         return False
@@ -321,7 +321,7 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.MOUSE_DRAG_COMMANDS.items():
             if message.content in valid_inputs:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 pyautogui.drag(*output, button='left')
                 return True
         return False
@@ -336,7 +336,7 @@ class CommandProcessor:
         """
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 try:
                     message_to_type = removeprefix(message.original_content, valid_input, case_sensitive=False)
                     pyautogui.typewrite(message_to_type)
@@ -371,7 +371,7 @@ class CommandProcessor:
                     log.debug('And when we split, we split my way.')
                     if 0.0 < time_value <= 10.0:
                         log.debug('time was a success')
-                        self.log_to_obs(message)
+                        await self.log_to_obs(message)
                         hold_key(key=output, time_value=time_value)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -411,9 +411,10 @@ class CommandProcessor:
                 log.info('[MODALERT] Sending request...')
                 # todo: Move this requests over to cmpc package, so that way we can check if there is even a webhook
                 #  set if not, then log what should have been sent to console.
-                requests.post(self.bot.config['discord']['chatalerts'],
-                              json=data,
-                              headers={'User-Agent': self.bot.config['api']['useragent']})
+                async with aiohttp.ClientSession() as session:
+                    await session.post(self.bot.config['discord']['chatalerts'],
+                                       json=data,
+                                       headers={'User-Agent': self.bot.config['api']['useragent']})
                 log.info('[MODALERT] Request sent')
                 return True
             else:
@@ -428,7 +429,7 @@ class CommandProcessor:
             except OverflowError:
                 log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 try:
                     pyautogui.moveTo(xval, yval, duration=0.11)
                 except pyautogui.PyAutoGUIException:
@@ -445,7 +446,7 @@ class CommandProcessor:
             except OverflowError:
                 log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 try:
                     pyautogui.dragTo(xval, yval, duration=0.11)
                 except pyautogui.PyAutoGUIException:
@@ -462,7 +463,7 @@ class CommandProcessor:
                               'DUE TO PLATFORM: darwin')
                     return True
 
-                self.log_to_obs(message)
+                await self.log_to_obs(message)
                 import pydirectinput
                 message_to_type = removeprefix(message.content, 'gtype ')
                 pydirectinput.typewrite(message_to_type)
@@ -472,7 +473,7 @@ class CommandProcessor:
 
         # uses copy-paste instead of typing emulation
         if message.content.startswith('ptype '):
-            self.log_to_obs(message)
+            await self.log_to_obs(message)
             message_to_type = removeprefix(message.content, 'ptype ')
 
             try:
@@ -487,7 +488,7 @@ class CommandProcessor:
         # multi alt tab for easier app switching
         multi_alt_tab_match = re.fullmatch(MULTI_ALT_TAB_REGEX, message.content)
         if multi_alt_tab_match:
-            self.log_to_obs(message)
+            await self.log_to_obs(message)
 
             alt_tabs = int(multi_alt_tab_match.group(1))
             pyautogui.keyDown('altleft')
@@ -498,7 +499,7 @@ class CommandProcessor:
         # multi backspace command
         multi_backspace_match = re.fullmatch(MULTI_BACKSPACE_REGEX, message.content)
         if multi_backspace_match:
-            self.log_to_obs(message)
+            await self.log_to_obs(message)
 
             backspaces = int(multi_backspace_match.group(1))
             for i in range(backspaces):

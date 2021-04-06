@@ -19,7 +19,6 @@ class CmpcApi:
         """Innit."""
         self.config = config
 
-    # todo: update docstrings
     def get_json_from_api(self, url, static_backup_path, force_static=False):
         """Get json from a web source and back it up.
 
