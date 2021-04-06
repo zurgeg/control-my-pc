@@ -215,7 +215,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
                 if not (user_permissions.moderator or user_permissions.developer):
-                    # todo: might be a bug here, check?
                     if not await self.modtools.check_user_allowed(message.author.id):
                         await self.modtools.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')

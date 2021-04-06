@@ -48,7 +48,8 @@ class ModTools:
             if create_table:
                 cur.execute("""CREATE TABLE users
 (id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL)""")
-                conn.commit()
+                async with self.db_access_lock:
+                    conn.commit()
                 log.info(f'Initialised user info cache {db_path}')
             else:
                 log.info(f'Connected to user info cache {db_path}')
@@ -57,18 +58,17 @@ class ModTools:
 
         return conn_cur_pairs
 
-    # todo: make the lock only apply to commits?
     async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
         """Execute some sql on every cache database."""
         if db_pairs is None:
             db_pairs = self.cache_db_pairs
 
         for conn, cur in db_pairs:
+            if many:
+                cur.executemany(sql, data)
+            else:
+                cur.execute(sql, data)
             async with self.db_access_lock:
-                if many:
-                    cur.executemany(sql, data)
-                else:
-                    cur.execute(sql, data)
                 conn.commit()
 
     async def read_from_dbs(self, user_id, db_pairs=None):
@@ -82,15 +82,14 @@ class ModTools:
 
         for index, pair in enumerate(db_pairs):
             conn, cur = pair
-            async with self.db_access_lock:
-                cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
-                response = cur.fetchone()
-                if response:
-                    await self.write_to_dbs(
-                        'INSERT INTO users VALUES (?,?,?,?)',
-                        response, db_pairs=self.cache_db_pairs[:index]
-                    )
-                    return response
+            cur.execute('SELECT * FROM users WHERE id=?', (user_id,))
+            response = cur.fetchone()
+            if response:
+                await self.write_to_dbs(
+                    'INSERT INTO users VALUES (?,?,?,?)',
+                    response, db_pairs=self.cache_db_pairs[:index]
+                )
+                return response
 
         return None
 
