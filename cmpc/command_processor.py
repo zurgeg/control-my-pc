@@ -409,7 +409,7 @@ class CommandProcessor:
                                f"https://twitch.tv/{self.bot.config['twitch']['channel_to_join']}",
                 }
                 log.info('[MODALERT] Sending request...')
-                # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
+                # todo: Move this requests over to cmpc package, so that way we can check if there is even a webhook
                 #  set if not, then log what should have been sent to console.
                 requests.post(self.bot.config['discord']['chatalerts'],
                               json=data,

@@ -95,4 +95,4 @@
 |                                 | valid      | arrow up for 10           | \--                                                                          |          |       |
 | Commands that use custom logs   |            |                           |                                                                              |          |       |
 
-TODO: expand
+todo: expand

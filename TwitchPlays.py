@@ -192,7 +192,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         twitch_message = cmpc.TwitchMessage(message.content, message.author.name)
 
         # Command processing is very scary business - let's wrap the whole thing in a try/catch
-        # TODO - remove try-except here?
+        # todo: remove try-except here?
         try:
             # Log the chat if that's something we want to do
             if self.config['options']['LOG_ALL']:
@@ -365,7 +365,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                             log.error(f'Could not suspend for duration: {twitch_message.content}\n'
                                       'Due to too large arg')
 
-                # TODO: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
+                # todo: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
                 await self.modtools.process_commands(twitch_message)
 
                 if twitch_message.content.startswith('!defcon '):
@@ -378,7 +378,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         # custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
                         self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
                         time.sleep(999999)
-                    # TODO: Add !defcon 2 -- close all running programs
+                    # todo: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')

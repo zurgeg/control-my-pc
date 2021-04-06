@@ -30,7 +30,7 @@ class ModTools:
 
         self.cache_db_paths = [':memory:', CONFIG_FOLDER / 'user_info_cache.db']
         self.cache_db_pairs = self.init_dbs()
-        self.db_access_lock = Lock(loop=self.bot.loop)
+        self.db_access_lock = Lock()
 
     def init_dbs(self):
         """Return a list of (conn, cur) tuples based off self.cache_db_paths."""
@@ -48,8 +48,7 @@ class ModTools:
             if create_table:
                 cur.execute("""CREATE TABLE users
 (id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL)""")
-                async with self.db_access_lock:
-                    conn.commit()
+                conn.commit()
                 log.info(f'Initialised user info cache {db_path}')
             else:
                 log.info(f'Connected to user info cache {db_path}')
@@ -135,7 +134,7 @@ class ModTools:
         # user_info [3] = notified_ignored
         if not user_info[3]:
             ctx = await self.bot.get_context(message)
-            # TODO: add custom messages depending on why they were ignored
+            # todo: add custom messages depending on why they were ignored
             await ctx.send(f'[SCRIPT] @{message.author.name} your message was ignored by the script because '
                            f'your account is under {self.req_age_days} days old '
                            'or because you have been banned/timed out.')
