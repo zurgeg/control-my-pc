@@ -7,6 +7,7 @@
 - backspace {n} command presses backspace n times
 ### fixed
 - alt {n} tab will no longer work if you write anything after tab
+- handle too large arguments for go to and drag to without erroring
 
 ## [3.31.0] - 2021-03-12
 ### added
