@@ -91,7 +91,7 @@ def get_git_repo_info(default_branch_name='master'):
     return branch_name, branch_name_assumed
 
 
-def removeprefix(string: str, prefix: str):
+def removeprefix(string: str, prefix: str, case_sensitive: bool = True):
     """Remove a prefix from a string.
 
     For compatibility with pre-3.9.
@@ -99,14 +99,13 @@ def removeprefix(string: str, prefix: str):
     From that link:
     If the string starts with the prefix string, return string[len(prefix):]. Otherwise, return a copy of the original
     string.
+    Adds the custom argument case_sensitive. If this argument is False, the prefix will be removed regardless of case,
+    but the returned string will be in the original case
     """
-    if sys.version_info.major >= 9:
-        return string.removeprefix(prefix)
+    if (not case_sensitive and string.lower().startswith(prefix.lower())) or string.startswith(prefix):
+        return string[len(prefix):]
     else:
-        if string.startswith(prefix):
-            return string[len(prefix):]
-        else:
-            return string
+        return string
 
 
 def get_size(value, suffix='B'):

@@ -1,3 +1,5 @@
+"""Module for making requests to the CMPC API and backing up the results."""
+
 import json
 import time
 import logging as log
@@ -7,24 +9,33 @@ from cmpc.utils import send_webhook
 
 
 class CmpcApi:
+    """Class with a method for getting a json file from the API and backing it up.
+
+    Properties:
+        config -- config loaded from config.toml, same as the one TwitchPlays takes
+    """
+
     def __init__(self, config):
+        """Innit."""
         self.config = config
 
     # todo: update docstrings
     def get_json_from_api(self, url, static_backup_path, force_static=False):
-        """Init a cmpc.Permissions object after retrieving source dev and mod lists.
+        """Get json from a web source and back it up.
 
         Args:
-            url -- the url to attempt to retrieve JSON from
-            static_backup_path -- path to the static backup local JSON file
+            url -- the url to attempt to retrieve json from
+            static_backup_path -- path to the static backup local json file
+            force_static -- if True, will always load from backup and never try to get from the api
         Returns:
-            a cmpc.Permissions object generated with load_user_permissions
+            A dict loaded from the json, or None if the api and local file were both unavailable
+
         If retrieval from the url is successful, it will be backed up to the local file.
         Otherwise, if retrieval is unsuccessful, the local file will be used instead, and warnings will be logged.
         The warnings include information about when the local file was updated and retrieved.
         """
         # Attempt get dev and mod lists from API.
-        log.info('[API] Requesting data!')
+        log.info(f'[API] Requesting data! ({url})')
         try:
             if force_static:
                 log.warning('Forcing getting from static backup instead of api.')
@@ -35,18 +46,21 @@ class CmpcApi:
                 raise requests.RequestException
             else:
                 api_json = api_response.json()
-                log.info('[API] Data here, and parsed!')
+                log.debug('[API] Data here, and parsed!')
 
                 # Save retrieved JSON to backup
                 with open(static_backup_path, 'w') as static_backup_file:
                     json.dump(api_json, static_backup_file)
-                log.info('[API] Backed up to static backup file')
+                log.debug('[API] Backed up to static backup file')
 
         # If the request errored or response status code wasn't 200 'ok', use backup
         except (requests.RequestException, json.JSONDecodeError):
             log.warning('[API] Failed to load data from API')
-            with open(static_backup_path, 'r') as static_backup_file:
-                api_json = json.load(static_backup_file)
+            try:
+                with open(static_backup_path) as static_backup_file:
+                    api_json = json.load(static_backup_file)
+            except FileNotFoundError:
+                return None
 
             log.info('[API] Loaded lists from static file instead')
             retrieved_time = time.strftime('%Y-%m-%dT%H:%M', time.gmtime(static_backup_path.stat().st_mtime))

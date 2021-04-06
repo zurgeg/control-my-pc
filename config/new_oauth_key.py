@@ -19,7 +19,6 @@ import toml
 DEFAULT_SCOPES = [
     'chat:read',
     'chat:edit',
-    'user:read:email',
     'moderation:read',
 ]
 

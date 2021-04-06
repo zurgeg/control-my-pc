@@ -6,22 +6,23 @@ Classes:
 
 # PSL Packages
 import sys
-import json
 import re
 import time
 import logging as log
 from pathlib import Path
 
 # PIP Packages;
-import twitchio
 import requests  # !modalert and chatrelay
 import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args, send_webhook
+import cmpc.command_logging
+from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 
 
+MULTI_ALT_TAB_REGEX = re.compile('alt ([0-9]{1,2})x? tab')
+MULTI_BACKSPACE_REGEX = re.compile('back ?space(?:x | | x)([0-9]{1,2})')
 CONFIG_FOLDER = Path('config/')
 
 
@@ -50,8 +51,10 @@ class CommandProcessor:
         ('arrow up',): 'up',
         ('arrow left',): 'left',
         ('arrow right',): 'right',
-        ('refresh', 'F5'): 'f5',
+        ('refresh', 'reload', 'f5'): 'f5',
         ('where', 'where?'): 'ctrl',
+        ('forward', 'forwards', 'browserforward', 'browser forward'): 'browserforward',
+        ('back', 'backward', 'backwards', 'browserback', 'browser back'): 'browserback',
     }
 
     HOTKEY_COMMANDS = {
@@ -130,18 +133,12 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, bot, obs_file_name, req_account_age_days=None, obs_log_sleep_duration=None):
+    def __init__(self, bot, obs_file_name, obs_log_sleep_duration=None):
         """Initialise the class attributes."""
         self.bot = bot
-        self.obs_file_name = obs_file_name
-        if req_account_age_days is None:
-            self.req_account_age_days = 7
-        else:
-            self.req_account_age_days = req_account_age_days
-        if obs_log_sleep_duration is None:
-            self.obs_log_sleep_duration = 0.5
-        else:
-            self.obs_log_sleep_duration = obs_log_sleep_duration
+
+        self.command_logging = cmpc.command_logging.CommandLogging(self.bot, obs_file_name, obs_log_sleep_duration)
+        self.log_to_obs = self.command_logging.log_to_obs
 
         self.cooldowns = {
             '!modalert': {'required': 30.0, 'last_called': 0.0},
@@ -191,95 +188,6 @@ class CommandProcessor:
         # else:
         #     pass
 
-    # TODO: separate log_to_obs and logging commands to the systemlog somewhat
-    def log_to_obs(self, message, none_log_msg='nothing', sleep_duration=None, none_sleep=False):
-        """Log a message to the file shown on-screen for the stream."""
-        # Default log duration
-        if sleep_duration is None:
-            sleep_duration = self.obs_log_sleep_duration
-
-        if message is None:
-            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                obs_file_handle.write(none_log_msg)
-            if none_sleep:
-                time.sleep(sleep_duration)
-        else:
-            with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
-                obs_file_handle.write(message.get_log_string())
-
-            time.sleep(sleep_duration)
-            log.info(message.get_log_string())
-            requests.post(self.bot.config['discord']['chatrelay'],
-                          json=message.get_log_webhook_payload(),
-                          headers={'User-Agent': self.bot.config['api']['useragent']})
-
-    async def check_user_allowed(self, user_id, user_info_cache, cache_file_path=CONFIG_FOLDER/'user_info_cache.json'):
-        """Check whether a Twitch user account is old enough to run commands.
-
-        Args:
-            user_id -- Twitch account ID to get info on from their API
-            cache_file_path -- JSON file to store info about users in. May be modified by this function.
-        Returns a boolean which will be True if the user's account age was verified.
-
-        Account age is checked against self.req_account_age_days.
-        Also checks if the user has been manually banned or allowed.
-        """
-        # TODO: split into smaller functions e.g. check_user_cache and check_user_twitch_api?
-        # TODO: for performance, backup the cache occasionally, instead of every write?
-        user_id = str(user_id)
-
-        # If the user is in the cache get their info from the cache
-        if user_id in user_info_cache:
-            cached_user_info = user_info_cache[user_id]
-
-            force_wait = cached_user_info.get('force_wait')
-            # If they're marked as allow or block, return that
-            if 'allow' in cached_user_info and not force_wait:
-                return cached_user_info['allow']
-            # If they're not marked, check the cached allow time
-            elif time.time() > cached_user_info['allow_after']:
-                user_info_cache[user_id]['allow'] = True
-                if cached_user_info.get('force_wait'):
-                    cached_user_info['force_wait'] = False
-                with open(cache_file_path, 'w') as user_info_cache_file:
-                    json.dump(user_info_cache, user_info_cache_file)
-
-                return True
-            else:
-                return False
-        # Else, try to get it from the Twitch API
-        else:
-            try:
-                twitch_api_response = await self.bot.get_users(user_id)
-                if not twitch_api_response:
-                    raise twitchio.errors.HTTPException
-                api_user_info = twitch_api_response[0]
-            except requests.RequestException:
-                # No luck, no allow
-                send_webhook(self.bot.config['discord']['systemlog'],
-                             f"Failed to get info on user from twitch api.")
-                return False
-            else:
-                # Check the status from the response info, and save it to the cache
-                account_created_string = api_user_info.created_at
-                account_created_seconds = time.mktime(time.strptime(account_created_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
-                # allow_after should be the time in seconds since the epoch after which the user is allowed
-                allow_after_time = account_created_seconds + (self.req_account_age_days * 24 * 60**2)
-
-                user_info_cache[user_id] = {}
-                if allow_after_time < time.time():
-                    user_info_cache[user_id]['allow'] = True
-                    return_value = True
-                else:
-                    user_info_cache[user_id]['allow_after'] = allow_after_time
-                    return_value = False
-
-                # Update the cache file
-                with open(cache_file_path, 'w') as user_info_cache_file:
-                    json.dump(user_info_cache, user_info_cache_file)
-
-                return return_value
-
     def _process_key_press_commands(self, message) -> bool:
         """Check message for key press commands and run any applicable command.
 
@@ -289,6 +197,8 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.KEY_PRESS_COMMANDS.items():
             if message.content in valid_inputs:
+                if sys.platform == 'darwin':
+                    output.replace('ctrl', 'command')
                 self.log_to_obs(message)
                 if 'enter' in valid_inputs:
                     press_key(output)
@@ -307,6 +217,8 @@ class CommandProcessor:
         """
         for valid_inputs, output in self.HOTKEY_COMMANDS.items():
             if message.content in valid_inputs:
+                if sys.platform == 'darwin':
+                    output.replace('ctrl', 'command')
                 self.log_to_obs(message)
                 pyautogui.hotkey(*output)
                 return True
@@ -426,7 +338,7 @@ class CommandProcessor:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
                 try:
-                    message_to_type = removeprefix(message.original_content, valid_input)
+                    message_to_type = removeprefix(message.original_content, valid_input, case_sensitive=False)
                     pyautogui.typewrite(message_to_type)
                 except Exception as error:
                     self.error_handle(error, message)
@@ -497,7 +409,7 @@ class CommandProcessor:
                                f"https://twitch.tv/{self.bot.config['twitch']['channel_to_join']}",
                 }
                 log.info('[MODALERT] Sending request...')
-                # TODO: Move this requests over to cmpc package, so that way we can check if there is even a webhook
+                # todo: Move this requests over to cmpc package, so that way we can check if there is even a webhook
                 #  set if not, then log what should have been sent to console.
                 requests.post(self.bot.config['discord']['chatalerts'],
                               json=data,
@@ -513,15 +425,16 @@ class CommandProcessor:
                 xval, yval = parse_goto_args(message, 'go to ')
             except ValueError:
                 log.error(f'Could not move mouse to location: {message.content} due to non-numeric or not enough args')
-            except pyautogui.PyAutoGUIException:
-                log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
-            except Exception as error:
-                self.error_handle(error, message)
+            except OverflowError:
+                log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
                 self.log_to_obs(message)
-                pyautogui.moveTo(xval, yval, duration=0.11)
-
-                return True
+                try:
+                    pyautogui.moveTo(xval, yval, duration=0.11)
+                except pyautogui.PyAutoGUIException:
+                    log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
+                else:
+                    return True
 
         # 'drag to' command
         if message.content.startswith('drag to '):
@@ -529,22 +442,23 @@ class CommandProcessor:
                 xval, yval = parse_goto_args(message, 'drag to ')
             except ValueError:
                 log.error(f'Could not drag mouse to location: {message.content} due to non-numeric or not enough args')
-            except pyautogui.PyAutoGUIException:
-                log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
-            except Exception as error:
-                self.error_handle(error, message)
+            except OverflowError:
+                log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
                 self.log_to_obs(message)
-                pyautogui.dragTo(xval, yval, duration=0.11)
-
-                return True
+                try:
+                    pyautogui.dragTo(xval, yval, duration=0.11)
+                except pyautogui.PyAutoGUIException:
+                    log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
+                else:
+                    return True
 
         # gtype command
         # you don't say?
         if message.content.startswith('gtype '):
             try:
                 if sys.platform == 'darwin':
-                    log.error(f'COULD NOT GTYPE: {message.content}\n'
+                    log.error(f'COULD NOT GTYPE: {message.content} '
                               'DUE TO PLATFORM: darwin')
                     return True
 
@@ -571,7 +485,7 @@ class CommandProcessor:
             return True
 
         # multi alt tab for easier app switching
-        multi_alt_tab_match = re.match('alt ([0-9]{1,2}) tab', message.content)
+        multi_alt_tab_match = re.fullmatch(MULTI_ALT_TAB_REGEX, message.content)
         if multi_alt_tab_match:
             self.log_to_obs(message)
 
@@ -580,6 +494,15 @@ class CommandProcessor:
             for i in range(alt_tabs):
                 pyautogui.press('tab')
             pyautogui.keyUp('altleft')
+
+        # multi backspace command
+        multi_backspace_match = re.fullmatch(MULTI_BACKSPACE_REGEX, message.content)
+        if multi_backspace_match:
+            self.log_to_obs(message)
+
+            backspaces = int(multi_backspace_match.group(1))
+            for i in range(backspaces):
+                pyautogui.press('backspace')
 
         # No commands run, sad cat hours
         return False

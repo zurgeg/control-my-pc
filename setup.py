@@ -1,5 +1,6 @@
-import setuptools
+"""Build using setuptools, allows pip install - WIP."""
 
+import setuptools
 import TwitchPlays
 
 
@@ -40,6 +41,8 @@ setuptools.setup(
     install_requires=[
         'PyAutoGUI',
         'PyDirectInput',
-        'twitchio'
+        'twitchio',
+        'GitPython',
+        'toml',
     ]
 )

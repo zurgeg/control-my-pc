@@ -1,8 +1,28 @@
 # Changelog
 
+## [3.32.0] - 2021-04-06 - 'Season 3 Day One Patch'
+### added
+- back and forwards commands
+- reload as an alias of refresh
+- backspace {n} command presses backspace n times
+- stream link in rota reminders
+- twitch messages sent by the script will start with \[SCRIPT\]
+### fixed
+- alt {n} tab will no longer work if you write anything after tab
+- handle too large arguments for go to and drag to without erroring
+- argument for the type command will be processed properly with different capitalisations of `type`
+- new user cache system actually works
+
+## [3.31.0] - 2021-03-12
+### added
+- Connect to OBS with websockets, as an alternative to executing.txt
+### changed
+- Small refactor to make command logging its own file
+- Major refactor to make moderation features its own file, then switch the cache to an sqlite db.
+
 ## [3.30.0] - 2021-02-25
 ### versioning change
-The version number jumped to 3.30 to indicate the start of Season 3. This version was formerly v4.0.0 but we chose this instead so the version number would match the season number.
+The version number jumped to 3.30 to indicate the start of Season 3. This version was formerly v4.0.0, but we chose this instead, so the version number would match the season number.
 ### added
 - Moderation rota reminder system
 - Multi alt-tab
@@ -40,7 +60,7 @@ The version number jumped to 3.30 to indicate the start of Season 3. This versio
 ### added
 - Some minor changes like new commands.
 ### changed
-- Refactor connection to use `twitchio`, event-driven. 
+- Refactor connection to use `twitchio`, event-driven.
 - Also improve a ton of code with refactoring.
 ### fixed
 - Make hold key functionality work in more games (was broken in rewrite).
@@ -54,7 +74,7 @@ The version number jumped to 3.30 to indicate the start of Season 3. This versio
 
 ## [3.4.0] - 2020-11-09
 ### added
-- Add backup static dev list.    
+- Add backup static dev list.
 - Create changelog in readme.
 ### changed
 - Add more info to 'script online' discord webhook message.

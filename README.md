@@ -21,7 +21,7 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
   - Download the Zip file
 
   3) After downloading open a terminal of your choice, and run these commands to install the script's dependencies (using a [virtualenv](https://docs.python.org/3/tutorial/venv.html) or other virtual environment can be a good idea)::
-  
+
   * `python -m pip install --upgrade pip wheel`
   * `python -m pip install -r requirements.txt`
 

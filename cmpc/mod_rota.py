@@ -98,7 +98,8 @@ class ModRota:
             log.error(f"[ROTA] It's this mod's turn on the rota, but their discord id was not found: {twitch_mod}")
         else:
             send_webhook(self.webhook_url,
-                         f"<@{mod_discord_id}> it's your turn to moderate the stream."
+                         f"<@{mod_discord_id}> it's your turn to moderate the stream. "
+                         f'<https://www.twitch.tv/{self.channel_to_check}>\n'
                          "If you can't, please ping another mod to get them to do it.")
 
     async def mod_presence_check(self):
@@ -108,7 +109,7 @@ class ModRota:
             log.error('Unable to get chatters list for channel in mod presence check.')
             return False
 
-        for user in chatters.moderators:
+        for user in chatters.moderators+chatters.broadcaster:
             user_permissions = self.bot.user_permissions_handler.get(user, cmpc.Permissions())
             if user_permissions.moderator or user_permissions.developer:
                 return True
