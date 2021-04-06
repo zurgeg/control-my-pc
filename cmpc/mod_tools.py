@@ -137,7 +137,7 @@ class ModTools:
         if not user_info[3]:
             ctx = await self.bot.get_context(message)
             # TODO: add custom messages depending on why they were ignored
-            await ctx.send(f'@{message.author.name} your message was ignored by the script because '
+            await ctx.send(f'[SCRIPT] @{message.author.name} your message was ignored by the script because '
                            f'your account is under {self.req_age_days} days old '
                            'or because you have been banned/timed out.')
             log.info('Notified user they were ignored.')

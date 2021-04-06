@@ -287,7 +287,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             if user_permissions.script or user_permissions.developer or user_permissions.moderator:
                 if twitch_message.content in ['script- id', '../script id']:
                     ctx = await self.get_context(message)
-                    await ctx.send(self.script_id)
+                    await ctx.send(f'[SCRIPT] {self.script_id}')
                     log.info(f'Script instance ID: {self.script_id}')
 
                 for command_invoc in ['script- stop', '../script stop --id', '../script stop -i', '../script stop']:
