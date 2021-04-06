@@ -1,13 +1,17 @@
 # Changelog
 
-## [3.32.0] - 2021-04-05
+## [3.32.0] - 2021-04-06 - 'Season 3 Day One Patch'
 ### added
 - back and forwards commands
 - reload as an alias of refresh
 - backspace {n} command presses backspace n times
+- stream link in rota reminders
+- twitch messages sent by the script will start with \[SCRIPT\]
 ### fixed
 - alt {n} tab will no longer work if you write anything after tab
 - handle too large arguments for go to and drag to without erroring
+- argument for the type command will be processed properly with different capitalisations of `type`
+- new user cache system actually works
 
 ## [3.31.0] - 2021-03-12
 ### added

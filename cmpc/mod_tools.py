@@ -46,6 +46,8 @@ class ModTools:
             cur = conn.cursor()
 
             if create_table:
+                # todo: add account_created column in case we want to change the age requirement without invalidating
+                #       the cache?
                 cur.execute("""CREATE TABLE users
 (id INT PRIMARY KEY, allow BOOL, allow_after FLOAT, notified_ignored BOOL)""")
                 conn.commit()
