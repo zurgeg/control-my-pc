@@ -34,6 +34,7 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
+# todo: switch from requests to aiohttp
 __version__ = '3.32.0'
 
 # Folders we use
