@@ -425,15 +425,16 @@ class CommandProcessor:
                 xval, yval = parse_goto_args(message, 'go to ')
             except ValueError:
                 log.error(f'Could not move mouse to location: {message.content} due to non-numeric or not enough args')
-            except pyautogui.PyAutoGUIException:
-                log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
-            except Exception as error:
-                self.error_handle(error, message)
+            except OverflowError:
+                log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
                 self.log_to_obs(message)
-                pyautogui.moveTo(xval, yval, duration=0.11)
-
-                return True
+                try:
+                    pyautogui.moveTo(xval, yval, duration=0.11)
+                except pyautogui.PyAutoGUIException:
+                    log.error(f'Could not move mouse to location: {message.content} due to pyautogui issue')
+                else:
+                    return True
 
         # 'drag to' command
         if message.content.startswith('drag to '):
@@ -441,15 +442,16 @@ class CommandProcessor:
                 xval, yval = parse_goto_args(message, 'drag to ')
             except ValueError:
                 log.error(f'Could not drag mouse to location: {message.content} due to non-numeric or not enough args')
-            except pyautogui.PyAutoGUIException:
-                log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
-            except Exception as error:
-                self.error_handle(error, message)
+            except OverflowError:
+                log.error(f'Could not move mouse to location: {message.content} due to too large args')
             else:
                 self.log_to_obs(message)
-                pyautogui.dragTo(xval, yval, duration=0.11)
-
-                return True
+                try:
+                    pyautogui.dragTo(xval, yval, duration=0.11)
+                except pyautogui.PyAutoGUIException:
+                    log.error(f'Could not drag mouse to location: {message.content} due to pyautogui issue')
+                else:
+                    return True
 
         # gtype command
         # you don't say?
