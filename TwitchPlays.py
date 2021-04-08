@@ -35,7 +35,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
 # todo: switch from requests to aiohttp
-__version__ = '3.32.0'
+__version__ = '3.32.1'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -460,6 +460,9 @@ def main():
         # todo: remove or make more conditional
         import webbrowser
         webbrowser.open(f"https://twitch.tv/{config['twitch']['channel_to_join']}/chat", new=1)
+
+    if not cmpc.running_as_admin():
+        log.warning('Script is not running as admin.')
 
     twitch_client = TwitchPlays(config=config, offline_mode=cliargs.offline_mode)
 

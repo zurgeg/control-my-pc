@@ -14,6 +14,7 @@ Functions:
     press_key -- presses a key with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
     send_data -- gets info about the environment of the script and sends it to a discord webhook
+    running_as_admin -- checks whether running as admin
 """
 
 # PSL Packages;
@@ -47,6 +48,7 @@ __all__ = (
     'hold_key',
     'parse_goto_args',
     'send_data',
+    'running_as_admin',
 )
 
 
@@ -63,6 +65,18 @@ def mode_testing(environment, env_vars_used, branch):
         return True
     else:
         return False
+
+
+def running_as_admin():
+    """Check if the program is running as admin.
+
+    Returns True if the platform is not windows or if you're running as admin, False if not running as admin.
+    """
+    if sys.platform != 'win32':
+        return True
+    else:
+        import ctypes
+        return ctypes.windll.shell32.IsUserAnAdmin()
 
 
 def get_git_repo_info(default_branch_name='master'):
