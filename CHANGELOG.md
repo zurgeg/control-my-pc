@@ -1,8 +1,9 @@
 # Changelog
 
-## [3.32.1] - 2021-04-8
+## [3.32.1] - 2021-04-15
 ### added
 - warn if not running as admin
+- send a warning webhook to the moderators when an account is ignored
 
 ## [3.32.0] - 2021-04-06 - 'Season 3 Day One Patch'
 ### added

@@ -147,7 +147,7 @@ def direct_or_auto():
 
 
 def send_webhook(url: str, content: str):
-    """Send a webhook to discord, takes (url, message)."""
+    """Send a webhook to discord."""
     data = {'content': content}
     if url == "":
         return

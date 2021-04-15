@@ -134,6 +134,8 @@ class ModTools:
     async def notify_ignored_user(self, message):
         """Check if a user has been notified they're banned, if they haven't then do it.
 
+        Also send a mod ping to notify to keep an eye on them
+
         Args:
             message -- the twitchio message to get the user id from and to reply to if necessary
         """
@@ -143,10 +145,18 @@ class ModTools:
         if not user_info[3]:
             ctx = await self.bot.get_context(message)
             # todo: add custom messages depending on why they were ignored
+            # and only send the mod webhook if it was because of account age
             await ctx.send(f'[SCRIPT] @{message.author.name} your message was ignored by the script because '
                            f'your account is under {self.req_age_days} days old '
                            'or because you have been banned/timed out.')
             log.info('Notified user they were ignored.')
+
+            send_webhook(
+                self.bot.config['discord']['modtalk'],
+                f"{self.bot.config['discord']['modalertping']} twitch user @{message.author.name} was ignored "
+                'because of account age. Keep an eye on them.'
+            )
+            log.info('Warned mods about ignored user via webhook.')
 
             await self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
 
