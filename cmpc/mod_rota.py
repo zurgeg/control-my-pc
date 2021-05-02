@@ -107,12 +107,14 @@ class ModRota:
             chatters = await self.bot.get_chatters(self.channel_to_check)
         except twitchio.errors.HTTPException:
             log.error('Unable to get chatters list for channel in mod presence check.')
+            # todo: try to avoid false negatives better?
             return False
 
-        for user in chatters.moderators+chatters.broadcaster:
-            user_permissions = self.bot.user_permissions_handler.get(user, cmpc.Permissions())
-            if user_permissions.moderator or user_permissions.developer:
-                return True
+        for user in chatters.moderators + chatters.broadcaster:
+            if user.name != self.bot.nick:
+                user_permissions = self.bot.user_permissions_handler.get(user, cmpc.Permissions())
+                if user_permissions.moderator or user_permissions.developer:
+                    return True
 
         return False
 
