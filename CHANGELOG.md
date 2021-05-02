@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.33.0] - 2021-04-15
+### added
+- after using `../script suspend`, unsuspend it before time is up using `../script unsuspend`
+### fixed
+- `../script suspend` is guaranteed to work right and not buffer commands or some other unexpected behaivour
+
 ## [3.32.1] - 2021-04-15
 ### added
 - warn if not running as admin

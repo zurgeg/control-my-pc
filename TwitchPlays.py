@@ -18,7 +18,7 @@ Files:
 # PSL Packages;
 import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
-import time  # for script- suspend command
+import asyncio
 import random
 import argparse
 import logging as log  # better print()
@@ -35,7 +35,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
 # todo: switch from requests to aiohttp
-__version__ = '3.32.1'
+__version__ = '3.33.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -83,6 +83,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             self.mod_rota = cmpc.ModRota(self)
 
         self.script_id = random.randint(0, 1000000)
+        # used in the ../script suspend command
+        self.allow_commands_from_users = True
 
         # Check essential constants are not empty.
         if not config['twitch']['username'] or not config['twitch']['oauth_token']:
@@ -161,6 +163,34 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             mod_list=apiconfig_json['modlist']
         )
 
+    async def suspend(self, duration, twitch_message):
+        """Do not allow commands from regular users for the duration.
+
+        Used in ../script suspend and !defcon.
+        """
+        try:
+            duration = float(duration)
+        except ValueError:
+            log.error(f'Could not suspend for duration: {twitch_message.content}, due to non-numeric arg')
+            return
+        else:
+            try:
+                if duration == 1.0:
+                    log_message = '[Suspend script for 1 second]'
+                else:
+                    log_message = f'[Suspend script for {int(duration)} seconds]'
+                self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
+
+                self.allow_commands_from_users = False
+                await asyncio.sleep(duration)
+                # todo: handle a situation when the script is unsuspended and resuspended in this time
+                self.allow_commands_from_users = True
+            except ValueError:
+                log.error(f'Could not suspend for duration: {twitch_message.content}, due to negative arg')
+            except OverflowError:
+                log.error(f'Could not suspend for duration: {twitch_message.content}, '
+                          'due to too large arg')
+
     # TwitchConnection overrides
     async def event_ready(self):
         """Override TwitchConnection.event_ready - log and send discord webhook for startup message if applicable.
@@ -213,6 +243,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                 return
 
             user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
+
+            if not self.allow_commands_from_users and not (user_permissions.moderator or user_permissions.developer):
+                return
 
             if self.modtools_on:
                 # Check if the user is allowed to run commands
@@ -350,24 +383,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         if twitch_message.content.startswith(command_invoc):
                             duration = cmpc.removeprefix(twitch_message.content, command_invoc).lstrip()
                             break
-                    try:
-                        duration = float(duration)
-                    except ValueError:
-                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
-                        return
-                    else:
-                        try:
-                            if duration == 1.0:
-                                log_message = '[Suspend script for 1 second]'
-                            else:
-                                log_message = f'[Suspend script for {int(duration)} seconds]'
-                            self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
-                            time.sleep(duration)
-                        except ValueError:
-                            log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
-                        except OverflowError:
-                            log.error(f'Could not suspend for duration: {twitch_message.content}\n'
-                                      'Due to too large arg')
+
+                    await self.suspend(duration, twitch_message)
+
+                if twitch_message.content in ['../script unsuspend']:
+                    self.allow_commands_from_users = True
 
                 # todo: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
                 await self.modtools.process_commands(twitch_message)
@@ -379,17 +399,15 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        # custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
+                        await self.suspend(999999, twitch_message)
                         self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
-                        time.sleep(999999)
                     # todo: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
+                        await self.suspend(600, twitch_message)
                         self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
                                                                      f' ({twitch_message.username})')
-                        time.sleep(600)
 
             # Commands for cmpcscript only.
             if user_permissions.script:
