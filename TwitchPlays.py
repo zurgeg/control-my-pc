@@ -21,6 +21,7 @@ import sys  # for exiting with best practices and getting exception info for log
 import asyncio
 import random
 import argparse
+import typing
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -59,10 +60,10 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
     def __init__(
-            self, config,
-            offline_mode=False,
-            modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False,
-            mod_rota_on=True
+            self, config: dict,
+            offline_mode: bool = False,
+            modtools_on: bool = True, modtools_timeout_on: bool = False, modtools_ban_on: bool = False,
+            mod_rota_on: bool = True
     ):
         """Get set up, then call super().__init__.
 
@@ -122,7 +123,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
-    def load_user_permissions(dev_list, mod_list):
+    def load_user_permissions(
+            dev_list: typing.List[str], mod_list: typing.List[str]
+    ) -> typing.Dict[str, cmpc.Permissions]:
         """Generate a dict of user permissions based on lists of devs and mods.
 
         Args:
@@ -143,8 +146,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         return user_permissions
 
-    def permissions_handler_from_api(self, url=None,
-                                     static_backup_path=CONFIG_FOLDER / 'apiconfig.json'):
+    def permissions_handler_from_api(
+            self, url: str = None, static_backup_path: Path = CONFIG_FOLDER / 'apiconfig.json'
+    ) -> typing.Dict[str, cmpc.Permissions]:
         """Get the dev and mod lists from the given url, and return a user permissions object.
 
         Args:
@@ -163,7 +167,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             mod_list=apiconfig_json['modlist']
         )
 
-    async def suspend(self, duration, twitch_message):
+    async def suspend(self, duration: typing.Union[str, float], twitch_message: cmpc.TwitchMessage):
         """Do not allow commands from regular users for the duration.
 
         Used in ../script suspend and !defcon.
@@ -212,7 +216,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         log.info('Finished initialising, ready!')
 
     # noinspection PyUnboundLocalVariable
-    async def event_message(self, message):
+    async def event_message(self, message: twitchio.Message):
         """Override TwitchPlays.event_message - process a message.
 
         Args:

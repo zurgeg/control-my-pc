@@ -192,7 +192,6 @@ class ModTools:
             except IndexError:
                 return
 
-            set_states = []
             if subcommand in ['ban']:
                 if not self.ban_tools_on:
                     return
@@ -221,6 +220,8 @@ class ModTools:
                 ]
             elif subcommand in ['untimeout']:
                 set_states = [['allow_after', 0]]
+            else:
+                return
 
             try:
                 user_name = args[2].lstrip('@')
