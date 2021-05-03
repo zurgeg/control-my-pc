@@ -64,6 +64,7 @@ class CmpcApi:
                 with open(static_backup_path) as static_backup_file:
                     api_json = json.load(static_backup_file)
             except FileNotFoundError:
+                # todo: fix
                 return None
 
             log.info('[API] Loaded lists from static file instead')

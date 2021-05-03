@@ -285,7 +285,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_webhook(self.config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
                 if twitch_message.content in ('script- forceerror', '../script forceerror', '../script force-error'):
-                    cmpc.send_error(self.config['discord']['systemlog'], 'Forced error!',
+                    cmpc.send_error(self.config['discord']['systemlog'], Exception('Forced error!'),
                                     twitch_message, self.config['twitch']['username'],
                                     self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
