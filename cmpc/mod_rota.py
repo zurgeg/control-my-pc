@@ -1,9 +1,12 @@
 import asyncio
 import datetime
+import typing
 import logging as log
 from pathlib import Path
 
 import twitchio
+
+import TwitchPlays
 import cmpc.api_requests
 import cmpc.permission_handler
 from cmpc.utils import send_webhook
@@ -15,7 +18,10 @@ CONFIG_FOLDER = Path('config/')
 
 
 class ModRota:
-    def __init__(self, bot, mod_presence_check_interval_minutes=10, rota=None, discord_ids=None):
+    def __init__(
+            self, bot: TwitchPlays.TwitchPlays, mod_presence_check_interval_minutes: float = 10,
+            rota: dict = None, discord_ids: dict = None
+    ):
         self.bot = bot
         self.mod_presence_check_interval_seconds = mod_presence_check_interval_minutes * 60
         self.channel_to_check = self.bot.config['twitch']['channel_to_join']
@@ -34,7 +40,7 @@ class ModRota:
             self.download_discord_ids()
 
     @staticmethod
-    def _day_name(day):
+    def _day_name(day: datetime.date) -> str:
         return day.strftime('%A')
 
     def download_rota(self):
@@ -47,7 +53,14 @@ class ModRota:
                                                             static_backup_path=CONFIG_FOLDER / 'discord.json')
         self.discord_ids = json_response['discord_ids']
 
-    def next_on_duty(self, rota=None, last=False):
+    def next_on_duty(
+            self, rota: dict = None, last: bool = False
+    ) -> typing.Union[typing.Tuple[datetime.datetime, str], typing.Tuple[None, None]]:
+        """Return a tuple of the next time when someone is on duty, and the name of that person.
+
+        rota -- dict as at https://api.cmpc.live/rota.json
+        last -- if true, return the last time and person on duty, instead of the next
+        """
         if rota is None:
             rota = self.rota
         if not rota:
@@ -88,7 +101,7 @@ class ModRota:
 
         return None, None
 
-    def send_reminder_ping(self, twitch_mod, discord_ids=None):
+    def send_reminder_ping(self, twitch_mod: str, discord_ids: dict = None):
         if discord_ids is None:
             discord_ids = self.discord_ids
 
@@ -102,7 +115,7 @@ class ModRota:
                          f'<https://www.twitch.tv/{self.channel_to_check}>\n'
                          "If you can't, please ping another mod to get them to do it.")
 
-    async def mod_presence_check(self):
+    async def mod_presence_check(self) -> bool:
         try:
             chatters = await self.bot.get_chatters(self.channel_to_check)
         except twitchio.errors.HTTPException:

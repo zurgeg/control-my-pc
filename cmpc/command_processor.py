@@ -9,6 +9,7 @@ import sys
 import re
 import time
 import logging as log
+import typing
 from pathlib import Path
 
 # PIP Packages;
@@ -17,7 +18,9 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
+import TwitchPlays
 import cmpc.command_logging
+from cmpc.twitch_message import TwitchMessage
 from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
 
 
@@ -133,7 +136,8 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, bot, obs_file_name, obs_log_sleep_duration=None):
+    def __init__(self, bot: TwitchPlays.TwitchPlays, obs_file_name: typing.Union[str, Path],
+                 obs_log_sleep_duration: float = None):
         """Initialise the class attributes."""
         self.bot = bot
 
@@ -144,7 +148,7 @@ class CommandProcessor:
             '!modalert': {'required': 30.0, 'last_called': 0.0},
         }
 
-    def process_commands(self, message) -> bool:
+    def process_commands(self, message: TwitchMessage) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
 
         Will run the first applicable command before returning.
@@ -175,20 +179,7 @@ class CommandProcessor:
                 break
         return command_has_run
 
-    def error_handle(self, error, message):
-        """Throw an error to here, and it will be dealt with."""
-        # pass
-        # log.error(f'ERROR CONTAINED: {error}')
-        # cmpc.send_error(self.CONFIG['discord']['systemlog'], error,
-        #                     message, 'UNKNOWN', self.twitch_username,
-        #                     self.CONFIG['options']['DEPLOY'])
-        # if self.CONFIG['options']['DEPLOY'] == "Debug":
-        #     log.info('--ERROR IN CODE, SENDING TRACEBACK DUE TO DEBUG MODE--')
-        #     raise error
-        # else:
-        #     pass
-
-    def _process_key_press_commands(self, message) -> bool:
+    def _process_key_press_commands(self, message: TwitchMessage) -> bool:
         """Check message for key press commands and run any applicable command.
 
         Presses the button and also calls log_to_obs.
@@ -208,7 +199,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_hotkey_commands(self, message) -> bool:
+    def _process_hotkey_commands(self, message: TwitchMessage) -> bool:
         """Check message for hotkey commands and run any applicable command.
 
         Presses the two keys together and also calls log_to_obs.
@@ -224,7 +215,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_click_commands(self, message) -> bool:
+    def _process_click_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse click press commands and run any applicable command.
 
         Clicks the mouse button once, or twice if the command is named doubleclick.
@@ -243,7 +234,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_hold_commands(self, message) -> bool:
+    def _process_mouse_hold_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse hold commands and run any applicable command.
 
         Presses the left mouse button for the duration of time associated with the command.
@@ -258,7 +249,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_scroll_commands(self, message) -> bool:
+    def _process_mouse_scroll_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse scroll commands and run any applicable command.
 
         Scrolls the mouse wheel five times by the amount associated with the command.
@@ -274,7 +265,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_horizontal_scroll_commands(self, message) -> bool:
+    def _process_mouse_horizontal_scroll_commands(self, message: TwitchMessage) -> bool:
         """Check message for horizontal mouse scroll commands and run any applicable command.
 
         Scrolls the mouse wheel five times by the amount associated with the command.
@@ -297,7 +288,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_move_commands(self, message) -> bool:
+    def _process_mouse_move_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse move commands and run any applicable command.
 
         Moves the mouse by the command's co-ords and also calls log_to_obs.
@@ -311,7 +302,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_drag_commands(self, message) -> bool:
+    def _process_mouse_drag_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse drag commands and run any applicable command.
 
         Moves the mouse by the commands co-ords while holding the left mouse button.
@@ -326,7 +317,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_type_commands(self, message) -> bool:
+    def _process_type_commands(self, message: TwitchMessage) -> bool:
         """Check message for typing commands and run any applicable command.
 
         Types the message and also calls log_to_obs.
@@ -337,15 +328,13 @@ class CommandProcessor:
         for valid_input in self.TYPE_COMMANDS:
             if message.content.startswith(valid_input):
                 self.log_to_obs(message)
-                try:
-                    message_to_type = removeprefix(message.original_content, valid_input, case_sensitive=False)
-                    pyautogui.typewrite(message_to_type)
-                except Exception as error:
-                    self.error_handle(error, message)
+                message_to_type = removeprefix(message.original_content, valid_input, case_sensitive=False)
+                pyautogui.typewrite(message_to_type)
+
                 return True
         return False
 
-    def _process_hold_key_commands(self, message) -> bool:
+    def _process_hold_key_commands(self, message: TwitchMessage) -> bool:
         """Check message for key press commands and run any applicable command.
 
         Holds the key for the duration specified in the message.
@@ -356,29 +345,27 @@ class CommandProcessor:
         """
         for valid_input, output in self.HOLD_KEY_COMMANDS.items():
             if message.content.startswith(valid_input):
-                try:
-                    time_value = float(removeprefix(message.content, valid_input))
-                    log.debug(f"time_value: {time_value}")
-                    log.debug(f"key_to_press: {output}")
+                time_value = float(removeprefix(message.content, valid_input))
+                log.debug(f"time_value: {time_value}")
+                log.debug(f"key_to_press: {output}")
 
-                    # This command is a lil more complex bc we need to work out what key they actually want to press,
-                    # but still nothing impossible
-                    log.debug('i am the boss, and i give all the orders')
-                    if output is None:
-                        log.debug('no key to press, im having sad cat hours ngl...')
-                        return False
+                # This command is a lil more complex bc we need to work out what key they actually want to press,
+                # but still nothing impossible
+                log.debug('i am the boss, and i give all the orders')
+                if output is None:
+                    log.debug('no key to press, im having sad cat hours ngl...')
+                    return False
 
-                    log.debug('And when we split, we split my way.')
-                    if 0.0 < time_value <= 10.0:
-                        log.debug('time was a success')
-                        self.log_to_obs(message)
-                        hold_key(key=output, time_value=time_value)
-                except Exception as error:
-                    self.error_handle(error, message)
+                log.debug('And when we split, we split my way.')
+                if 0.0 < time_value <= 10.0:
+                    log.debug('time was a success')
+                    self.log_to_obs(message)
+                    hold_key(key=output, time_value=time_value)
+
                 return True
         return False
 
-    def _process_misc_commands(self, message) -> bool:
+    def _process_misc_commands(self, message: TwitchMessage) -> bool:
         """Process commands that are either too complicated to dict, or just one-off irregulars.
 
         Runs the first applicable command and returns.
@@ -456,19 +443,17 @@ class CommandProcessor:
         # gtype command
         # you don't say?
         if message.content.startswith('gtype '):
-            try:
-                if sys.platform == 'darwin':
-                    log.error(f'COULD NOT GTYPE: {message.content} '
-                              'DUE TO PLATFORM: darwin')
-                    return True
-
-                self.log_to_obs(message)
-                import pydirectinput
-                message_to_type = removeprefix(message.content, 'gtype ')
-                pydirectinput.typewrite(message_to_type)
+            if sys.platform == 'darwin':
+                log.error(f'COULD NOT GTYPE: {message.content} '
+                          'DUE TO PLATFORM: darwin')
                 return True
-            except Exception as error:
-                self.error_handle(error, message)
+
+            self.log_to_obs(message)
+            import pydirectinput
+            message_to_type = removeprefix(message.content, 'gtype ')
+            pydirectinput.typewrite(message_to_type)
+
+            return True
 
         # uses copy-paste instead of typing emulation
         if message.content.startswith('ptype '):

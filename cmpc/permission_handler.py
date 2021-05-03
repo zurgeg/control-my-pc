@@ -23,7 +23,7 @@ class Permissions:
             setattr(self, k, v)
 
     @property
-    def moderator(self):
+    def moderator(self) -> bool:
         """Getter for the moderator attribute.
 
         Finds the boolean of the bitwise AND between the instance's value and MOD_PERMISSION
@@ -32,7 +32,7 @@ class Permissions:
         return bool(self.value & self.MOD_PERMISSION)
 
     @moderator.setter
-    def moderator(self, value):
+    def moderator(self, value: bool):
         """Setter for the moderator attribute.
 
         Args:
@@ -47,12 +47,12 @@ class Permissions:
             self.value = self.value & (self.ALL_PERMISSIONS ^ self.MOD_PERMISSION)
 
     @property
-    def developer(self):
+    def developer(self) -> bool:
         """Getter for the developer attribute."""
         return bool(self.value & self.DEV_PERMISSION)
 
     @developer.setter
-    def developer(self, value):
+    def developer(self, value: bool):
         """Setter for the developer attribute."""
         if value:
             self.value = self.value | self.DEV_PERMISSION
@@ -60,12 +60,12 @@ class Permissions:
             self.value = self.value & (self.ALL_PERMISSIONS ^ self.DEV_PERMISSION)
 
     @property
-    def script(self):
+    def script(self) -> bool:
         """Getter for the script attribute."""
         return bool(self.value & self.SCRIPT_PERMISSION)
 
     @script.setter
-    def script(self, value):
+    def script(self, value: bool):
         """Setter for the script attribute."""
         if value:
             self.value = self.value | self.SCRIPT_PERMISSION

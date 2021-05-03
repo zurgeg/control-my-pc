@@ -1,12 +1,15 @@
 import time
 import sqlite3
+import typing
 import logging as log
 from pathlib import Path
 from typing import Union
 from asyncio import Lock
 
-import twitchio.errors
+import twitchio
+import TwitchPlays
 from cmpc.utils import send_webhook
+from cmpc.twitch_message import TwitchMessage
 
 
 CONFIG_FOLDER = Path('config')
@@ -16,10 +19,14 @@ SCHEMA = {
     'allow_after': 2,
     'notified_ignored': 3,
 }
+db_list_type = typing.List[typing.Tuple[sqlite3.Connection, sqlite3.Cursor]]
 
 
 class ModTools:
-    def __init__(self, bot, ban_tools_on=True, timeout_tools_on=True, req_account_age_days=None):
+    def __init__(
+            self, bot: TwitchPlays.TwitchPlays,
+            ban_tools_on: bool = True, timeout_tools_on: bool = True, req_account_age_days: float = None
+    ):
         self.bot = bot
         self.ban_tools_on = ban_tools_on
         self.timeout_tools_on = timeout_tools_on
@@ -33,7 +40,7 @@ class ModTools:
         self.db_access_lock = Lock()
         log.debug('Initialised ModTools object.')
 
-    def init_dbs(self):
+    def init_dbs(self) -> db_list_type:
         """Return a list of (conn, cur) tuples based off self.cache_db_paths."""
         conn_cur_pairs = []
         for db_path in self.cache_db_paths:
@@ -60,7 +67,7 @@ class ModTools:
 
         return conn_cur_pairs
 
-    async def write_to_dbs(self, sql, data, db_pairs=None, many=False):
+    async def write_to_dbs(self, sql: str, data: typing.Iterable, db_pairs: db_list_type = None, many: bool = False):
         """Execute some sql on every cache database."""
         log.debug(f'Writing to some dbs {sql} {data} {db_pairs if db_pairs is None else len(db_pairs)}')
         if db_pairs is None:
@@ -74,7 +81,7 @@ class ModTools:
             async with self.db_access_lock:
                 conn.commit()
 
-    async def read_from_dbs(self, user_id, db_pairs=None):
+    async def read_from_dbs(self, user_id: int, db_pairs=None):
         """Iterate through the databases for a result.
 
         If we get a result, it's then written to every database on which it wasn't found, to speed up getting
@@ -99,7 +106,7 @@ class ModTools:
         log.debug('No cache hit')
         return None
 
-    async def get_user_info(self, user_id):
+    async def get_user_info(self, user_id: int):
         """Get info on a twitch user from their user id.
 
         First searches the cache databases, and if no result is found it gets the account age from the twitch api
@@ -113,10 +120,10 @@ class ModTools:
             try:
                 twitch_api_response = await self.bot.get_users(user_id)
                 if not twitch_api_response:
-                    raise twitchio.errors.HTTPException
+                    raise twitchio.HTTPException
                 api_user_info = twitch_api_response[0]
                 log.debug(f'User ID {user_id} created at {api_user_info.created_at}')
-            except twitchio.errors.HTTPException:
+            except twitchio.HTTPException:
                 # No luck, no allow
                 send_webhook(self.bot.config['discord']['systemlog'],
                              f"Failed to get info on user from twitch api.")
@@ -131,7 +138,7 @@ class ModTools:
                 await self.write_to_dbs('INSERT INTO users(id, allow_after) VALUES (?, ?)', (user_id, allow_after_time))
                 return await self.read_from_dbs(user_id)
 
-    async def notify_ignored_user(self, message):
+    async def notify_ignored_user(self, message: twitchio.Message):
         """Check if a user has been notified they're banned, if they haven't then do it.
 
         Also send a mod ping to notify to keep an eye on them
@@ -160,7 +167,7 @@ class ModTools:
 
             await self.write_to_dbs('UPDATE users SET notified_ignored=? WHERE id=?', (True, user_id))
 
-    async def check_user_allowed(self, user_id):
+    async def check_user_allowed(self, user_id: int) -> bool:
         """Return True if a user can run commands and False otherwise.
 
         Gets their info, then checks whether they've been manually allowed or denied first.
@@ -174,7 +181,8 @@ class ModTools:
         else:
             return user_info[SCHEMA['allow_after']] < time.time()
 
-    async def process_commands(self, twitch_message):
+    # todo: return True or False?
+    async def process_commands(self, twitch_message: TwitchMessage):
         """Process ban/unban and timeout/untimeout commands."""
         # User allow list handling commands
         if twitch_message.content.startswith(('script- ', '../script ')):
