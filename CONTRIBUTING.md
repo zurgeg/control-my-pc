@@ -1,3 +1,3 @@
 - The working branch is `staging` or possibly whatever branch is ahead, please ask if uncertain.
-- Please branch off the working branch to make any changes except the very small and uncontroversial; and don't commit to master, merge requests are preferred.
+- Please branch off the working branch to make any changes except the very small and uncontroversial; and don't commit to main, merge requests are preferred.
 - Refer to the [wiki](https://gitlab.com/controlmypc/docs/-/wikis/documentation/Script#code-consistency) for more information including code consistency.

@@ -61,7 +61,7 @@ def mode_testing(environment, env_vars_used, branch):
         branch -- the name of the git branch of the repo containing the script, if it exists
     Returns True if script should be in testing mode and False otherwise.
     """
-    if environment == 'Debug' or env_vars_used or branch != 'master':
+    if environment == 'Debug' or env_vars_used or branch != 'main':
         return True
     else:
         return False
@@ -79,7 +79,7 @@ def running_as_admin():
         return ctypes.windll.shell32.IsUserAnAdmin()
 
 
-def get_git_repo_info(default_branch_name='master'):
+def get_git_repo_info(default_branch_name='main'):
     """Try to get the name of the git branch containing the script.
 
     Args:
@@ -160,7 +160,7 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
                         f'**Environment -** {environment}'
-    if branch != 'master':
+    if branch != 'main':
         if branch_assumed:
             branch = branch + ' (unknown)'
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
