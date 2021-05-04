@@ -21,6 +21,8 @@ Functions:
 import time
 import json
 import sys
+import re
+from pathlib import Path
 
 # PIP Packages;
 import requests
@@ -88,19 +90,20 @@ def get_git_repo_info(default_branch_name='main'):
         branch_name
         branch_name_assumed -- True if there was no git repo and branch name defaulted, False otherwise
     """
+    head_file_path = Path('.git') / 'HEAD'
+
     try:
-        # noinspection PyUnresolvedReferences
-        import git
-    except ImportError:
+        head_file_contents = head_file_path.read_text()
+        re_match = re.search('ref: refs/heads/(.*)\n', head_file_contents)
+        if re_match is None:
+            branch_name = f'(detached HEAD {head_file_contents})'
+        else:
+            branch_name = re_match[1]
+    except FileNotFoundError:
         branch_name = default_branch_name
         branch_name_assumed = True
     else:
-        try:
-            branch_name = git.Repo().active_branch.name
-            branch_name_assumed = False
-        except (ImportError, git.exc.GitError):
-            branch_name = default_branch_name
-            branch_name_assumed = True
+        branch_name_assumed = False
 
     return branch_name, branch_name_assumed
 
