@@ -22,6 +22,8 @@ import time
 import json
 import sys
 import typing
+import re
+from pathlib import Path
 
 # PIP Packages;
 import requests
@@ -64,7 +66,7 @@ def mode_testing(environment: str, env_vars_used: bool, branch: str) -> bool:
         branch -- the name of the git branch of the repo containing the script, if it exists
     Returns True if script should be in testing mode and False otherwise.
     """
-    if environment == 'Debug' or env_vars_used or branch != 'master':
+    if environment == 'Debug' or env_vars_used or branch != 'main':
         return True
     else:
         return False
@@ -82,7 +84,7 @@ def running_as_admin() -> bool:
         return ctypes.windll.shell32.IsUserAnAdmin()
 
 
-def get_git_repo_info(default_branch_name: str = 'master') -> typing.Tuple[str, bool]:
+def get_git_repo_info(default_branch_name='main') -> typing.Tuple[str, bool]:
     """Try to get the name of the git branch containing the script.
 
     Args:
@@ -91,19 +93,20 @@ def get_git_repo_info(default_branch_name: str = 'master') -> typing.Tuple[str, 
         branch_name
         branch_name_assumed -- True if there was no git repo and branch name defaulted, False otherwise
     """
+    head_file_path = Path('.git') / 'HEAD'
+
     try:
-        # noinspection PyUnresolvedReferences
-        import git
-    except ImportError:
+        head_file_contents = head_file_path.read_text()
+        re_match = re.search('ref: refs/heads/(.*)\n', head_file_contents)
+        if re_match is None:
+            branch_name = f'(detached HEAD {head_file_contents})'
+        else:
+            branch_name = re_match[1]
+    except FileNotFoundError:
         branch_name = default_branch_name
         branch_name_assumed = True
     else:
-        try:
-            branch_name = git.Repo().active_branch.name
-            branch_name_assumed = False
-        except (ImportError, git.exc.GitError):
-            branch_name = default_branch_name
-            branch_name_assumed = True
+        branch_name_assumed = False
 
     return branch_name, branch_name_assumed
 
@@ -166,7 +169,7 @@ def send_error(
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
                         f'**Environment -** {environment}'
-    if branch != 'master':
+    if branch != 'main':
         if branch_assumed:
             branch = branch + ' (unknown)'
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
