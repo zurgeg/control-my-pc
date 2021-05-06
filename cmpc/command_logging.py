@@ -9,13 +9,12 @@ import obswebsocket
 import obswebsocket.exceptions
 import obswebsocket.requests
 
-import TwitchPlays
 from cmpc.twitch_message import TwitchMessage
 
 
 class CommandLogging:
     def __init__(
-            self, bot: TwitchPlays.TwitchPlays, obs_file_name: typing.Union[str, Path],
+            self, bot, obs_file_name: typing.Union[str, Path],
             obs_source_name: str = None, obs_log_sleep_duration: float = None, obs_none_log_msg: str = None,
             use_websockets: bool = True
     ):

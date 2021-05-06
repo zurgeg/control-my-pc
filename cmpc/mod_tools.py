@@ -7,7 +7,6 @@ from typing import Union
 from asyncio import Lock
 
 import twitchio
-import TwitchPlays
 from cmpc.utils import send_webhook
 from cmpc.twitch_message import TwitchMessage
 
@@ -24,7 +23,7 @@ db_list_type = typing.List[typing.Tuple[sqlite3.Connection, sqlite3.Cursor]]
 
 class ModTools:
     def __init__(
-            self, bot: TwitchPlays.TwitchPlays,
+            self, bot,
             ban_tools_on: bool = True, timeout_tools_on: bool = True, req_account_age_days: float = None
     ):
         self.bot = bot

@@ -6,7 +6,6 @@ from pathlib import Path
 
 import twitchio
 
-import TwitchPlays
 import cmpc.api_requests
 import cmpc.permission_handler
 from cmpc.utils import send_webhook
@@ -19,7 +18,7 @@ CONFIG_FOLDER = Path('config/')
 
 class ModRota:
     def __init__(
-            self, bot: TwitchPlays.TwitchPlays, mod_presence_check_interval_minutes: float = 10,
+            self, bot, mod_presence_check_interval_minutes: float = 10,
             rota: dict = None, discord_ids: dict = None
     ):
         self.bot = bot

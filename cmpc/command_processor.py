@@ -18,7 +18,6 @@ import pyautogui
 import pyperclip  # for ptype command
 
 # Local Packages
-import TwitchPlays
 import cmpc.command_logging
 from cmpc.twitch_message import TwitchMessage
 from cmpc.utils import removeprefix, move_mouse, hold_mouse, press_key, hold_key, parse_goto_args
@@ -136,7 +135,7 @@ class CommandProcessor:
         'arrow down for ': 'down',
     }  # note trailing space - this is to process args better
 
-    def __init__(self, bot: TwitchPlays.TwitchPlays, obs_file_name: typing.Union[str, Path],
+    def __init__(self, bot, obs_file_name: typing.Union[str, Path],
                  obs_log_sleep_duration: float = None):
         """Initialise the class attributes."""
         self.bot = bot
