@@ -264,7 +264,7 @@ def parse_goto_args(message: TwitchMessage, prefix: str):
     return xval, yval
 
 
-def send_data(url: str, config: dict, user_permissions: typing.Dict[str, cmpc.permission_handler.Permissions]):
+async def send_data(url: str, config: dict, user_permissions: typing.Dict[str, cmpc.permission_handler.Permissions]):
     """Dump machine data, config, and api info to a discord webhook."""
     machine_stats = '\n\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
