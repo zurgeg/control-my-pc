@@ -262,7 +262,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     log.debug(f'User {message.author.name} {message.author.id} was allowed')
 
             # Process this beef
-            command_has_run = self.processor.process_commands(twitch_message)
+            command_has_run = await self.processor.process_commands(twitch_message)
             if command_has_run:
                 await self.processor.log_to_obs(None)
                 return

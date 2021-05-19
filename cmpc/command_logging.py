@@ -51,7 +51,7 @@ class CommandLogging:
         else:
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_discord(self, message: TwitchMessage):
+    async def log_to_discord(self, message: TwitchMessage):
         """Send a command to the discord webhook."""
         async with aiohttp.ClientSession() as session:
             await session.post(self.bot.config['discord']['chatrelay'],
@@ -71,7 +71,7 @@ class CommandLogging:
             self._obs_log_executing_txt(obs_log_text)
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_obs(
+    async def log_to_obs(
             self, message: TwitchMessage, none_log_msg: str = None,
             sleep_duration: float = None, none_sleep: bool = False
     ):

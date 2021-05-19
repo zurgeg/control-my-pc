@@ -147,7 +147,7 @@ class CommandProcessor:
             '!modalert': {'required': 30.0, 'last_called': 0.0},
         }
 
-    def process_commands(self, message: TwitchMessage) -> bool:
+    async def process_commands(self, message: TwitchMessage) -> bool:
         """Check a Twitch message for command invocations and run any applicable command.
 
         Will run the first applicable command before returning.
