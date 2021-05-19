@@ -268,7 +268,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             # Commands for authorised developers in dev list only.
             if user_permissions.script or user_permissions.developer:
-                if twitch_message.content == 'script- testconn':
+                # todo: fix this and reqdata
+                if twitch_message.content in ('script- testconn', '../script testconn'):
                     cmpc.send_webhook(self.config['discord']['systemlog'],
                                       'Connection made between twitch->script->webhook->discord')
 
