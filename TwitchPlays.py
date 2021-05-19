@@ -35,7 +35,6 @@ import twitchio.ext.commands.bot
 import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
-# todo: switch from requests to aiohttp
 __version__ = '3.34.0'
 
 # Folders we use
@@ -281,7 +280,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         'devlist': [i for i, o in self.user_permissions_handler.items() if o.developer],
                         'options': self.config['options'],
                     }
-                    cmpc.send_data(self.config['discord']['systemlog'], context)
+                    await cmpc.send_data(self.config['discord']['systemlog'], context)
 
                 if twitch_message.content in ('script- apirefresh', '../script apirefresh', '../script api-refresh'):
                     self.user_permissions_handler = self.permissions_handler_from_api()
@@ -289,9 +288,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_webhook(self.config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
                 if twitch_message.content in ('script- forceerror', '../script forceerror', '../script force-error'):
-                    cmpc.send_error(self.config['discord']['systemlog'], Exception('Forced error!'),
-                                    twitch_message, self.config['twitch']['username'],
-                                    self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+                    await cmpc.send_error(
+                        self.config['discord']['systemlog'], Exception('Forced error!'),
+                        twitch_message, self.config['twitch']['username'],
+                        self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED
+                    )
 
                 command_invocs = ('chatbot-', '../chatbot', '../chatbot --code', '../chatbot -c')
                 if twitch_message.original_content.startswith(command_invocs):
@@ -434,9 +435,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         except Exception as error:
             # Send error data to systemlog.
             log.error(f'{error}', sys.exc_info())
-            cmpc.send_error(self.config['discord']['systemlog'], error,
-                            twitch_message, self.config['twitch']['channel_to_join'],
-                            self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
+            await cmpc.send_error(
+                self.config['discord']['systemlog'], error,
+                twitch_message, self.config['twitch']['channel_to_join'],
+                self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED
+            )
 
     # I don't know why this method is classed as necessary to implement but here it is.
     async def event_pubsub(self, data):

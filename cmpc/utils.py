@@ -26,6 +26,7 @@ import re
 from pathlib import Path
 
 # PIP Packages;
+import aiohttp
 import requests
 import pyautogui
 import psutil
@@ -161,7 +162,7 @@ def send_webhook(url: str, content: str):
     requests.post(url, data=data)
 
 
-def send_error(
+async def send_error(
         url: str, error: Exception, t_msg: TwitchMessage, channel: str, environment: str, branch: str,
         branch_assumed: bool
 ):
@@ -189,7 +190,8 @@ def send_error(
             }
         ]
     }
-    requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
+    async with aiohttp.ClientSession() as session:
+        session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
 def input_handler():
@@ -305,4 +307,5 @@ def send_data(url: str, config: dict, user_permissions: typing.Dict[str, cmpc.pe
             },
         ],
     }
-    requests.post(url, json=data)
+    async with aiohttp.ClientSession() as session:
+        await session.post(url, json=data)
