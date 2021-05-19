@@ -173,12 +173,12 @@ class CommandProcessor:
         command_has_run = False
         for comm in commands:
             # noinspection PyArgumentList
-            if comm(message):
+            if await comm(message):
                 command_has_run = True
                 break
         return command_has_run
 
-    def _process_key_press_commands(self, message: TwitchMessage) -> bool:
+    async def _process_key_press_commands(self, message: TwitchMessage) -> bool:
         """Check message for key press commands and run any applicable command.
 
         Presses the button and also calls log_to_obs.
@@ -198,7 +198,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_hotkey_commands(self, message: TwitchMessage) -> bool:
+    async def _process_hotkey_commands(self, message: TwitchMessage) -> bool:
         """Check message for hotkey commands and run any applicable command.
 
         Presses the two keys together and also calls log_to_obs.
@@ -214,7 +214,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_click_commands(self, message: TwitchMessage) -> bool:
+    async def _process_click_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse click press commands and run any applicable command.
 
         Clicks the mouse button once, or twice if the command is named doubleclick.
@@ -233,7 +233,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_hold_commands(self, message: TwitchMessage) -> bool:
+    async def _process_mouse_hold_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse hold commands and run any applicable command.
 
         Presses the left mouse button for the duration of time associated with the command.
@@ -248,7 +248,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_scroll_commands(self, message: TwitchMessage) -> bool:
+    async def _process_mouse_scroll_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse scroll commands and run any applicable command.
 
         Scrolls the mouse wheel five times by the amount associated with the command.
@@ -264,7 +264,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_horizontal_scroll_commands(self, message: TwitchMessage) -> bool:
+    async def _process_mouse_horizontal_scroll_commands(self, message: TwitchMessage) -> bool:
         """Check message for horizontal mouse scroll commands and run any applicable command.
 
         Scrolls the mouse wheel five times by the amount associated with the command.
@@ -287,7 +287,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_move_commands(self, message: TwitchMessage) -> bool:
+    async def _process_mouse_move_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse move commands and run any applicable command.
 
         Moves the mouse by the command's co-ords and also calls log_to_obs.
@@ -301,7 +301,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_mouse_drag_commands(self, message: TwitchMessage) -> bool:
+    async def _process_mouse_drag_commands(self, message: TwitchMessage) -> bool:
         """Check message for mouse drag commands and run any applicable command.
 
         Moves the mouse by the commands co-ords while holding the left mouse button.
@@ -316,7 +316,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_type_commands(self, message: TwitchMessage) -> bool:
+    async def _process_type_commands(self, message: TwitchMessage) -> bool:
         """Check message for typing commands and run any applicable command.
 
         Types the message and also calls log_to_obs.
@@ -333,7 +333,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_hold_key_commands(self, message: TwitchMessage) -> bool:
+    async def _process_hold_key_commands(self, message: TwitchMessage) -> bool:
         """Check message for key press commands and run any applicable command.
 
         Holds the key for the duration specified in the message.
@@ -364,7 +364,7 @@ class CommandProcessor:
                 return True
         return False
 
-    def _process_misc_commands(self, message: TwitchMessage) -> bool:
+    async def _process_misc_commands(self, message: TwitchMessage) -> bool:
         """Process commands that are either too complicated to dict, or just one-off irregulars.
 
         Runs the first applicable command and returns.
