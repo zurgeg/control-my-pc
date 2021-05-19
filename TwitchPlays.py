@@ -18,9 +18,10 @@ Files:
 # PSL Packages;
 import os  # file manager and cmd command handler
 import sys  # for exiting with best practices and getting exception info for log
-import time  # for script- suspend command
+import asyncio
 import random
 import argparse
+import typing
 import logging as log  # better print()
 from pathlib import Path  # for best practices filepath handling
 
@@ -35,8 +36,7 @@ import cmpc  # Pretty much all of the custom shit we need.
 import config.new_oauth_key as keygen
 
 # todo: switch from requests to aiohttp
-# todo: add pyinstaller build file
-__version__ = '3.32.0'
+__version__ = '3.34.0'
 
 # Folders we use
 CONFIG_FOLDER = Path('config/')
@@ -60,10 +60,10 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
     """Implements functionality with permissions and some startup stuff."""
 
     def __init__(
-            self, config,
-            offline_mode=False,
-            modtools_on=True, modtools_timeout_on=False, modtools_ban_on=False,
-            mod_rota_on=True
+            self, config: dict,
+            offline_mode: bool = False,
+            modtools_on: bool = True, modtools_timeout_on: bool = False, modtools_ban_on: bool = False,
+            mod_rota_on: bool = True
     ):
         """Get set up, then call super().__init__.
 
@@ -84,6 +84,8 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             self.mod_rota = cmpc.ModRota(self)
 
         self.script_id = random.randint(0, 1000000)
+        # used in the ../script suspend command
+        self.allow_commands_from_users = True
 
         # Check essential constants are not empty.
         if not config['twitch']['username'] or not config['twitch']['oauth_token']:
@@ -120,7 +122,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
     # TwitchPlays methods - TwitchConnection overrides below
     @staticmethod
-    def load_user_permissions(dev_list, mod_list):
+    def load_user_permissions(
+            dev_list: typing.List[str], mod_list: typing.List[str]
+    ) -> typing.Dict[str, cmpc.Permissions]:
         """Generate a dict of user permissions based on lists of devs and mods.
 
         Args:
@@ -141,8 +145,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
         return user_permissions
 
-    def permissions_handler_from_api(self, url=None,
-                                     static_backup_path=CONFIG_FOLDER / 'apiconfig.json'):
+    def permissions_handler_from_api(
+            self, url: str = None, static_backup_path: Path = CONFIG_FOLDER / 'apiconfig.json'
+    ) -> typing.Dict[str, cmpc.Permissions]:
         """Get the dev and mod lists from the given url, and return a user permissions object.
 
         Args:
@@ -160,6 +165,34 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             dev_list=apiconfig_json['devlist'],
             mod_list=apiconfig_json['modlist']
         )
+
+    async def suspend(self, duration: typing.Union[str, float], twitch_message: cmpc.TwitchMessage):
+        """Do not allow commands from regular users for the duration.
+
+        Used in ../script suspend and !defcon.
+        """
+        try:
+            duration = float(duration)
+        except ValueError:
+            log.error(f'Could not suspend for duration: {twitch_message.content}, due to non-numeric arg')
+            return
+        else:
+            try:
+                if duration == 1.0:
+                    log_message = '[Suspend script for 1 second]'
+                else:
+                    log_message = f'[Suspend script for {int(duration)} seconds]'
+                self.processor.log_to_obs(None, none_log_msg=f'{log_message} ({twitch_message.username})')
+
+                self.allow_commands_from_users = False
+                await asyncio.sleep(duration)
+                # todo: handle a situation when the script is unsuspended and resuspended in this time
+                self.allow_commands_from_users = True
+            except ValueError:
+                log.error(f'Could not suspend for duration: {twitch_message.content}, due to negative arg')
+            except OverflowError:
+                log.error(f'Could not suspend for duration: {twitch_message.content}, '
+                          'due to too large arg')
 
     # TwitchConnection overrides
     async def event_ready(self):
@@ -183,7 +216,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
         log.info('Finished initialising, ready!')
 
     # noinspection PyUnboundLocalVariable
-    async def event_message(self, message):
+    async def event_message(self, message: twitchio.Message):
         """Override TwitchPlays.event_message - process a message.
 
         Args:
@@ -215,11 +248,13 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
 
             user_permissions = self.user_permissions_handler.get(twitch_message.username, cmpc.Permissions())
 
+            if not self.allow_commands_from_users and not (user_permissions.moderator or user_permissions.developer):
+                return
+
             if self.modtools_on:
                 # Check if the user is allowed to run commands
                 # Don't bother checking for moderators or developers
-                # if not (user_permissions.moderator or user_permissions.developer):
-                if True:
+                if not (user_permissions.moderator or user_permissions.developer):
                     if not await self.modtools.check_user_allowed(message.author.id):
                         await self.modtools.notify_ignored_user(message)
                         log.info(f'Ignored message from {twitch_message.username} due to account age or deny list.')
@@ -254,7 +289,7 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                     cmpc.send_webhook(self.config['discord']['systemlog'], 'User permissions were refreshed from API.')
 
                 if twitch_message.content in ('script- forceerror', '../script forceerror', '../script force-error'):
-                    cmpc.send_error(self.config['discord']['systemlog'], 'Forced error!',
+                    cmpc.send_error(self.config['discord']['systemlog'], Exception('Forced error!'),
                                     twitch_message, self.config['twitch']['username'],
                                     self.config['options']['DEPLOY'], BRANCH_NAME, BRANCH_NAME_ASSUMED)
 
@@ -359,26 +394,11 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         if twitch_message.content.startswith(command_invoc):
                             duration = cmpc.removeprefix(twitch_message.content, command_invoc).lstrip()
                             break
-                    try:
-                        duration = float(duration)
-                    except ValueError:
-                        log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to non-numeric arg')
-                        return
-                    else:
-                        try:
-                            if duration == 1.0:
-                                log_message = '[Suspend script for 1 second]'
-                            else:
-                                log_message = f'[Suspend script for {int(duration)} seconds]'
-                            await self.processor.log_to_obs(
-                                None, none_log_msg=f'{log_message} ({twitch_message.username})'
-                            )
-                            time.sleep(duration)
-                        except ValueError:
-                            log.error(f'Could not suspend for duration: {twitch_message.content}\nDue to negative arg')
-                        except OverflowError:
-                            log.error(f'Could not suspend for duration: {twitch_message.content}\n'
-                                      'Due to too large arg')
+
+                    await self.suspend(duration, twitch_message)
+
+                if twitch_message.content in ['../script unsuspend']:
+                    self.allow_commands_from_users = True
 
                 # todo: divide these commands into blocks by how they start e.g. script- etc, also refactor I.E. #58
                 await self.modtools.process_commands(twitch_message)
@@ -390,17 +410,18 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
                         os.system('shutdown -s -t 0 -c "!defcon 1 -- emergency shutdown" -f -d u:5:19')
-                        # custom_log_to_obs('[defcon 1, EMERGENCY SHUTDOWN]', twitch_message, self.processor)
+
+                        await self.suspend(999999, twitch_message)
                         await self.processor.log_to_obs(None, none_log_msg='[defcon 1, EMERGENCY SHUTDOWN]')
-                        time.sleep(999999)
+
                     # todo: Add !defcon 2 -- close all running programs
                     elif severity == '3':
                         pyautogui.hotkey('win', 'm')
                         pyautogui.press('volumemute')
-                        # custom_log_to_obs('[defcon 3, suspend script]', twitch_message, self.processor)
-                        await self.processor.log_to_obs(None, none_log_msg='[defcon 3, suspend script]'
-                                                        f' ({twitch_message.username})')
-                        time.sleep(600)
+
+                        await self.suspend(600, twitch_message)
+                        await self.processor.log_to_obs(
+                            None, none_log_msg=f'[defcon 3, suspend script] ({twitch_message.username})')
 
             # Commands for cmpcscript only.
             if user_permissions.script:
@@ -469,6 +490,9 @@ def main():
         # todo: remove or make more conditional
         import webbrowser
         webbrowser.open(f"https://twitch.tv/{config['twitch']['channel_to_join']}/chat", new=1)
+
+    if not cmpc.running_as_admin():
+        log.warning('Script is not running as admin.')
 
     twitch_client = TwitchPlays(config=config, offline_mode=cliargs.offline_mode)
 

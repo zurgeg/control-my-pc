@@ -24,7 +24,7 @@ DEFAULT_SCOPES = [
 
 
 # noinspection SpellCheckingInspection
-def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=' '.join(DEFAULT_SCOPES)):
+def get_oauth_key(client_id: str = 'zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes: str = ' '.join(DEFAULT_SCOPES)) -> str:
     """Open a browser window to get a Twitch oauthkey, ask the user to input the key, and return it formatted."""
     payload = {
         'client_id': client_id,
@@ -45,7 +45,7 @@ def get_oauth_key(client_id='zvlttmj8jah002ucbqbpt1lkuq4oj3', scopes=' '.join(DE
     return oauth
 
 
-def save_oauth_key(oauth_key):
+def save_oauth_key(oauth_key: str):
     """Save an oauth key to the config.toml."""
     # Edit config.toml
     config = toml.load('config.toml')

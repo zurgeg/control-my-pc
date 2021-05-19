@@ -23,7 +23,7 @@ class TwitchMessage:
 
     __slots__ = ('content', 'original_content', 'username', 'original_username',)
 
-    def __init__(self, message_content, message_author):
+    def __init__(self, message_content: str, message_author: str):
         """Initialise the class attributes.
 
         Takes the capitalised message content and author and makes them into attributes.
