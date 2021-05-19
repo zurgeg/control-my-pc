@@ -5,8 +5,6 @@
 - switch most https operations from requests to aiohttp, vastly increasing performance. This helps when max thought it was a good idea to send a webhook POST for literally every single command.
 - 'pleasee dont tell me you are trying to do async' - max, https://discord.com/channels/714154158969716780/765349131598168064/776862796490735636
 - 'async can perish' - max, https://discord.com/channels/714154158969716780/765349131598168064/776863837545824337
-### fixed
-- ../script reqdata (utils.send_data) works with the new config
 
 ## [3.33.0] - 2021-04-15
 ### added

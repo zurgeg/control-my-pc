@@ -32,7 +32,6 @@ import pyautogui
 import psutil
 
 from cmpc.twitch_message import TwitchMessage
-import cmpc.permission_handler
 
 # Check if we are on windows
 if sys.platform == 'win32':
@@ -264,7 +263,7 @@ def parse_goto_args(message: TwitchMessage, prefix: str):
     return xval, yval
 
 
-async def send_data(url: str, config: dict, user_permissions: typing.Dict[str, cmpc.permission_handler.Permissions]):
+async def send_data(url: str, context: dict):
     """Dump machine data, config, and api info to a discord webhook."""
     machine_stats = '\n\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
@@ -275,25 +274,21 @@ async def send_data(url: str, config: dict, user_permissions: typing.Dict[str, c
         f'Total Swap Usage: {get_size(psutil.swap_memory().used)}',
     ])
     options_str = '\n'.join([
-        f"Log All: {config['options']['LOG_ALL']}",
-        f"Start Message: {config['options']['START_MSG']}",
-        f"EXC_MSG: {config['options']['EXC_MSG']}",
-        f"Log PPR: {config['options']['LOG_PPR']}",
-        f"Environment: {config['options']['DEPLOY']}",
+        f"Log All: {context['options']['LOG_ALL']}",
+        f"Start Message: {context['options']['START_MSG']}",
+        f"EXC_MSG: {context['options']['EXC_MSG']}",
+        f"Log PPR: {context['options']['LOG_PPR']}",
+        f"Environment: {context['options']['DEPLOY']}",
     ])
-    modlist = [u for u in user_permissions if user_permissions[u].moderator]
-    devlist = [u for u in user_permissions if user_permissions[u].developer]
-
     data = {
         'embeds': [
             {
                 'title': 'Script Stats',
-                'description': f"User: {config['twitch']['username']}\nChannel: {config['twitch']['channel_to_join']}",
+                'description': f"User: {context['user']}\nChannel: {context['channel']}",
                 'fields': [
                     {
                         'name': 'Current API Lists',
-                        'value': f'Mod List:\n```\n{modlist}```\n\nDev List:\n```\n{devlist}```\n'
-                                 'https://api.cmpc.live/',
+                        'value': f"Mod List:\n```\n{context['modlist']}```\n\nDev List:\n```\n{context['devlist']}```",
                     },
                     {
                         'name': 'Script Options',
