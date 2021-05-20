@@ -14,17 +14,24 @@ Functions:
     press_key -- presses a key with either pyautogui or pydirectinput situtationally
     hold_mouse -- holds a key with either pyautogui or pydirectinput situtationally
     send_data -- gets info about the environment of the script and sends it to a discord webhook
+    running_as_admin -- checks whether running as admin
 """
 
 # PSL Packages;
 import time
 import json
 import sys
+import typing
+import re
+from pathlib import Path
 
 # PIP Packages;
+import aiohttp
 import requests
 import pyautogui
 import psutil
+
+from cmpc.twitch_message import TwitchMessage
 
 # Check if we are on windows
 if sys.platform == 'win32':
@@ -47,10 +54,11 @@ __all__ = (
     'hold_key',
     'parse_goto_args',
     'send_data',
+    'running_as_admin',
 )
 
 
-def mode_testing(environment, env_vars_used, branch):
+def mode_testing(environment: str, env_vars_used: bool, branch: str) -> bool:
     """Check if the script is in testing mode based on a number of factors.
 
     Args:
@@ -59,13 +67,25 @@ def mode_testing(environment, env_vars_used, branch):
         branch -- the name of the git branch of the repo containing the script, if it exists
     Returns True if script should be in testing mode and False otherwise.
     """
-    if environment == 'Debug' or env_vars_used or branch != 'master':
+    if environment == 'Debug' or env_vars_used or branch != 'main':
         return True
     else:
         return False
 
 
-def get_git_repo_info(default_branch_name='master'):
+def running_as_admin() -> bool:
+    """Check if the program is running as admin.
+
+    Returns True if the platform is not windows or if you're running as admin, False if not running as admin.
+    """
+    if sys.platform != 'win32':
+        return True
+    else:
+        import ctypes
+        return ctypes.windll.shell32.IsUserAnAdmin()
+
+
+def get_git_repo_info(default_branch_name='main') -> typing.Tuple[str, bool]:
     """Try to get the name of the git branch containing the script.
 
     Args:
@@ -74,24 +94,25 @@ def get_git_repo_info(default_branch_name='master'):
         branch_name
         branch_name_assumed -- True if there was no git repo and branch name defaulted, False otherwise
     """
+    head_file_path = Path('.git') / 'HEAD'
+
     try:
-        # noinspection PyUnresolvedReferences
-        import git
-    except ImportError:
+        head_file_contents = head_file_path.read_text()
+        re_match = re.search('ref: refs/heads/(.*)\n', head_file_contents)
+        if re_match is None:
+            branch_name = f'(detached HEAD {head_file_contents})'
+        else:
+            branch_name = re_match[1]
+    except FileNotFoundError:
         branch_name = default_branch_name
         branch_name_assumed = True
     else:
-        try:
-            branch_name = git.Repo().active_branch.name
-            branch_name_assumed = False
-        except (ImportError, git.exc.GitError):
-            branch_name = default_branch_name
-            branch_name_assumed = True
+        branch_name_assumed = False
 
     return branch_name, branch_name_assumed
 
 
-def removeprefix(string: str, prefix: str, case_sensitive: bool = True):
+def removeprefix(string: str, prefix: str, case_sensitive: bool = True) -> str:
     """Remove a prefix from a string.
 
     For compatibility with pre-3.9.
@@ -108,7 +129,7 @@ def removeprefix(string: str, prefix: str, case_sensitive: bool = True):
         return string
 
 
-def get_size(value, suffix='B'):
+def get_size(value: float, suffix: str = 'B') -> str:
     """Scale bytes to its proper format.
 
     e.g:
@@ -122,7 +143,7 @@ def get_size(value, suffix='B'):
         value /= factor
 
 
-def direct_or_auto():
+def direct_or_auto() -> str:
     """Return if we should use pydirectinput or pyautogui."""
     if sys.platform == 'win32':
         # Windows only, better compatibility with games
@@ -133,20 +154,23 @@ def direct_or_auto():
 
 
 def send_webhook(url: str, content: str):
-    """Send a webhook to discord, takes (url, message)."""
+    """Send a webhook to discord."""
     data = {'content': content}
     if url == "":
         return
     requests.post(url, data=data)
 
 
-def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
+async def send_error(
+        url: str, error: Exception, t_msg: TwitchMessage, channel: str, environment: str, branch: str,
+        branch_assumed: bool
+):
     """Send info about an error to a discord webhook."""
     embed_description = f'***Last Sent Message -*** {t_msg.content}\n\n'\
                         f'***Exception Info -*** {error}\n\n'\
                         f'[***Stream Link***](https://twitch.tv/{channel})\n\n'\
                         f'**Environment -** {environment}'
-    if branch != 'master':
+    if branch != 'main':
         if branch_assumed:
             branch = branch + ' (unknown)'
         embed_description = embed_description + f'\n\n**Branch -** {branch}'
@@ -165,7 +189,8 @@ def send_error(url, error, t_msg, channel, environment, branch, branch_assumed):
             }
         ]
     }
-    requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
+    async with aiohttp.ClientSession() as session:
+        await session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
 def input_handler():
@@ -190,7 +215,7 @@ def move_mouse(*args, **kwargs):
         pydirectinput.move(*args, **kwargs)
 
 
-def hold_mouse(time_value, *args, **kwargs):
+def hold_mouse(time_value: float, *args, **kwargs):
     """Hold a mouse button, with cross-platform support."""
     dor = direct_or_auto()
     handler = pyautogui
@@ -212,7 +237,7 @@ def press_key(*args, **kwargs):
         pydirectinput.press(*args, **kwargs)
 
 
-def hold_key(time_value, *args, **kwargs):
+def hold_key(time_value: float, *args, **kwargs):
     """Hold a key, with cross-platform support."""
     dor = direct_or_auto()
     handler = pyautogui
@@ -225,7 +250,7 @@ def hold_key(time_value, *args, **kwargs):
     handler.keyUp(*args, **kwargs)
 
 
-def parse_goto_args(message, prefix):
+def parse_goto_args(message: TwitchMessage, prefix: str):
     """Return the x and y coords. Used in go to and drag to commands."""
     coord = removeprefix(message.content, prefix)
     if coord in ['center', 'centre']:
@@ -238,9 +263,9 @@ def parse_goto_args(message, prefix):
     return xval, yval
 
 
-def send_data(url, context):
-    """Dump machine data, CONFIG, and api info to a discord webhook."""
-    machine_stats = '\n\n'.join([
+async def send_data(url: str, context: dict):
+    """Dump machine data, config, and api info to a discord webhook."""
+    machine_stats = '\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
         f'Total Usage: {psutil.cpu_percent()}%',
         f'Total Ram: {get_size(psutil.virtual_memory().total)}',
@@ -263,7 +288,7 @@ def send_data(url, context):
                 'fields': [
                     {
                         'name': 'Current API Lists',
-                        'value': f"Mod List:\n```\n{context['modlist']}```\n\nDev List:\n```\n{context['devlist']}```",
+                        'value': f"Mod List:\n```\n{context['modlist']}```\nDev List:\n```\n{context['devlist']}```",
                     },
                     {
                         'name': 'Script Options',
@@ -277,4 +302,5 @@ def send_data(url, context):
             },
         ],
     }
-    requests.post(url, json=data)
+    async with aiohttp.ClientSession() as session:
+        await session.post(url, json=data)

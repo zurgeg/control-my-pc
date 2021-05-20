@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.34.0] - 2021-05-19
+### changed
+- switch most https operations from requests to aiohttp, vastly increasing performance. This helps when max thought it was a good idea to send a webhook POST for literally every single command.
+- 'pleasee dont tell me you are trying to do async' - max, https://discord.com/channels/714154158969716780/765349131598168064/776862796490735636
+- 'async can perish' - max, https://discord.com/channels/714154158969716780/765349131598168064/776863837545824337
+### fixed
+- moved mod rota from event_ready to the end of init, so it doesn't start a new instance every time the connection to Twitch refreshes
+
+## [3.33.0] - 2021-04-15
+### added
+- after using `../script suspend`, unsuspend it before time is up using `../script unsuspend`
+### fixed
+- `../script suspend` is guaranteed to work right and not buffer commands or some other unexpected behaviour
+- when checking for the presence of moderators in mod_rota, ignore the account the script is running as, since it will always be present.
+
+## [3.32.1] - 2021-04-15
+### added
+- warn if not running as admin
+- send a warning webhook to the moderators when an account is ignored
+
 ## [3.32.0] - 2021-04-06 - 'Season 3 Day One Patch'
 ### added
 - back and forwards commands

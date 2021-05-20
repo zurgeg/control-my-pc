@@ -1,18 +1,22 @@
 import time
+import typing
 import logging as log
+from pathlib import Path
 
-import requests
+import aiohttp
 # https://obsproject.com/forum/resources/obs-websocket-remote-control-obs-studio-from-websockets.466/
 import obswebsocket
 import obswebsocket.exceptions
 import obswebsocket.requests
-import cmpc.twitch_message
+
+from cmpc.twitch_message import TwitchMessage
 
 
 class CommandLogging:
     def __init__(
-            self, bot, obs_file_name, obs_source_name=None,
-            obs_log_sleep_duration=None, obs_none_log_msg=None, use_websockets=True
+            self, bot, obs_file_name: typing.Union[str, Path],
+            obs_source_name: str = None, obs_log_sleep_duration: float = None, obs_none_log_msg: str = None,
+            use_websockets: bool = True
     ):
         self.bot = bot
         self.obs_file_name = obs_file_name
@@ -47,17 +51,18 @@ class CommandLogging:
         else:
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_discord(self, message: cmpc.twitch_message.TwitchMessage):
+    async def log_to_discord(self, message: TwitchMessage):
         """Send a command to the discord webhook."""
-        requests.post(self.bot.config['discord']['chatrelay'],
-                      json=message.get_log_webhook_payload(),
-                      headers={'User-Agent': self.bot.config['api']['useragent']})
+        async with aiohttp.ClientSession() as session:
+            await session.post(self.bot.config['discord']['chatrelay'],
+                               json=message.get_log_webhook_payload(),
+                               headers={'User-Agent': self.bot.config['api']['useragent']})
 
-    def _obs_log_executing_txt(self, obs_log_text):
+    def _obs_log_executing_txt(self, obs_log_text: str):
         with open(self.obs_file_name, 'w', encoding='utf-8') as obs_file_handle:
             obs_file_handle.write(obs_log_text)
 
-    def _obs_log_ws(self, obs_log_text):
+    def _obs_log_ws(self, obs_log_text: str):
         try:
             self._socket.call(obswebsocket.requests.SetTextGDIPlusProperties({self.obs_source_name}, text=obs_log_text))
         except obswebsocket.exceptions.ConnectionFailure:
@@ -66,8 +71,9 @@ class CommandLogging:
             self._obs_log_executing_txt(obs_log_text)
             self.obs_log_handler = self._obs_log_executing_txt
 
-    def log_to_obs(
-            self, message: cmpc.twitch_message.TwitchMessage, none_log_msg=None, sleep_duration=None, none_sleep=False
+    async def log_to_obs(
+            self, message: TwitchMessage, none_log_msg: str = None,
+            sleep_duration: float = None, none_sleep: bool = False
     ):
         """Log a message to the file shown on-screen for the stream."""
         if none_log_msg is None:
@@ -84,4 +90,4 @@ class CommandLogging:
 
             time.sleep(sleep_duration)
             log.info(message.get_log_string())
-            self.log_to_discord(message)
+            await self.log_to_discord(message)

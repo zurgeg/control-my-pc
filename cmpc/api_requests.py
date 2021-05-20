@@ -2,7 +2,9 @@
 
 import json
 import time
+import typing
 import logging as log
+from pathlib import Path
 
 import requests
 from cmpc.utils import send_webhook
@@ -15,12 +17,14 @@ class CmpcApi:
         config -- config loaded from config.toml, same as the one TwitchPlays takes
     """
 
-    def __init__(self, config):
+    def __init__(self, config: dict):
         """Innit."""
         self.config = config
 
     # todo: update docstrings
-    def get_json_from_api(self, url, static_backup_path, force_static=False):
+    def get_json_from_api(
+            self, url: str, static_backup_path: typing.Union[str, Path], force_static: bool = False
+    ) -> dict:
         """Get json from a web source and back it up.
 
         Args:
@@ -60,6 +64,7 @@ class CmpcApi:
                 with open(static_backup_path) as static_backup_file:
                     api_json = json.load(static_backup_file)
             except FileNotFoundError:
+                # todo: fix
                 return None
 
             log.info('[API] Loaded lists from static file instead')
