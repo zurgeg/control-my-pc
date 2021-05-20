@@ -117,6 +117,9 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
             )
             if modtools_on:
                 self.modtools = cmpc.ModTools(self)
+            if self.mod_rota_on:
+                self.loop.create_task(self.mod_rota.run())
+                self.loop.create_task(self.mod_rota.run_mod_presence_checks())
         log.debug('Finished intialising TwitchPlays object.')
 
     # TwitchPlays methods - TwitchConnection overrides below
@@ -209,9 +212,6 @@ class TwitchPlays(twitchio.ext.commands.bot.Bot):
                               f"**Environment -** {self.config['options']['DEPLOY']}",
                               )
 
-        if self.mod_rota_on:
-            self.loop.create_task(self.mod_rota.run())
-            self.loop.create_task(self.mod_rota.run_mod_presence_checks())
         log.info('Finished initialising, ready!')
 
     # noinspection PyUnboundLocalVariable
