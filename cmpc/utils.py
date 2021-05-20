@@ -190,7 +190,7 @@ async def send_error(
         ]
     }
     async with aiohttp.ClientSession() as session:
-        session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
+        await session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
 def input_handler():
@@ -265,7 +265,7 @@ def parse_goto_args(message: TwitchMessage, prefix: str):
 
 async def send_data(url: str, context: dict):
     """Dump machine data, config, and api info to a discord webhook."""
-    machine_stats = '\n\n'.join([
+    machine_stats = '\n'.join([
         f'CPU Frequency: {round(int(psutil.cpu_freq().current) / 1000, 2)} GHz',
         f'Total Usage: {psutil.cpu_percent()}%',
         f'Total Ram: {get_size(psutil.virtual_memory().total)}',
@@ -288,7 +288,7 @@ async def send_data(url: str, context: dict):
                 'fields': [
                     {
                         'name': 'Current API Lists',
-                        'value': f"Mod List:\n```\n{context['modlist']}```\n\nDev List:\n```\n{context['devlist']}```",
+                        'value': f"Mod List:\n```\n{context['modlist']}```\nDev List:\n```\n{context['devlist']}```",
                     },
                     {
                         'name': 'Script Options',
