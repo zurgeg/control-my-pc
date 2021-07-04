@@ -5,9 +5,6 @@
 The script that allows controlling of a pc remotely through a Twitch chat. Started as an overhaul update to DougDoug TwitchPlays script.
 
 
-**This script is meant for twitch.tv/controlmypc / https://cmpc.live, you must have authorisation from controlmypc to run this script.**
-
-
 # NOTICE: Under the license, you must disclose the source of this code in all usages. 
 
 # Installation:
