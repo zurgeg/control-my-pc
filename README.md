@@ -8,7 +8,7 @@ The script that allows controlling of a pc remotely through a Twitch chat. Start
 **This script is meant for twitch.tv/controlmypc / https://cmpc.live, you must have authorisation from controlmypc to run this script.**
 
 
-# NOTICE: Any forks of this repo MUST be private. thank you.
+# NOTICE: Any forks of this repo MUST be public. thank you.
 
 # Installation:
 
