@@ -43,9 +43,7 @@ Example static user list.
 
 ```
 
-- No Webhooks) If you don't know how to make a discord webhook, there are plenty of guides online. Without a webhook most commands do absolutely nothing. If you would like to send webhooks to a different service (I.E: Slack), you can modify some of the webhook code (`./cmpc/utils.py` handles most webhooks.). You can use 1 webhook for the entire script, but it is not recommended.
-
-- Offline / No Twitch) If you are running the script without Twitch and/or you are offline, you can start the script in offline only mode. Do this by adding the `--offline-mode` flag to your start command.
+- No Webhooks: If you don't know how to make a discord webhook, there are plenty of guides online. Without a webhook most commands do absolutely nothing. If you would like to send webhooks to a different service (I.E: Slack), you can modify some of the webhook code (`./cmpc/utils.py` handles most webhooks.). You can use 1 webhook for the entire script, but it is not recommended.
 
 # What's New highlight:
 
