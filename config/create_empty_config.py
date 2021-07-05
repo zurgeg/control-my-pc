@@ -35,6 +35,7 @@ for toplevel_key, subkeys in example_config.items():
         config['options'] = example_config['options']
     else:
         for subkey, value in subkeys.items():
+            config[toplevel_key] = {}
             config[toplevel_key][subkey] = type(value)()
 
 # Save new config file
