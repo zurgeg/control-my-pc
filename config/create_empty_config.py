@@ -39,5 +39,5 @@ for toplevel_key, subkeys in example_config.items():
             config[toplevel_key][subkey] = type(value)()
 
 # Save new config file
-with open('w', 'config.toml') as new_config_file:
+with open('config.toml', mode='w') as new_config_file:
     toml.dump(config, new_config_file)
