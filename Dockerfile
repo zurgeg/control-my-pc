@@ -8,5 +8,6 @@ WORKDIR /home/server
 USER server
 
 COPY . .
+RUN bash setup.sh
 
 ENTRYPOINT [ "python3", "TwitchPlays.py" ]
