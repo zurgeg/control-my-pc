@@ -8,6 +8,7 @@ WORKDIR /home/server
 USER server
 
 COPY . .
+RUN apt install python3-pip
 RUN bash setup.sh
 
 ENTRYPOINT [ "source", "start.sh" ]
