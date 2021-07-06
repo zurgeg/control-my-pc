@@ -10,4 +10,4 @@ USER server
 COPY . .
 RUN bash setup.sh
 
-ENTRYPOINT [ "python3", "TwitchPlays.py" ]
+ENTRYPOINT [ "source", "start.sh" ]
